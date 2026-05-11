@@ -20,6 +20,12 @@ def make_parser() -> argparse.ArgumentParser:
             sp.add_argument("--limit", type=int, default=5)
             sp.add_argument("--json", action="store_true")
             sp.add_argument("--yes", action="store_true")
+        elif v == "show":
+            sp = sub.add_parser("show", help="Show details for one skill")
+            sp.add_argument("id")
+            sp.add_argument("--agent")
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
