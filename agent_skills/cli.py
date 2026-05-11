@@ -61,6 +61,12 @@ def make_parser() -> argparse.ArgumentParser:
             sp = sub.add_parser("init", help="Scaffold meta.json interactively from SKILL.md")
             sp.add_argument("target")
             sp.add_argument("--yes", action="store_true")
+        elif v == "submit":
+            sp = sub.add_parser("submit", help="Submit a local skill as a PR")
+            sp.add_argument("target")
+            sp.add_argument("--yes", action="store_true")
+            sp.add_argument("--agent")
+            sp.add_argument("--json", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
@@ -98,6 +104,9 @@ def main(argv: list[str] | None = None) -> int:
         return run(args)
     if args.verb == "init":
         from agent_skills.verbs.init import run
+        return run(args)
+    if args.verb == "submit":
+        from agent_skills.verbs.submit import run
         return run(args)
     # ... other verbs dispatched similarly; each verb's module added in its own task
     print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
