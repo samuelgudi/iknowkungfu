@@ -73,6 +73,14 @@ def make_parser() -> argparse.ArgumentParser:
             sp.add_argument("--agent")
             sp.add_argument("--json", action="store_true")
             sp.add_argument("--yes", action="store_true")
+        elif v == "deprecate":
+            sp = sub.add_parser("deprecate", help="Propose deprecation of a skill")
+            sp.add_argument("id")
+            sp.add_argument("--in-favor-of", required=True, dest="in_favor_of",
+                            help="Successor skill id (<author>/<slug>)")
+            sp.add_argument("--agent")
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
@@ -116,6 +124,9 @@ def main(argv: list[str] | None = None) -> int:
         return run(args)
     if args.verb == "issue":
         from agent_skills.verbs.issue import run
+        return run(args)
+    if args.verb == "deprecate":
+        from agent_skills.verbs.deprecate import run
         return run(args)
     # ... other verbs dispatched similarly; each verb's module added in its own task
     print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
