@@ -2,37 +2,94 @@
 
 Agent-agnostic registry for skill discovery and contribution.
 
-**Status**: v0 — spec phase. No code yet.
+[![CI](https://github.com/samuelgudi/agent-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelgudi/agent-skills/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 
-The full design lives at [`docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md`](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md).
+---
 
-## What this is
+agent-skills is a content-hash-anchored skill registry that lets any compatible agent discover, install, and verify skills without coupling to a specific host's ecosystem. Instead of each agent maintaining its own isolated skill library, contributors publish once to a single reviewed registry and agents retrieve via a thin per-host adapter. Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
 
-A registry where:
+---
 
-- **Agents** (Claude Code, Hermes, others) can search and install skills they don't have built-in for a given task.
-- **Contributors** (humans, agents) can submit new skills via a sanitization + review pipeline.
-- The registry is a single flat-file git repo — anyone can clone the whole thing.
+## Install
 
-## What it is not
+```
+pip install agent-skills    # or: uv tool install agent-skills
+```
 
-- Not a Claude-Code-only or Hermes-only registry. Agent-agnostic by design.
-- Not a plugin distribution system. Skills only in v0; plugins are a separate trust tier.
-- Not auto-curated. Every merge is reviewed by a human in v0.
+PyPI publication is deferred to v1. For now, install from source:
 
-## Layout
+```
+git clone https://github.com/samuelgudi/agent-skills
+pip install -e agent-skills/
+```
 
-See the spec. Top-level summary:
+---
 
-- `registry.json` — machine-readable manifest (generated; never hand-edited).
-- `skills/` — approved skills, organized as `<author>/<slug>/`.
-- `archive/` — deprecated skills with `superseded_by` pointers.
-- `submitted/` — open contribution PRs.
-- `scripts/` — registry tooling (`validate.py`, `security_scan.py`, `generate_manifest.py`).
-- `clients/` — `skill-discovery/` and `skill-contribution/` reference clients.
-- `adapters/` — per-agent install logic (`claude-code.py`, `hermes.py`).
-- `tests/` — pytest suite covering scripts/clients/adapters.
+## Quickstart
+
+```bash
+agent-skills update                          # refresh registry cache
+agent-skills search <query>                  # find skills
+agent-skills install <author>/<skill>        # install for detected host
+agent-skills list                            # show installed skills
+agent-skills verify <author>/<skill>         # check installed skill against registry
+```
+
+---
+
+## For contributors
+
+```bash
+agent-skills init <local-dir>     # scaffold meta.json interactively
+agent-skills submit <local-dir>   # validate, sanitize, scan, open PR
+```
+
+Full contribution guidelines, frontmatter contract, and review template are in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## How it works
+
+- Skills live as `<author>/<slug>/` directories with `SKILL.md` (the instructions body) and `meta.json` (machine metadata). The generated `registry.json` is the content-hash-anchored manifest that clients query.
+- Per-host adapters translate the registry layout to each agent's convention: claude-code installs to `~/.claude/skills/<author>-<slug>/`; hermes installs to `~/.hermes/skills/<category>/<slug>/`. Adapters are thin — all logic lives in the registry client.
+- `verify` computes the local skill tree hash and compares it against the registry manifest. Yanked versions are hard-refused at install time with no override.
+
+---
+
+## Project layout
+
+```
+agent-skills/
+├── registry.json            # generated manifest (never hand-edit)
+├── yanks.json               # append-only yank log
+├── skills/                  # approved skills (<author>/<slug>/)
+├── archive/                 # deprecated skills with superseded_by pointers
+├── submitted/               # open contribution PRs
+├── scripts/                 # registry tooling (validate, security_scan, generate_manifest)
+├── adapters/                # per-host install logic (claude-code, hermes)
+├── clients/                 # discovery + contribution clients
+└── agent_skills/            # CLI package
+```
+
+---
+
+## Documentation
+
+- [Design spec](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md) — canonical requirements and decisions
+- [CONTRIBUTING.md](CONTRIBUTING.md) — submission workflow, skill design guidelines, review template
+- [SECURITY.md](SECURITY.md) — security policy and vulnerability reporting
+- [SCHEMA.md](SCHEMA.md) — field-level reference for `registry.json`, `meta.json`, `yanks.json`
+
+---
 
 ## License
 
-MIT. See `LICENSE`.
+[MIT](LICENSE)
+
+---
+
+## Acknowledgments
+
+The design spec is at v4, incorporating review rounds from MILO, Gemini, and a real-skill walkthrough that hardened the submission pipeline, yank semantics, and frontmatter contract.
