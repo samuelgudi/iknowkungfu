@@ -1,5 +1,136 @@
 {
   "schema_version": 2,
-  "generated_at": "1970-01-01T00:00:00Z",
-  "skills": []
+  "generated_at": "2026-05-11T22:08:27+02:00",
+  "skills": [
+    {
+      "id": "samuelgudi/agent-skills-contribution",
+      "name": "agent-skills-contribution",
+      "description": "Submit a new agent-skill or update an existing one to the agent-skills registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "meta",
+      "tags": [
+        "agent-skills",
+        "contribution",
+        "submit",
+        "registry"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": [
+          "agent-skills",
+          "git",
+          "gh"
+        ]
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/agent-skills-contribution",
+        "content_hash": "sha256:dafb596a546b8cc6c0e27aceeddaeebcf6344bf7588907c6e1baf3c58d698bbf",
+        "files": [
+          "meta.json",
+          "SKILL.md"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
+          "released": "2026-05-11T22:08:27+02:00"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-11T22:08:27+02:00",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/agent-skills-discovery",
+      "name": "agent-skills-discovery",
+      "description": "Query the agent-skills registry for a skill that matches the current task. Use ONLY when explicitly asked to search for a skill. Do not invoke reflexively for every task.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "meta",
+      "tags": [
+        "agent-skills",
+        "discovery",
+        "search",
+        "registry"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": [
+          "agent-skills"
+        ]
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/agent-skills-discovery",
+        "content_hash": "sha256:cc29b422a8b965fc22de570182e26500219336f97793d5d74836de29bd9e9a6a",
+        "files": [
+          "meta.json",
+          "SKILL.md"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
+          "released": "2026-05-11T22:08:27+02:00"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-11T22:08:27+02:00",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    }
+  ]
 }
