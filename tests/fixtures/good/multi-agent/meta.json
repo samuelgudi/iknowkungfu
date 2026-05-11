@@ -1,0 +1,18 @@
+{
+  "id": "test-author/multi-agent-skill",
+  "version": "0.1.0",
+  "status": "active",
+  "author": { "name": "Test Author", "github_login": "test-author", "github_id": 1 },
+  "category": "meta",
+  "tags": ["test", "multi-agent"],
+  "platforms": ["linux", "macos", "windows"],
+  "agent_compat": ["claude-code", "hermes", "codex", "opencode"],
+  "requires": { "env_vars": [], "commands": [] },
+  "license": "MIT",
+  "install": { "claude-code": { "scope": "user" }, "hermes": {}, "codex": {}, "opencode": {} },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}

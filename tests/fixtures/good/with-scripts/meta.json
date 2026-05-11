@@ -1,0 +1,18 @@
+{
+  "id": "test-author/with-scripts-skill",
+  "version": "0.1.0",
+  "status": "active",
+  "author": { "name": "Test Author", "github_login": "test-author", "github_id": 1 },
+  "category": "meta",
+  "tags": ["test", "with-scripts"],
+  "platforms": ["linux", "macos", "windows"],
+  "agent_compat": ["claude-code", "hermes"],
+  "requires": { "env_vars": [], "commands": [] },
+  "license": "MIT",
+  "install": { "claude-code": { "scope": "user" }, "hermes": {} },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
