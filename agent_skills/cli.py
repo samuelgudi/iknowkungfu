@@ -67,6 +67,12 @@ def make_parser() -> argparse.ArgumentParser:
             sp.add_argument("--yes", action="store_true")
             sp.add_argument("--agent")
             sp.add_argument("--json", action="store_true")
+        elif v == "issue":
+            sp = sub.add_parser("issue", help="Open an issue about a skill")
+            sp.add_argument("id")
+            sp.add_argument("--agent")
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
@@ -107,6 +113,9 @@ def main(argv: list[str] | None = None) -> int:
         return run(args)
     if args.verb == "submit":
         from agent_skills.verbs.submit import run
+        return run(args)
+    if args.verb == "issue":
+        from agent_skills.verbs.issue import run
         return run(args)
     # ... other verbs dispatched similarly; each verb's module added in its own task
     print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
