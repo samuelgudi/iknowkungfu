@@ -41,6 +41,12 @@ def make_parser() -> argparse.ArgumentParser:
             sp.add_argument("--force", action="store_true", help="Remove even if local files have drifted")
             sp.add_argument("--json", action="store_true")
             sp.add_argument("--yes", action="store_true")
+        elif v == "verify":
+            sp = sub.add_parser("verify", help="Check an installed skill against the registry")
+            sp.add_argument("id")
+            sp.add_argument("--agent")
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
@@ -66,6 +72,9 @@ def main(argv: list[str] | None = None) -> int:
         return run(args)
     if args.verb == "uninstall":
         from agent_skills.verbs.uninstall import run
+        return run(args)
+    if args.verb == "verify":
+        from agent_skills.verbs.verify import run
         return run(args)
     # ... other verbs dispatched similarly; each verb's module added in its own task
     print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
