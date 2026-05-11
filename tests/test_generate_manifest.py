@@ -17,7 +17,7 @@ def run_gen(cwd, *args):
 def setup_test_repo(tmp_path):
     """Copy a minimal good fixture into a tmpdir + git init."""
     repo = tmp_path / "repo"
-    shutil.copytree(ROOT, repo, ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", "tests"))
+    shutil.copytree(ROOT, repo, ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", "tests", "skills"))
     skill = repo / "skills" / "test-author" / "example"
     shutil.copytree(ROOT / "tests/fixtures/good/instructions-only", skill, dirs_exist_ok=True)
     subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True, capture_output=True)
