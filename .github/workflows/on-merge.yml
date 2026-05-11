@@ -1,0 +1,136 @@
+name: On-merge promotion
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    name: Promote submitted skills + regen manifest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: pip install -e .[dev]
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Detect newly-promoted submitted dirs
+        id: detect
+        shell: bash
+        run: |
+          set -e
+          # New files added in the most recent commit under submitted/<flat>/<author>/<slug>/
+          mapfile -t added < <(git diff --name-only --diff-filter=A "HEAD~1..HEAD" | grep -E '^submitted/[^/]+/' || true)
+          if [ "${#added[@]}" -eq 0 ]; then
+            echo "promotions=" >> "$GITHUB_OUTPUT"
+            echo "No submitted/ promotions in HEAD."
+            exit 0
+          fi
+          # Distill to unique submitted/<flat>/ roots
+          mapfile -t flats < <(printf '%s\n' "${added[@]}" | sed -E 's|^(submitted/[^/]+)/.*|\1|' | sort -u)
+          echo "promotions<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${flats[@]}" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Promote each submitted dir
+        if: steps.detect.outputs.promotions != ''
+        id: promote
+        shell: bash
+        run: |
+          set -e
+          changed_skills=""
+          while IFS= read -r flat; do
+            if [ -z "$flat" ]; then continue; fi
+            # The skill source lives at <flat>/<author>/<slug>/
+            src=$(find "$flat" -mindepth 2 -maxdepth 2 -type d -print -quit)
+            if [ -z "$src" ]; then
+              echo "WARN: no <author>/<slug>/ subtree under $flat — skipping"
+              continue
+            fi
+            author=$(basename "$(dirname "$src")")
+            slug=$(basename "$src")
+            dst="skills/$author/$slug"
+            mkdir -p "skills/$author"
+            mv "$src" "$dst"
+            # Remove the rest of submitted/<flat>/
+            rm -rf "$flat"
+            git add -A
+            # Capture id + version from the newly-placed meta.json
+            id_value=$(python -c "import json; print(json.load(open('$dst/meta.json'))['id'])")
+            version_value=$(python -c "import json; print(json.load(open('$dst/meta.json'))['version'])")
+            tag_name="v${version_value}-${author}-${slug}"
+            changed_skills+="${id_value}|${version_value}|${tag_name}"$'\n'
+          done <<< "${{ steps.detect.outputs.promotions }}"
+          # Emit list to next step
+          if [ -n "$changed_skills" ]; then
+            echo "changed<<EOF" >> "$GITHUB_OUTPUT"
+            printf '%s' "$changed_skills" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Regenerate manifest
+        shell: bash
+        run: |
+          set -e
+          python scripts/generate_manifest.py
+          git add registry.json
+          if git diff --cached --quiet; then
+            echo "Manifest unchanged."
+          else
+            echo "Manifest regenerated."
+          fi
+
+      - name: Commit + tag + push
+        if: steps.promote.outputs.changed != ''
+        shell: bash
+        run: |
+          set -e
+          # Compose commit message + tags from the changed-skills list
+          first=$(printf '%s' "${{ steps.promote.outputs.changed }}" | head -n 1)
+          IFS='|' read -r id_value version_value tag_name <<< "$first"
+          msg="chore: promote ${id_value} v${version_value} + regenerate manifest"
+          git commit -m "$msg" || { echo "Nothing to commit."; exit 0; }
+          # Tag each promoted skill
+          while IFS='|' read -r id_value version_value tag_name; do
+            if [ -z "$tag_name" ]; then continue; fi
+            git tag -a "$tag_name" -m "Release $id_value v$version_value"
+          done <<< "${{ steps.promote.outputs.changed }}"
+          # Push commit + tags
+          git push origin main
+          git push origin --tags
+
+      - name: Yank-only manifest regen
+        if: steps.promote.outputs.changed == '' && steps.detect.outputs.promotions == ''
+        shell: bash
+        run: |
+          set -e
+          # If no promotions but yanks.json changed, regen manifest anyway.
+          if git diff --name-only "HEAD~1..HEAD" | grep -q '^yanks\.json$'; then
+            python scripts/generate_manifest.py
+            git add registry.json
+            if git diff --cached --quiet; then
+              echo "Manifest unchanged after yanks.json edit."
+            else
+              git commit -m "chore: regenerate manifest after yanks.json update"
+              git push origin main
+            fi
+          else
+            echo "No promotions, no yanks — nothing to do."
+          fi
