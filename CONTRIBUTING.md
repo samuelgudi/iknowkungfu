@@ -73,40 +73,59 @@ The canonical filename is **`SKILL.md`** — uppercase, case-exact. (Decision #1
 
 ## REVIEW.md template
 
-Before submitting, create a `REVIEW.md` in your skill directory with the following six fields (the sixth field is required only for skill updates, not first-version submissions):
+Before submitting, create a `REVIEW.md` in your skill directory. The `agent-skills submit` command generates a pre-filled template from this layout (copied verbatim from `clients/skill_contribution/templates/review.md`):
 
 ```markdown
-# REVIEW.md
+# REVIEW.md — {skill_id}@{version}
 
-## What does this skill do?
-(1-2 sentences)
+## What does it do?
+{description}
 
 ## What does it access?
-- Network endpoints: (every endpoint reachable from scripts/, even via libraries)
-- Filesystem paths written:
-- Env vars read:
-- Processes spawned:
-- (If has_scripts: true, EVERY capability above is mandatory.)
 
-## Worst case if it misbehaves?
-(concrete; not hand-wavy)
+- Network endpoints: <list endpoints OR write "none">
+- Filesystem paths: <list paths OR write "${SKILL_DIR}/cache/ only">
+- Environment variables: {env_vars}
+- Processes spawned: {commands}
+
+## Worst case if compromised?
+<describe what an attacker could do if scripts/ were replaced with malicious code>
 
 ## Why is this useful?
-- What task it solves:
-- What existing skill DOES NOT already solve it (gap-check):
+<one paragraph; gap-check: what existing skill does this overlap with?>
 
 ## Test evidence
-- Commands run manually before submitting:
-- Outputs:
-- (For has_scripts: true skills, REAL test evidence is MANDATORY.)
+{test_evidence_section}
 
-## What changed from previous version (skill updates only)
-- Breaking changes:
-- New capabilities:
-- Removed capabilities:
+## What changed?
+<for updates only; leave blank for first-version>
 ```
 
-This template mirrors [SCHEMA.md § REVIEW.md](SCHEMA.md) and the spec § 10 Step 4. Reviewers will cross-check your claims against the actual code.
+The six fields are:
+1. **What does it do?** — 1-2 sentences describing the skill's function.
+2. **What does it access?** — Every network endpoint, filesystem path, env var, and process spawned. Mandatory for `has_scripts: true` skills.
+3. **Worst case if compromised?** — Concrete attacker impact if `scripts/` were replaced with malicious code.
+4. **Why is this useful?** — One paragraph including a gap-check against existing skills.
+5. **Test evidence** — Actual commands run and actual outputs. For `has_scripts: true` skills, real test evidence is mandatory.
+6. **What changed?** — Required for skill updates only; leave blank for first-version submissions.
+
+Reviewers will cross-check your claims against the actual code.
+
+---
+
+## Sanitization
+
+`agent-skills submit` automatically runs `sanitize.py` against your skill directory before opening a PR. The sanitizer detects and replaces the following:
+
+- **Home directory paths** — POSIX (`/home/<user>/`) and Windows (`C:\Users\<user>\`) absolute paths containing your username.
+- **GitHub Personal Access Tokens** — patterns matching `ghp_...`.
+- **OpenAI API keys** — patterns matching `sk-...` or `sk-proj-...`.
+- **Anthropic API keys** — patterns matching `sk-ant-...`.
+- **AWS access key IDs** — patterns matching `AKIA...`.
+- **LAN/private IP addresses** — RFC 1918 ranges (192.168.x.x, 10.x.x.x, 172.16–31.x.x).
+- **Prompt-injection trigger phrases** in `SKILL.md` body only — phrases such as "ignore all previous instructions", "your new instructions are", and "disregard the above".
+
+The submit flow produces `SANITIZATION.diff` — a unified diff of every replacement made. Reviewers inspect this diff to confirm that sanitization only removed sensitive content and did not introduce any additions. Sanitization runs automatically through `submit`; there is no standalone `sanitize` verb in v0.
 
 ---
 
@@ -124,3 +143,19 @@ This template mirrors [SCHEMA.md § REVIEW.md](SCHEMA.md) and the spec § 10 Ste
 3. **GitHub ID mismatch.** The `author.github_id` in `meta.json` does not match the ID fetched from `gh api users/<github_login>`. This happens when a GitHub username is re-registered to a different person. Use the CLI (`agent-skills init` or `agent-skills submit`) — it fetches the ID automatically.
 4. **`PKG-INSTALL` detected in scripts.** Scripts must not call `pip install`, `npm install`, `apt install`, or any other package-manager install command at runtime. Declare runtime dependencies in `meta.json.requires.commands` and instruct users to install them beforehand. There is no override.
 5. **Description doesn't include WHEN-to-invoke wording.** The description must tell agents under what circumstances to invoke the skill, not just summarise its function. Revise to start with "Use this skill when..." or equivalent.
+6. **Hard-block findings in `scan_results.json`.** Any finding with `severity: block` from `security_scan.py` causes an automatic CI failure. The PR cannot be merged until the offending code is removed or rewritten. Hard blocks include `PKG-INSTALL`, `EXEC-ARBITRARY`, `OBFUSCATED-CODE`, and others defined in `rules.yaml`.
+7. **`SANITIZATION.diff` missing or shows additions.** The diff must be present (generated by `submit`) and must contain only removals or neutral path normalisations. Any addition to `scripts/` in the diff is an automatic blocker.
+
+---
+
+## Verbs reference
+
+The following CLI verbs are relevant to contributors. Consumer-side verbs (`search`, `install`, `uninstall`, `verify`, `list`, `update`, `show`) are documented in [README.md](README.md).
+
+| Verb | What it does | Example |
+|---|---|---|
+| `init` | Scaffold `meta.json` interactively from SKILL.md frontmatter | `agent-skills init ~/.claude/skills/my-skill/` |
+| `submit` | Validate, sanitize, scan, and open a contribution PR | `agent-skills submit ~/.claude/skills/my-skill/` |
+| `issue` | Open a bug report or feature request for an existing skill | `agent-skills issue samuelgudi/spotify-search` |
+| `deprecate` | Mark a skill as deprecated in favor of a newer skill | `agent-skills deprecate samuelgudi/old-skill --in-favor-of samuelgudi/new-skill` |
+| `yank` | Hard-mark a specific version as compromised and open a yank PR | `agent-skills yank samuelgudi/my-skill@0.1.0 --reason "Credential leak in scripts/fetch.py"` |
