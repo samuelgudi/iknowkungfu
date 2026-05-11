@@ -1,15 +1,15 @@
-# agent-skills hub — design spec (v3, post-MILO + post-Gemini review)
+# agent-skills hub — design spec (v4, post-MILO + post-Gemini + post-walkthrough)
 
 | Field | Value |
 |---|---|
-| Status | spec phase v3 — pre-implementation (MILO + Gemini reviews folded in) |
+| Status | spec phase v4 — pre-implementation (MILO, Gemini, and real-skill walkthrough folded in) |
 | Date | 2026-05-11 |
 | Owner | Samuel Gudi (@samuelgudi) |
-| Reviewer | Claude Code (Morpheus) + MILO (Hermes agent) + Gemini 3 Pro |
+| Reviewer | Claude Code (Morpheus) + MILO (Hermes agent) + Gemini 3 Pro + walkthrough against `~/.claude/skills/homelab-docs/` |
 | Repo | `samuelgudi/agent-skills` (private until v0 functional) |
 | License | MIT |
 
-> **Changelog**: § 21 documents v1→v2 (MILO findings). § 22 documents v2→v3 (Gemini findings).
+> **Changelog**: § 21 = v1→v2 (MILO). § 22 = v2→v3 (Gemini). § 23 = v3→v4 (real-skill walkthrough).
 
 ---
 
@@ -66,6 +66,10 @@ The system is explicitly **agent-agnostic**. v0 ships adapters for Claude Code a
 | 12 | Path B contribution verb | `agent-skills issue <skill-id>` (single verb, GitHub-aligned) |
 | 13 | REVIEW.md fields | 6 fields: what does it do / what does it access / worst case / why useful (with gap-check) / test evidence / what changed (skill updates only). For `has_scripts: true`, capabilities listed explicitly. |
 | 14 | External-code policy (v3) | **Hard-block any unpinned package-manager install in `scripts/`**: `pip install`, `npm install`, `gem install`, `cargo install`, `apt(-get) install`, `brew install`, `go install`, `pnpm install`, `yarn add`, `pipx install`, `uv install`, etc. Skill runtime dependencies must be declared in `meta.json.requires.commands` and installed by the user/host beforehand (Gemini B1). |
+| 15 | Category taxonomy (v4) | **v0 starter set**: `media`, `dev`, `ops`, `data`, `comms`, `docs`, `meta`, `ai`. Extensible via PR to `SCHEMA.md` with rationale. _(W4 — enumerated inline rather than deferred to SCHEMA.md only.)_ |
+| 16 | SKILL.md filename casing (v4) | **Canonical: `SKILL.md` (uppercase, case-exact).** Submit flow normalizes lowercase `skill.md` → `SKILL.md` with notice. PRs adding lowercase fail CI. _(W2 — Linux case-sensitivity vs Windows case-insensitivity bit half of Samuel's local skills.)_ |
+| 17 | First-time contributor flow (v4) | **`agent-skills init <local-dir>` scaffolds `meta.json` interactively** from existing `SKILL.md`. Detects GitHub login via `gh auth`, fetches numeric id via `gh api`, prompts for category, tags, platforms, agent_compat, license; greps body for env-var and command references. `submit` offers `init` inline when meta.json is missing. _(W1 — without this, every first contribution required hand-writing meta.json from spec memory.)_ |
+| 18 | `requires.toolsets` field (v4) | **Removed.** Was undefined; contributors didn't know what to put. Schema now only carries `requires.env_vars` and `requires.commands`. _(W3 — re-addable later as an additive change if a real use case appears.)_ |
 
 ## 5. Repo layout
 
@@ -219,8 +223,7 @@ The numeric id is stable across login renames (GitHub keeps the id when a user r
   "agent_compat": ["claude-code", "hermes"],
   "requires": {
     "env_vars": ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET"],
-    "commands": [],
-    "toolsets": []
+    "commands": []
   },
   "has_scripts": true,
   "license": "MIT",
@@ -276,11 +279,11 @@ The numeric id is stable across login renames (GitHub keeps the id when a user r
 | `version` | string | yes | Semver. The current/latest version. |
 | `status` | enum | yes | `"active"` \| `"deprecated"`. Obsolescence semantics. |
 | `author` | object | yes | `{name, github_login, github_id}`. `github_id` is GitHub's immutable numeric user ID (M2). |
-| `category` | string | yes | One value from fixed taxonomy in SCHEMA.md. Drives Hermes install path. |
+| `category` | string | yes | One value from the v0 starter taxonomy (W4): `media` \| `dev` \| `ops` \| `data` \| `comms` \| `docs` \| `meta` \| `ai`. Drives Hermes install path. New categories admitted via PR to `SCHEMA.md` with rationale. |
 | `tags` | string[] | optional | Free-form, lowercase. **Capped at 10 entries** in validate.py to mitigate keyword stuffing (Gemini m1 partial fold). |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. Hermes adapter translates to frontmatter `platforms:` (M2). |
 | `agent_compat` | string[] | yes | Subset of `{claude-code, hermes, codex, opencode}`. |
-| `requires` | object | optional | Declared deps. Hermes adapter translates to frontmatter `prerequisites:` (M1). |
+| `requires` | object | optional | Declared deps: `env_vars` (strings) and `commands` (binary names the host must have on PATH). Hermes adapter translates to frontmatter `prerequisites:` (M1). _(v4: `toolsets` field removed — was undefined; can be re-added with semantics later as an additive change since unused fields would be ignored.)_ |
 | `has_scripts` | bool | derived | True if `scripts/` exists. Triggers stricter review (Decision #5). |
 | `license` | string | yes | SPDX identifier. |
 | `install` | object | yes | Per-agent install metadata (sparse — host-specific options only). |
@@ -355,6 +358,16 @@ description: Search Spotify by track, artist, or album using the Web API. Use wh
 
 The full Hermes-compatible frontmatter is **synthesized by the Hermes adapter at install time** (§ 14).
 
+**Filename casing (v4, W2):**
+
+The canonical filename is **`SKILL.md` (uppercase)**. Many local skills in the wild use `skill.md` (lowercase) — Windows hides the difference (case-insensitive FS) while Linux CI does not. The submit flow handles this:
+
+- If only `skill.md` exists locally → submit flow renames to `SKILL.md` with a notice, then proceeds.
+- If only `SKILL.md` exists → no change.
+- If both `SKILL.md` AND `skill.md` exist → hard fail (the local repo is in an inconsistent state; we don't guess which is canonical).
+
+`validate.py` (and CI) require uppercase `SKILL.md`. The check is filename-exact, not case-folded — files added in a PR must be uppercase to pass.
+
 ### `meta.json`
 
 ```json
@@ -373,8 +386,7 @@ The full Hermes-compatible frontmatter is **synthesized by the Hermes adapter at
   "agent_compat": ["claude-code", "hermes"],
   "requires": {
     "env_vars": ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET"],
-    "commands": [],
-    "toolsets": []
+    "commands": []
   },
   "license": "MIT",
   "install": {
@@ -422,6 +434,7 @@ Optional. Human-facing. Not consumed by agents.
 | `verify <id>` | Check installed skill against registry hash | `agent-skills verify spotify-search` |
 | `list` | Show installed skills (current host; `--agent` overrides) | `agent-skills list` |
 | `update` | Force registry-cache refresh | `agent-skills update` |
+| **`init <local-dir>`** | **Scaffold `meta.json` interactively from an existing SKILL.md (W1)** | `agent-skills init ~/.claude/skills/my-skill/` |
 | `submit <local-dir>` | Propose a new skill or new version | `agent-skills submit ./my-skill/` |
 | `issue <id>` | Open improvement issue | `agent-skills issue samuelgudi/spotify-search` |
 | `deprecate <id> --in-favor-of <new-id>` | Propose deprecation PR (soft) | — |
@@ -451,6 +464,76 @@ Optional. Human-facing. Not consumed by agents.
 No git-log walk. No history scan. O(1) lookup + O(version files) fetch.
 
 `agent-skills install <id>` without `@<version>` installs the latest non-yanked version (typically `registry.json.skills[id].version`).
+
+### Init flow (v4, W1)
+
+Real local skills live as `~/.claude/skills/<name>/SKILL.md` with no `meta.json`. The submit flow requires `meta.json`. Without scaffolding help, every first-time contributor's experience is "validate failed: missing meta.json. Write this JSON by hand." `agent-skills init <local-dir>` closes that gap.
+
+```
+$ agent-skills init ~/.claude/skills/homelab-docs/
+
+Reading ~/.claude/skills/homelab-docs/…
+  Found:  skill.md  (will be renamed to SKILL.md on submit)
+  Frontmatter parsed: name=homelab-docs, description=183 chars
+  No meta.json found — scaffolding interactively.
+
+  GitHub handle (detected via gh auth): samuelgudi
+  GitHub user ID (fetched from gh api): 12345678
+
+  id:                samuelgudi/homelab-docs          [press enter to accept]
+  version:           0.1.0                            [press enter to accept]
+  status:            active                           [press enter to accept]
+  license [MIT]:                                      [press enter to accept]
+
+  Category? Pick one:
+    [1] media      [2] dev      [3] ops       [4] data
+    [5] comms      [6] docs     [7] meta      [8] ai
+  Selection: 3
+
+  Tags (comma-separated, max 10): homelab, documentation, git, ssh, cluster
+
+  Platforms [linux,macos,windows]: linux,windows
+
+  Agent compatibility? (toggle with number, enter to confirm)
+    [x] claude-code
+    [ ] hermes
+    [ ] codex
+    [ ] opencode
+  Selection: 1,2
+
+  Scanning SKILL.md for env-var-shaped names…
+    No ALL_CAPS env var references detected. requires.env_vars = []
+
+  Scanning SKILL.md for shell-command patterns…
+    Detected: ssh, git, cat
+    requires.commands [ssh,git,cat]: ssh,git           [removed cat — not a true dep]
+
+Writing ~/.claude/skills/homelab-docs/meta.json…
+  ✓ id, version, status, license, author{name,github_login,github_id}
+  ✓ category=ops, tags=[5], platforms=[linux,windows], agent_compat=[claude-code,hermes]
+  ✓ requires.env_vars=[], requires.commands=[ssh,git]
+  ✓ Reserved fields (composes/extends/supersedes/superseded_by) initialized empty
+
+Done. Review with:
+  cat ~/.claude/skills/homelab-docs/meta.json
+
+Next:
+  agent-skills submit ~/.claude/skills/homelab-docs/
+```
+
+**Init detection rules** (mirror what `submit` does at Step 0):
+- If `SKILL.md` (uppercase) present → use it.
+- If `skill.md` (lowercase) present → rename to `SKILL.md` with notice; use it.
+- If both present → hard fail (inconsistent local state).
+- If neither present → hard fail with hint: "An `agent-skills` skill needs a `SKILL.md` with frontmatter."
+
+**Auto-detection sources**:
+- `author.github_login`: from `gh auth status` active account.
+- `author.github_id`: from `gh api users/<login>`.
+- `requires.commands`: greps SKILL.md body for shell command tokens (`ssh`, `git`, `curl`, `npm`, etc.) and prompts user to confirm — false positives expected (the user prunes).
+- `requires.env_vars`: greps for `ALL_CAPS_PATTERN` references in body — likewise prompts.
+
+**Submit flow integration** (§ 10 Step 0): `submit` checks for `meta.json` first. If missing, it offers: "No meta.json found. Run `agent-skills init` first? [Y/n]". On Yes, the init flow runs inline before validate.
 
 ### Search UI (TTY)
 
@@ -487,7 +570,7 @@ Install which? [1-3, s=show details, q=quit]: _
       "description": "…",
       "tags": [ "spotify", "music", "search", "api" ],
       "has_scripts": true,
-      "requires": { "env_vars": ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET"], "commands": [], "toolsets": [] },
+      "requires": { "env_vars": ["SPOTIFY_CLIENT_ID", "SPOTIFY_CLIENT_SECRET"], "commands": [] },
       "install_command": "agent-skills install samuelgudi/spotify-search"
     }
   ]
@@ -630,14 +713,23 @@ description: Query the agent-skills registry for a skill that matches the curren
 
 `agent-skills submit <local-dir>` walks five blocking steps. Failure at any step halts the flow.
 
+### Step 0 — Bootstrap (v4, W1+W2)
+
+Before validation runs, `agent-skills submit` does two cheap checks on the local dir:
+
+1. **Filename normalization**: if `skill.md` (lowercase) exists, rename to `SKILL.md` and emit notice. If both casings exist, hard fail. If neither exists, hard fail with hint.
+2. **meta.json scaffolding**: if `meta.json` is missing, offer `agent-skills init` inline. On accept, the init flow runs interactively (§ 9 Init flow) and `submit` resumes with the generated meta.json. On decline, submit aborts.
+
+Once Step 0 is clean, validate runs.
+
 ### Step 1 — Validate structure (`validate.py`)
 
-- Required files present (`SKILL.md`, `meta.json`).
+- Required files present: **`SKILL.md` (uppercase, case-exact — `skill.md` is rejected by CI even though Step 0 normalized at submit time; a PR that adds `skill.md` directly fails)** and `meta.json`.
 - Frontmatter parses; `name` and `description` match `meta.json`.
 - `id` well-formed; slug grammar matches.
 - All required `meta.json` fields present, including `author.github_login` and `author.github_id`.
 - License is a valid SPDX identifier.
-- `category` in fixed taxonomy.
+- `category` is one of `{media, dev, ops, data, comms, docs, meta, ai}` (W4 enumerated taxonomy).
 - `tags` count ≤ 10.
 - **First-PR for a new author**: CI fetches `gh api users/<github_login>` and records the `id`. The PR must declare `author.github_id` matching the fetched id (the `agent-skills submit` CLI does this automatically).
 - **Subsequent PR for existing author**: CI re-fetches the current id for `<github_login>`. Asserts it matches the previously-recorded `github_id`. Mismatch → block with notice (M2).
@@ -798,8 +890,9 @@ validate.py --json
 
 **Schema source of truth**: `SCHEMA.md` + `scripts/schema.json`. Test asserts they stay in sync.
 
-**Validation checks (v3, additions in bold):**
+**Validation checks (v4, additions over v2 in bold):**
 
+- **`SKILL.md` filename is uppercase, case-exact** (W2). `skill.md` is rejected; submitter must normalize via the submit-flow Step 0 or via `agent-skills init`.
 - `id` matches directory path.
 - Frontmatter `name` and `description` match `meta.json`.
 - **`author.github_id` matches the current GitHub API result for `author.github_login`** (Gemini M2). CI fetches via `gh api users/<login>` once per PR.
@@ -810,6 +903,8 @@ validate.py --json
 - Cycle detection across `composes` / `extends` / `supersedes` / `superseded_by`.
 - **`tags` count ≤ 10** (Gemini m1 partial fold).
 - License is a valid SPDX identifier.
+- **`category` in `{media, dev, ops, data, comms, docs, meta, ai}`** (W4).
+- **`requires` accepts only `env_vars` and `commands` sub-fields** (W3 — `toolsets` removed; unknown sub-fields rejected to keep schema clean).
 - **For yank PRs**: target version exists in `versions`; `yank_reason` is non-empty (Gemini M3).
 
 **Exit codes:** `0` clean · `1` errors · `2` warnings only.
@@ -1205,6 +1300,40 @@ Already covered in v2; no change in v3.
 - Deferring `registry.json.sig` with a loud warning matches early-npm / early-PyPI pragmatism — honest tradeoff, not negligence.
 - Using GitHub PRs for the contribution pipeline leverages existing identity + review tooling (mirrors Homebrew taps).
 
+## 23. Changelog — v3 → v4 (real-skill walkthrough)
+
+The third stress test: walking `~/.claude/skills/homelab-docs/` (Samuel's actual local skill) through the v3 pipeline on paper. v3 held structurally — none of the previous reviews' findings over-triggered or false-fired — but four real contributor-UX gaps surfaced that the abstract design hadn't anticipated.
+
+### MAJOR (folded into v0)
+
+| W ID | Section(s) | Change |
+|---|---|---|
+| W1 | § 4 (#17), § 9 (verbs table + init flow UI), § 10 (Step 0) | **`agent-skills init <local-dir>` verb added.** Scaffolds `meta.json` interactively from an existing SKILL.md. Detects GitHub login + numeric id, prompts for category/tags/platforms/agent_compat/license, greps SKILL.md body for env-var and command references. `submit` offers `init` inline when meta.json is missing. Closes the "every first contribution requires hand-writing meta.json from spec memory" gap. |
+| W2 | § 4 (#16), § 8 (SKILL.md frontmatter section), § 10 (Step 0), § 11 (validate checks) | **`SKILL.md` casing canonicalized to uppercase, case-exact.** Submit flow normalizes lowercase `skill.md` → `SKILL.md` with notice; PRs adding lowercase files fail CI. Closes the Linux-case-sensitivity-vs-Windows-case-insensitivity gap that bit half of Samuel's local skills (and would bite every Linux contributor whose editor doesn't enforce casing). |
+| W3 | § 4 (#18), § 7 (skill entry JSON + requires field semantics), § 8 (meta.json example), § 9 (search JSON example), § 11 (validate accepts only env_vars + commands) | **`requires.toolsets` field removed.** Was carried in schema but never defined; contributors had no idea what to put. Removable cleanly because no semantics existed to migrate. Re-addable later as an additive (backward-compat) change if a real use case appears. |
+| W4 | § 4 (#15), § 7 (category field semantics), § 10 (Step 1 validation), § 11 (validate enumerated set) | **v0 starter category taxonomy enumerated inline**: `media`, `dev`, `ops`, `data`, `comms`, `docs`, `meta`, `ai`. Previously deferred to "SCHEMA.md (TBD)"; without enumeration, the first 10 contributors would each pick something different and the taxonomy would never coalesce. Extensible via PR to SCHEMA.md with rationale. |
+
+### MINOR (CONTRIBUTING.md guidance, not spec changes)
+
+- **W5 — Match scoring assumes English stopwords.** Italian/other-language descriptions get worse search relevance. CONTRIBUTING.md will note: descriptions can be any language, but English keywords aid discoverability.
+- **W6 — No "this skill is personal, don't publish" early warning.** Skills wired to specific IPs/usernames/repos (like `homelab-docs`) pass through the pipeline. User judgment territory; SECURITY.md will add a soft warning checklist.
+- **W7 — Slug specificity guidance.** Generic-feeling slugs (`homelab-docs`) collide quickly. CONTRIBUTING.md will suggest qualified naming when the skill is fundamentally personal.
+
+### What the walkthrough confirmed v3 already handles correctly
+
+- **Gemini's four findings hold on real input**:
+  - PKG-INSTALL is correctly inert when scripts/ doesn't exist (homelab-docs is instructions-only).
+  - `versions` map would record `0.1.0: {sha, released}` cleanly on first submit.
+  - `github_id` binding would record Samuel's numeric id on first PR.
+  - `yanked` semantics irrelevant for this submission, no false positives.
+- **MILO's four BLOCKERs hold on real input**:
+  - Hermes target `~/.hermes/skills/ops/homelab-docs/` derives correctly from `category: ops`.
+  - `/reload-skills` documented in install UI.
+  - Hermes frontmatter synthesis would generate the full block from meta.json.
+  - No plugin.py emission — skill has no scripts/ anyway, trivially confirmed.
+- **Decision #5 (scripts-tier discipline) differentiates correctly**: homelab-docs has no scripts → goes through the lighter REVIEW.md path. Confirmed the dual-discipline lands at the right rigor.
+- **sanitize.py LAN-IP rule fires intentionally and correctly**: the 4 internal IPs in homelab-docs are flagged for review (per spec — "may be intentional"); user skips them; sanitize completes cleanly.
+
 ---
 
-End of spec v3.
+End of spec v4.
