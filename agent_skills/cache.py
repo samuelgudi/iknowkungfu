@@ -1,0 +1,16 @@
+"""~/.cache/agent-skills/ helpers."""
+import json
+from pathlib import Path
+
+
+def cache_dir() -> Path:
+    d = Path.home() / ".cache/agent-skills"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def load_registry() -> dict | None:
+    p = cache_dir() / "registry.json"
+    if not p.exists():
+        return None
+    return json.loads(p.read_text(encoding="utf-8"))
