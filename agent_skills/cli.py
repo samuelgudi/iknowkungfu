@@ -13,10 +13,18 @@ def make_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="agent-skills", description="Agent-agnostic skill registry.")
     sub = p.add_subparsers(dest="verb", required=True)
     for v in VERBS:
-        sp = sub.add_parser(v, help=f"{v} verb")
-        sp.add_argument("--agent", default=None)
-        sp.add_argument("--json", action="store_true")
-        sp.add_argument("--yes", action="store_true")
+        if v == "search":
+            sp = sub.add_parser("search", help="Find skills by keyword")
+            sp.add_argument("terms", nargs="+")
+            sp.add_argument("--agent")
+            sp.add_argument("--limit", type=int, default=5)
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
+        else:
+            sp = sub.add_parser(v, help=f"{v} verb")
+            sp.add_argument("--agent", default=None)
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
     return p
 
 

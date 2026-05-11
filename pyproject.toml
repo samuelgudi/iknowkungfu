@@ -26,4 +26,4 @@ agent-skills = "agent_skills.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agent_skills*", "adapters*"]
+include = ["agent_skills*", "adapters*", "clients*"]
