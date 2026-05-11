@@ -26,6 +26,14 @@ def make_parser() -> argparse.ArgumentParser:
             sp.add_argument("--agent")
             sp.add_argument("--json", action="store_true")
             sp.add_argument("--yes", action="store_true")
+        elif v == "install":
+            sp = sub.add_parser("install", help="Install a skill (latest non-yanked by default)")
+            sp.add_argument("spec", help="<id>[@version] or bare-slug")
+            sp.add_argument("--agent")
+            sp.add_argument("--scope", default="user", choices=["user", "project"])
+            sp.add_argument("--allow-deprecated", action="store_true")
+            sp.add_argument("--json", action="store_true")
+            sp.add_argument("--yes", action="store_true")
         else:
             sp = sub.add_parser(v, help=f"{v} verb")
             sp.add_argument("--agent", default=None)
@@ -45,6 +53,9 @@ def main(argv: list[str] | None = None) -> int:
         return run(args)
     if args.verb == "show":
         from agent_skills.verbs.show import run
+        return run(args)
+    if args.verb == "install":
+        from agent_skills.verbs.install import run
         return run(args)
     # ... other verbs dispatched similarly; each verb's module added in its own task
     print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
