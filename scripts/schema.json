@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/samuelgudi/agent-skills/scripts/schema.json",
+  "title": "agent-skills registry",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "skills"],
+  "properties": {
+    "schema_version": { "const": 2 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "skills": { "type": "array", "items": { "$ref": "#/$defs/skill" } }
+  },
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "required": [
+        "id", "name", "description", "version", "status",
+        "author", "category", "agent_compat", "license",
+        "install", "source", "versions"
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,38}[a-z0-9]/[a-z][a-z0-9-]{0,38}[a-z0-9]$" },
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,38}[a-z0-9]$" },
+        "description": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z-.]+)?$" },
+        "status": { "enum": ["active", "deprecated"] },
+        "author": {
+          "type": "object",
+          "required": ["name", "github_login", "github_id"],
+          "properties": {
+            "name":         { "type": "string", "minLength": 1 },
+            "github_login": { "type": "string", "minLength": 1 },
+            "github_id":    { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "category": { "enum": ["media", "dev", "ops", "data", "comms", "docs", "meta", "ai"] },
+        "tags": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9-]+$" }, "maxItems": 10 },
+        "platforms": { "type": "array", "items": { "enum": ["linux", "macos", "windows"] } },
+        "agent_compat": {
+          "type": "array",
+          "items": { "enum": ["claude-code", "hermes", "codex", "opencode"] },
+          "minItems": 1
+        },
+        "requires": {
+          "type": "object",
+          "properties": {
+            "env_vars": { "type": "array", "items": { "type": "string" } },
+            "commands": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "has_scripts": { "type": "boolean" },
+        "license":     { "type": "string", "minLength": 1 },
+        "install":     { "type": "object", "minProperties": 1 },
+        "source": {
+          "type": "object",
+          "required": ["path", "content_hash", "files"],
+          "properties": {
+            "path":         { "type": "string" },
+            "content_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+            "files":        { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "versions": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "required": ["sha", "released"],
+            "properties": {
+              "sha":         { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+              "released":    { "type": "string", "format": "date-time" },
+              "yanked":      { "type": "boolean" },
+              "yank_reason": { "type": "string", "minLength": 1 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "properties": {
+            "submitted_pr": { "type": "integer" },
+            "merged_at":    { "type": "string", "format": "date-time" },
+            "reviewed_by":  { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "composes":      { "type": "array", "items": { "type": "string" } },
+        "extends":       { "type": ["string", "null"] },
+        "supersedes":    { "type": "array", "items": { "type": "string" } },
+        "superseded_by": { "type": ["string", "null"] }
+      },
+      "if":   { "properties": { "status": { "const": "deprecated" } } },
+      "then": { "required": ["superseded_by"], "properties": { "superseded_by": { "type": "string" } } }
+    }
+  }
+}
