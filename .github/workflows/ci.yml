@@ -1,0 +1,164 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: pip install -e .[dev]
+
+      - name: Test
+        run: pytest tests/ -v
+
+  registry-checks:
+    name: Registry tooling (validate / security_scan / manifest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install
+        run: pip install -e .[dev]
+
+      - name: Validate registry tree
+        run: python scripts/validate.py --all
+
+      - name: Security scan registry tree
+        run: python scripts/security_scan.py --all
+
+      - name: Manifest drift check
+        run: python scripts/generate_manifest.py --check
+
+  contribution-pr-check:
+    name: Contribution PR checks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Detect submitted dir
+        id: detect
+        shell: bash
+        run: |
+          set -e
+          # Find any new submitted/<author>-<slug>/ dir in this PR
+          mapfile -t dirs < <(git diff --name-only origin/main..HEAD | grep -E '^submitted/[^/]+/' | sed -E 's|^(submitted/[^/]+)/.*|\1|' | sort -u || true)
+          if [ "${#dirs[@]}" -eq 0 ]; then
+            echo "submitted_dir=" >> "$GITHUB_OUTPUT"
+            echo "No submitted/ changes in this PR — skipping contribution checks."
+            exit 0
+          fi
+          if [ "${#dirs[@]}" -gt 1 ]; then
+            echo "ERROR: PR touches multiple submitted/ dirs: ${dirs[*]}" >&2
+            exit 1
+          fi
+          echo "submitted_dir=${dirs[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: REVIEW.md present + headings
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          review="${submitted}/REVIEW.md"
+          if [ ! -f "$review" ]; then
+            echo "ERROR: $review missing" >&2; exit 1
+          fi
+          missing=0
+          for heading in "What does it do?" "What does it access?" "Worst case" "Why is this useful?"; do
+            if ! grep -qF "$heading" "$review"; then
+              echo "REVIEW.md missing required heading: $heading" >&2
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 2 ]; then
+            echo "ERROR: REVIEW.md missing $missing required headings (max 2 may be omitted)." >&2
+            exit 1
+          fi
+
+      - name: SANITIZATION.diff present
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          test -f "${submitted}/SANITIZATION.diff" || { echo "ERROR: SANITIZATION.diff missing" >&2; exit 1; }
+
+      - name: scan_results.json clean of hard-blocks
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          scan="${submitted}/scan_results.json"
+          if [ ! -f "$scan" ]; then
+            echo "ERROR: $scan missing" >&2; exit 1
+          fi
+          blocks=$(python -c "import json,sys; d=json.load(open('$scan')); print(sum(1 for f in d if f.get('severity')=='block'))")
+          if [ "$blocks" -ne 0 ]; then
+            echo "ERROR: scan_results.json contains $blocks hard-block(s)" >&2
+            exit 1
+          fi
+
+      - name: GitHub-ID verification for new authors
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          # Find the meta.json under the submitted dir (path: <submitted>/<author>/<slug>/meta.json)
+          meta=$(find "$submitted" -mindepth 3 -maxdepth 3 -name meta.json -print -quit)
+          if [ -z "$meta" ]; then
+            echo "ERROR: meta.json not found in $submitted" >&2; exit 1
+          fi
+          login=$(python -c "import json; print(json.load(open('$meta'))['author']['github_login'])")
+          declared_id=$(python -c "import json; print(json.load(open('$meta'))['author']['github_id'])")
+          # Check if this author already has skills in registry.json (returning author -> no fresh fetch required)
+          existing=$(python -c "import json; r=json.load(open('registry.json')); print(any(s['author']['github_login']==\"$login\" for s in r['skills']))")
+          if [ "$existing" = "True" ]; then
+            echo "Existing author $login — skipping fresh GitHub-ID fetch."
+            exit 0
+          fi
+          actual_id=$(gh api "users/$login" --jq .id)
+          if [ "$declared_id" != "$actual_id" ]; then
+            echo "ERROR: meta.json declares github_id=$declared_id but live gh api returned $actual_id" >&2
+            exit 1
+          fi
+          echo "GitHub-ID verified: $login (id $actual_id) matches meta.json."
