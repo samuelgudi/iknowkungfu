@@ -1,0 +1,93 @@
+# agent-skills security_scan.py rules (v0)
+# Spec reference: docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md § 10
+
+rules:
+  # ---- Hard blocks (no override in v0) ----
+
+  - id: PY-EVAL-CALL
+    severity: block
+    pattern: '\beval\s*\('
+    languages: [python]
+    message: "Python eval-builtin executes arbitrary code"
+    fix_hint: "Parse the value explicitly (use ast.literal_eval for literals, or a real parser)."
+
+  - id: PY-EXEC-CALL
+    severity: block
+    pattern: '\bexec\s*\('
+    languages: [python]
+    message: "Python exec-builtin executes arbitrary code"
+    fix_hint: "Refactor to avoid dynamic code execution."
+
+  - id: JS-FUNCTION-CTOR
+    severity: block
+    pattern: '\bnew\s+Function\s*\('
+    languages: [javascript]
+    message: "JS Function constructor enables dynamic code execution"
+    fix_hint: "Refactor to avoid the Function constructor; use static functions."
+
+  - id: PY-SHELL-INTERP
+    severity: block
+    pattern: 'subprocess\.\w+\([^)]*shell\s*=\s*True[^)]*[+f"]'
+    languages: [python]
+    message: "subprocess with shell=True and non-literal args — command injection risk"
+    fix_hint: "Pass args as a list; drop shell=True."
+
+  - id: SH-CURL-PIPE
+    severity: block
+    pattern: '(curl|wget)\s+[^|]*\|\s*(bash|sh|zsh)'
+    languages: [python, bash, javascript]
+    message: "Piping remote content into a shell interpreter is unsafe"
+    fix_hint: "Download, verify sha256, then execute. Or declare the tool in requires.commands."
+
+  - id: B64-PAYLOAD
+    severity: block
+    pattern: '["''][A-Za-z0-9+/=]{50,}["'']'
+    languages: [python, javascript, bash]
+    message: "Long base64 string in source — possible obfuscated payload"
+    fix_hint: "Inline the decoded content if it's data, or document the encoding clearly."
+
+  - id: NET-IN-ADAPTER
+    severity: block
+    pattern: '(urllib|requests|fetch|http\.)'
+    languages: [python]
+    scope: "adapters/**"
+    message: "Install adapters must be offline-deterministic"
+    fix_hint: "Move network access to discovery client; install only reads from local source."
+
+  - id: PKG-INSTALL
+    severity: block
+    pattern: '\b(pip|pipx|uv|npm|pnpm|yarn|gem|cargo|go|brew|apt|apt-get|dnf|yum|apk)\s+(install|add)\b'
+    languages: [python, bash, javascript]
+    message: "Package-manager install in scripts/ enables post-merge code swap (event-stream / dependency-confusion vector)"
+    fix_hint: "Declare the dependency in meta.json.requires.commands; the user/host installs it before invocation."
+
+  # ---- Soft warnings (proceed, recorded in REVIEW.md) ----
+
+  - id: PY-SUBPROCESS-USE
+    severity: warn
+    pattern: '\bsubprocess\.'
+    languages: [python]
+    message: "Skill spawns subprocesses — declare commands in meta.json.requires.commands"
+    fix_hint: "Add the spawned binary to requires.commands."
+
+  - id: FS-WRITE-OUTSIDE-SKILL
+    severity: warn
+    pattern: '(open\([^)]*[''"]w[''"]?|Path\([^)]*\)\.write_text)'
+    languages: [python]
+    message: "Filesystem write detected — confirm path is inside ${SKILL_DIR}/cache/"
+    fix_hint: "Restrict writes to ${SKILL_DIR}/cache/ or document the path in REVIEW.md."
+
+  - id: NET-IN-SCRIPT
+    severity: warn
+    pattern: '(urllib|requests|fetch|http\.|aiohttp|httpx)'
+    languages: [python]
+    scope: "scripts/**"
+    message: "Network call in script — disclose endpoint in REVIEW.md"
+    fix_hint: "List the endpoint in REVIEW.md → What does it access? → Network endpoints."
+
+  - id: UNDECLARED-CMD
+    severity: warn
+    pattern: '\b(ssh|git|docker|kubectl|aws|gcloud|az)\b'
+    languages: [python, bash]
+    message: "External binary referenced — declare in meta.json.requires.commands if used"
+    fix_hint: "If this binary is invoked at runtime, add it to requires.commands."
