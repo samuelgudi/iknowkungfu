@@ -1,0 +1,46 @@
+{
+  "id": "samuelgudi/semver-bump-decider",
+  "version": "0.1.0",
+  "status": "active",
+  "author": {
+    "name": "samuelgudi",
+    "github_login": "samuelgudi",
+    "github_id": 124914565
+  },
+  "category": "dev",
+  "tags": [
+    "semver",
+    "versioning",
+    "release",
+    "changelog"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "claude-code",
+    "hermes",
+    "codex",
+    "opencode"
+  ],
+  "requires": {
+    "env_vars": [],
+    "commands": []
+  },
+  "license": "MIT",
+  "install": {
+    "claude-code": {
+      "scope": "user"
+    },
+    "hermes": {},
+    "codex": {},
+    "opencode": {}
+  },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
