@@ -47,14 +47,22 @@ def sha256_file(p: Path) -> str:
 
 
 def compute_content_hash(skill_dir: Path) -> tuple[str, list[str]]:
+    """Compute a stable content hash + sorted file list for a skill dir.
+    Sorts files by POSIX-style string explicitly: WindowsPath sorts case-
+    insensitively while PosixPath is case-sensitive, so sorting Path objects
+    directly produces platform-dependent output (e.g. ['meta.json','SKILL.md']
+    on Windows vs ['SKILL.md','meta.json'] on Linux). The hash also depends on
+    file order, so the platform-dependent sort cascades into a hash mismatch
+    that breaks `--check` on CI Linux after a Windows-generated commit."""
     files = sorted(
-        f.relative_to(skill_dir) for f in skill_dir.rglob("*") if f.is_file()
+        str(f.relative_to(skill_dir)).replace("\\", "/")
+        for f in skill_dir.rglob("*") if f.is_file()
     )
     combined = b"\n".join(
-        f"{str(rel).replace(chr(92), '/')}".encode() + b"\0" + sha256_file(skill_dir / rel).encode()
+        rel.encode() + b"\0" + sha256_file(skill_dir / rel).encode()
         for rel in files
     )
-    return "sha256:" + hashlib.sha256(combined).hexdigest(), [str(rel).replace("\\", "/") for rel in files]
+    return "sha256:" + hashlib.sha256(combined).hexdigest(), files
 
 
 def _posix(p) -> str:
