@@ -19,7 +19,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
-- **Deterministic FTS5 search engine** (`agent_skills/search/`): Lucene-style query DSL, SQLite FTS5 index, BM25 ranking with deterministic tie-break. Identical `(query, registry_version)` produces byte-identical result order. Reference: [`docs/query-language.md`](docs/query-language.md). 219 tests in `tests/test_search_*` + 20 determinism canaries in `tests/test_determinism.py`.
+- **Deterministic FTS5 search engine** (`agent_skills/search/`): Lucene-style query DSL, SQLite FTS5 index, BM25 ranking with deterministic tie-break. Identical `(query, registry_version)` produces byte-identical result order. Reference: [`docs/query-language.md`](docs/query-language.md). 171 tests in `tests/test_search_*.py` + 20 determinism canaries in `tests/test_determinism.py`.
 - **MCP server** (`iknowkungfu-mcp`): exposes the registry as Model Context Protocol tools so AI agent runtimes (Claude Code, OpenClaw, Codex, Cursor, Gemini CLI) can search and install skills mid-task. Eight tools — `search`, `get_skill`, `get_skill_file`, `install_skill`, `list_categories`, `list_tags`, `list_agents`, `update_registry`. `install_skill` is the differentiator: cross-host install via MCP that no other skill registry currently offers. Reference: [`docs/mcp-integration.md`](docs/mcp-integration.md). 32 tests.
 - **CLI search rewrite**: the `kfu search` verb now parses the new query DSL (`tag:`, `agent:`, `version:>=`, boolean ops, phrases, prefixes, grouping). Deprecated `--agent` / `--category` / `--tag` flags are retained for one release with a stderr deprecation warning that translates them to the new DSL.
 - **New CLI flags on `search`**: `--include-deprecated`, `--ndjson`, `--limit`, `--offset`.
@@ -28,6 +28,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Fixed
 
 - **Empty-search-result hint** (`agent_skills/verbs/search.py`): previously suggested running `agent-skills list-categories` / `kfu list-categories`, a verb that doesn't exist. Replaced with an inline list of the eight valid categories so the suggestion is actionable.
+- **MCP `install_skill` / `update_registry` PATH fragility** (`agent_skills/mcp/tools.py`): both tools previously shelled out via `subprocess.run(["agent-skills", ...])`, which broke on Windows MCP clients that launch the server with a stripped `PATH`. Now invoked as `[sys.executable, "-m", "agent_skills.cli", ...]` so the same Python interpreter the server is running under is used unconditionally, with no PATH lookup required.
 
 ### Stayed the same (back-compat, by design)
 
@@ -41,7 +42,6 @@ The rename is deliberately scoped to external surfaces. The following are unchan
 
 ### Known issues (deferred)
 
-- **MCP `install_skill` / `update_registry` subprocess fragility on Windows**: these two tools shell out to the CLI via `subprocess.run(["agent-skills", ...])`. On Windows MCP clients that launch the server with a stripped `PATH`, the executable may not resolve. The other six MCP tools are unaffected. Refactor to in-process verb dispatch is on the post-launch backlog.
 - **Hyphenated tag false positives in search**: `tag:claude-code` correctly matches skills with that literal tag, but also false-positives on skills that declare separate adjacent `claude` and `code` tags. Fix requires a schema bump (`INDEX_SCHEMA_VERSION` 1 → 2) to add a pipe-delimited `tags_filter` column. On the backlog.
 
 ### Test suite

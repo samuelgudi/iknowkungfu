@@ -15,6 +15,20 @@ I Know Kung Fu is a content-hash-anchored skill registry that lets any compatibl
 
 ---
 
+## Names you'll see
+
+| Where | Name |
+|---|---|
+| Brand (docs, marketing) | **I Know Kung Fu** |
+| PyPI package | `iknowkungfu` |
+| Primary CLI command | `kfu` |
+| Legacy CLI alias (back-compat) | `agent-skills` |
+| MCP server binary | `iknowkungfu-mcp` |
+
+All five resolve to the same project. The CLI alias `agent-skills` is kept so existing scripts keep working; new automation should use `kfu`.
+
+---
+
 ## Install
 
 ```
@@ -67,7 +81,13 @@ Full contribution guidelines, frontmatter contract, and review template are in [
 
 Eight tools: `search`, `get_skill`, `get_skill_file`, **`install_skill`**, `list_categories`, `list_tags`, `list_agents`, `update_registry`. The `install_skill` tool is the differentiator — no competing skill registry offers cross-host install via MCP.
 
-Add to Claude Code's `~/.claude/settings.json`:
+Register it with Claude Code (recommended — handles the config file for you):
+
+```bash
+claude mcp add iknowkungfu iknowkungfu-mcp
+```
+
+Or edit `~/.claude.json` (user scope) directly:
 
 ```json
 {
@@ -109,13 +129,15 @@ iknowkungfu/
 ├── registry.json            # generated manifest (never hand-edit)
 ├── yanks.json               # append-only yank log
 ├── skills/                  # approved skills (<author>/<slug>/)
-├── archive/                 # deprecated skills with superseded_by pointers
-├── submitted/               # open contribution PRs
+├── archive/                 # (on-demand) deprecated skills with superseded_by pointers
+├── submitted/               # (on-demand) open contribution PRs
 ├── scripts/                 # registry tooling (validate, security_scan, generate_manifest)
-├── adapters/                # per-host install logic (claude-code, hermes)
+├── adapters/                # per-host install logic (claude-code, codex, hermes, openclaw, opencode, pi)
 ├── clients/                 # discovery + contribution clients
 └── agent_skills/            # CLI package
 ```
+
+The `archive/` and `submitted/` directories are created on demand by the `kfu deprecate` and `kfu submit` verbs; they are not present in a fresh clone.
 
 ---
 

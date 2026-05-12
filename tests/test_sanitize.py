@@ -19,7 +19,7 @@ def make_skill(tmp_path: Path, *, files: dict) -> Path:
 
 def test_scan_detects_home_posix(tmp_path):
     src = make_skill(tmp_path, files={
-        "SKILL.md": "---\nname: t\ndescription: d\n---\n\nUse /home/samuel/project for path.\n",
+        "SKILL.md": "---\nname: t\ndescription: d\n---\n\nUse /home/alice/project for path.\n",
     })
     detections = scan(src)
     assert any(d.rule_id == "HOME-POSIX" for d in detections)

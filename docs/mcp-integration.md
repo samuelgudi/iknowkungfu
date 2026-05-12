@@ -48,7 +48,13 @@ where iknowkungfu-mcp        # Windows
 
 ### Claude Code
 
-Edit `~/.claude/settings.json` (user scope) or `.claude/settings.json` (project scope):
+Recommended: let the CLI write the config for you.
+
+```bash
+claude mcp add iknowkungfu iknowkungfu-mcp
+```
+
+Or edit `~/.claude.json` (user scope) directly — that file is where Claude Code stores MCP server entries (not `settings.json`, which is for hooks, permissions, and env):
 
 ```json
 {

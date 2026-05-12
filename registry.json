@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T15:03:48Z",
+  "generated_at": "2026-05-12T17:43:56Z",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
@@ -61,7 +61,7 @@
         }
       },
       "provenance": {
-        "merged_at": "2026-05-11T20:08:27Z",
+        "merged_at": "2026-05-12T17:39:43Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -126,7 +126,7 @@
         }
       },
       "provenance": {
-        "merged_at": "2026-05-11T20:08:27Z",
+        "merged_at": "2026-05-12T17:39:43Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -141,7 +141,7 @@
       "version": "0.1.0",
       "status": "active",
       "author": {
-        "name": "samuelgudi",
+        "name": "Samuel Gudi",
         "github_login": "samuelgudi",
         "github_id": 124914565
       },
@@ -179,7 +179,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/semver-bump-decider",
-        "content_hash": "sha256:cc6d662791c07f6e566e628c6b1e23729be7bb516d4d78494e5156236f598aa0",
+        "content_hash": "sha256:cc12d800f7300f586e978f1e444f4450d0a5ca854e2629aa2d1cc08d06c4a488",
         "files": [
           "SKILL.md",
           "meta.json"
