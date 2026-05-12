@@ -23,6 +23,7 @@ dev = [
 
 [project.scripts]
 agent-skills = "agent_skills.cli:main"
+iknowkungfu-mcp = "agent_skills.mcp.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
