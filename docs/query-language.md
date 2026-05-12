@@ -1,6 +1,6 @@
 # Query Language Reference
 
-The query language for `iknowkungfu search` (and the MCP `search` tool) is a Lucene-style DSL: free text, phrases, field filters, boolean operators, prefixes, and version comparisons — all parsed deterministically and executed against a local SQLite FTS5 index.
+The query language for `kfu search` (and the MCP `search` tool) is a Lucene-style DSL: free text, phrases, field filters, boolean operators, prefixes, and version comparisons — all parsed deterministically and executed against a local SQLite FTS5 index.
 
 > **Determinism contract**: identical (query, registry version) always returns identical results in identical order. The index is rebuilt deterministically from `registry.json`. Tested with recorded fixtures in `tests/test_determinism.py`.
 
@@ -228,5 +228,5 @@ if is_stale(db_path, registry["generated_at"]):
 - `docs/mcp-integration.md` — exposing this search via MCP tools to AI agents
 - `docs/superpowers/specs/2026-05-12-mcp-and-search-design.md` — design rationale and decisions
 - `tests/test_search_query.py` — parser test fixtures (64 cases)
-- `tests/test_search_ranker.py` — runner test fixtures (43 cases)
+- `tests/test_search_ranker.py` — runner test fixtures (50 cases)
 - `tests/test_determinism.py` — determinism contract canaries

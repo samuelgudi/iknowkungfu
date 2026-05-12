@@ -26,12 +26,13 @@ Stage refers to agentskills.io's progressive-disclosure model (metadata → body
 ## Installation
 
 ```bash
-pip install iknowkungfu     # (post-rename — for now: pip install agent-skills)
+pip install iknowkungfu     # or: uv tool install iknowkungfu
 ```
 
-This installs two CLI entry points:
+This installs three CLI entry points:
 
-* `agent-skills` — the CLI for humans
+* `kfu` — the CLI for humans (primary command)
+* `agent-skills` — back-compat alias; resolves to the same entry point as `kfu`
 * `iknowkungfu-mcp` — the MCP server (spawned by agent runtimes, not invoked directly)
 
 Verify:
@@ -258,5 +259,5 @@ The `file_path` argument escapes the skill's directory. Check that the path is r
 
 - `docs/query-language.md` — full query DSL reference
 - `docs/superpowers/specs/2026-05-12-mcp-and-search-design.md` — design rationale, decision tables, alternatives considered
-- `tests/test_mcp_server.py` — protocol-level test cases (27 tests)
+- `tests/test_mcp_server.py` — protocol-level test cases (28 tests)
 - `tests/test_mcp_subprocess.py` — subprocess wire-up tests (4 tests)
