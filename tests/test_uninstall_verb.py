@@ -16,7 +16,7 @@ def installed_env(tmp_path, monkeypatch):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
 
     src = tmp_path / "src/test-author/example"

@@ -33,14 +33,14 @@ def detect_host(*, override: str | None = None) -> str:
         )
     if len(found) == 1:
         return found[0]
-    pref = os.environ.get("AGENT_SKILLS_DEFAULT_AGENT")
+    pref = os.environ.get("IKNOWKUNGFU_DEFAULT_AGENT")
     if pref and pref in found:
         return pref
     raise SystemExit(
         "Multiple agent hosts detected: " + ", ".join(found) + ".\n"
         "Pick one with --agent, e.g.:\n"
         f"  kfu <verb> --agent {found[0]}\n"
-        "Or set a default: export AGENT_SKILLS_DEFAULT_AGENT=" + found[0]
+        "Or set a default: export IKNOWKUNGFU_DEFAULT_AGENT=" + found[0]
     )
 
 

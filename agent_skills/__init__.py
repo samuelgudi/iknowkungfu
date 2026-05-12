@@ -1,3 +1,3 @@
-"""I Know Kung Fu — agent-agnostic skill registry CLI (formerly agent-skills)."""
+"""I Know Kung Fu — agent-agnostic skill registry CLI."""
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"

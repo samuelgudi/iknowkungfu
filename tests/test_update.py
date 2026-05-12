@@ -57,14 +57,14 @@ def test_refresh_writes_registry(serve_dir, fake_home):
     rc = refresh(serve_dir["url"] + "/registry.json")
     assert rc == 0
 
-    cached = fake_home / ".cache/agent-skills/registry.json"
+    cached = fake_home / ".cache/iknowkungfu/registry.json"
     assert cached.exists()
     assert json.loads(cached.read_text())["generated_at"] == "2026-05-11T00:00:00Z"
 
 
 def test_refresh_rollback_guard_refuses_older(serve_dir, fake_home):
     """If fetched generated_at < cached generated_at, the write must be refused."""
-    cache = fake_home / ".cache/agent-skills"
+    cache = fake_home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     cached_reg = make_registry("2026-05-15T00:00:00Z")
     (cache / "registry.json").write_text(json.dumps(cached_reg))
@@ -86,7 +86,7 @@ def test_refresh_rollback_guard_handles_mixed_tz_formats(serve_dir, fake_home):
     "2026-05-12T08:44:15Z" even though UTC-08:44 > UTC-08:43. With a real-merge
     workflow (cache produced on a CEST dev box, fetched produced on GHA in UTC)
     this falsely triggered the rollback guard and blocked install."""
-    cache = fake_home / ".cache/agent-skills"
+    cache = fake_home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     # Cached: 08:43:59 UTC, expressed in CEST. Fetched: 08:44:15 UTC, expressed
     # with Z suffix. Fetched IS newer in absolute time.
@@ -103,7 +103,7 @@ def test_refresh_rollback_guard_handles_mixed_tz_formats(serve_dir, fake_home):
 
 def test_refresh_rollback_guard_blocks_older_across_tz(serve_dir, fake_home):
     """Same as above but fetched IS older in UTC: must block."""
-    cache = fake_home / ".cache/agent-skills"
+    cache = fake_home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     # Cached: 09:00:00Z. Fetched: 10:00:00+02:00 = 08:00:00Z (older). Block.
     cached_reg = make_registry("2026-05-12T09:00:00Z")
@@ -126,7 +126,7 @@ def test_refresh_atomic_write(serve_dir, fake_home):
     rc = refresh(serve_dir["url"] + "/registry.json")
     assert rc == 0
 
-    cache_dir = fake_home / ".cache/agent-skills"
+    cache_dir = fake_home / ".cache/iknowkungfu"
     leftovers = [p for p in cache_dir.iterdir() if p.name.startswith(".registry.json.tmp")]
     assert leftovers == []
 
@@ -141,7 +141,7 @@ def test_refresh_yanks_when_present(serve_dir, fake_home):
     rc = refresh(serve_dir["url"] + "/registry.json")
     assert rc == 0
 
-    cache = fake_home / ".cache/agent-skills"
+    cache = fake_home / ".cache/iknowkungfu"
     assert (cache / "yanks.json").exists()
     cached_yanks = json.loads((cache / "yanks.json").read_text())
     assert cached_yanks["yanks"][0]["id"] == "x/y"
@@ -151,9 +151,9 @@ def test_update_verb_invokes_refresh(serve_dir, fake_home, monkeypatch):
     """The verb-level run() calls refresh() and returns its exit code."""
     reg = make_registry("2026-05-11T00:00:00Z")
     (serve_dir["dir"] / "registry.json").write_text(json.dumps(reg))
-    monkeypatch.setenv("AGENT_SKILLS_REGISTRY_URL", serve_dir["url"] + "/registry.json")
+    monkeypatch.setenv("IKNOWKUNGFU_REGISTRY_URL", serve_dir["url"] + "/registry.json")
     # Skip the git clone in tests: we don't set REGISTRY_REPO so update.py only does the JSON pull
-    monkeypatch.setenv("AGENT_SKILLS_SKIP_REPO_SYNC", "1")
+    monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
     (fake_home / ".claude").mkdir()
 
     from agent_skills.verbs.update import run
@@ -161,7 +161,7 @@ def test_update_verb_invokes_refresh(serve_dir, fake_home, monkeypatch):
         agent = "claude-code"; json = False; yes = False
     rc = run(Args())
     assert rc == 0
-    assert (fake_home / ".cache/agent-skills/registry.json").exists()
+    assert (fake_home / ".cache/iknowkungfu/registry.json").exists()
 
 
 def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypatch, capsys):
@@ -193,7 +193,7 @@ def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypat
         url = f"http://127.0.0.1:{server.server_port}/registry.json"
         cache = tmp_path / "cache"
         monkeypatch.setattr("clients.skill_discovery.update._cache_dir", lambda: cache.mkdir(exist_ok=True) or cache)
-        monkeypatch.setenv("AGENT_SKILLS_SKIP_REPO_SYNC", "1")
+        monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
 
         # Apply the same reconfigure cli.main does, to mirror real CLI usage.
         from agent_skills.cli import _force_utf8_streams

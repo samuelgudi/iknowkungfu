@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iknowkungfu"
-version = "0.1.3"
+version = "0.1.4"
 description = "Agent-agnostic registry for skill discovery and contribution"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,7 +22,6 @@ dev = [
 ]
 
 [project.scripts]
-agent-skills = "agent_skills.cli:main"
 kfu = "agent_skills.cli:main"
 iknowkungfu-mcp = "agent_skills.mcp.__main__:main"
 

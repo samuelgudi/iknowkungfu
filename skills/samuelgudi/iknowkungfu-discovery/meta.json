@@ -1,6 +1,6 @@
 {
-  "id": "samuelgudi/agent-skills-contribution",
-  "version": "0.1.1",
+  "id": "samuelgudi/iknowkungfu-discovery",
+  "version": "0.1.0",
   "status": "active",
   "author": {
     "name": "Samuel Gudi",
@@ -10,9 +10,8 @@
   "category": "meta",
   "tags": [
     "iknowkungfu",
-    "agent-skills",
-    "contribution",
-    "submit",
+    "discovery",
+    "search",
     "registry"
   ],
   "platforms": [
@@ -27,9 +26,7 @@
   "requires": {
     "env_vars": [],
     "commands": [
-      "kfu",
-      "git",
-      "gh"
+      "kfu"
     ]
   },
   "license": "MIT",
@@ -44,6 +41,6 @@
   "supersedes": [],
   "superseded_by": null,
   "related_skills": [
-    "samuelgudi/agent-skills-discovery"
+    "samuelgudi/iknowkungfu-contribution"
   ]
 }

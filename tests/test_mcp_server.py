@@ -75,7 +75,7 @@ def _registry():
 
 @pytest.fixture
 def cached(fake_home):
-    cache = fake_home / ".cache" / "agent-skills"
+    cache = fake_home / ".cache" / "iknowkungfu"
     cache.mkdir(parents=True)
     (cache / "registry.json").write_text(json.dumps(_registry()), encoding="utf-8")
     return cache
@@ -312,7 +312,7 @@ def test_get_skill_file_rejects_skill_with_empty_source_path(fake_home):
     """Review finding #4: a skill whose source.path is empty would let
     get_skill_file read arbitrary files from the registry-repo root,
     breaking the 'stay inside this skill' invariant. Must hard-error."""
-    cache = fake_home / ".cache" / "agent-skills"
+    cache = fake_home / ".cache" / "iknowkungfu"
     cache.mkdir(parents=True)
     reg = {
         "schema_version": 2,

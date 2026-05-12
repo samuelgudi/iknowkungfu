@@ -40,7 +40,7 @@ def test_install_writes_files_and_marker(home, src_skill):
     assert result.success
     target = home / ".claude/skills/test-author-example"
     assert (target / "SKILL.md").exists()
-    assert (target / ".agent-skills-marker.json").exists()
+    assert (target / ".iknowkungfu-marker.json").exists()
 
 
 def test_uninstall_removes_directory(home, src_skill):

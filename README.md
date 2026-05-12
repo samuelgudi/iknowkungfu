@@ -21,11 +21,10 @@ I Know Kung Fu is a content-hash-anchored skill registry that lets any compatibl
 |---|---|
 | Brand (docs, marketing) | **I Know Kung Fu** |
 | PyPI package | `iknowkungfu` |
-| Primary CLI command | `kfu` |
-| Legacy CLI alias (back-compat) | `agent-skills` |
+| CLI command | `kfu` |
 | MCP server binary | `iknowkungfu-mcp` |
 
-All five resolve to the same project. The CLI alias `agent-skills` is kept so existing scripts keep working; new automation should use `kfu`.
+All four resolve to the same project.
 
 ---
 

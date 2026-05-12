@@ -1,10 +1,10 @@
-"""~/.cache/agent-skills/ helpers."""
+"""~/.cache/iknowkungfu/ helpers."""
 import json
 from pathlib import Path
 
 
 def cache_dir() -> Path:
-    d = Path.home() / ".cache/agent-skills"
+    d = Path.home() / ".cache/iknowkungfu"
     d.mkdir(parents=True, exist_ok=True)
     return d
 

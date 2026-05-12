@@ -13,7 +13,7 @@ def setup_installed(tmp_path, monkeypatch, *, status="active", yanked=False, dri
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
 
     src = tmp_path / "src/test-author/example"
@@ -94,7 +94,7 @@ def test_verify_not_installed(tmp_path, monkeypatch, capsys):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     (cache / "registry.json").write_text(json.dumps({
         "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z", "skills": [],

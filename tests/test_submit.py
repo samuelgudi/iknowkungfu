@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).parent.parent
 
 @pytest.fixture
 def test_repo(tmp_path):
-    """Copy the agent-skills repo (minus .git) into tmp_path; git init; wire up a bare
+    """Copy the iknowkungfu repo (minus .git) into tmp_path; git init; wire up a bare
     origin so submit can actually push (mirrors the real contribution flow)."""
     repo = tmp_path / "registry-repo"
     shutil.copytree(REPO_ROOT, repo, ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", ".pytest_cache"))

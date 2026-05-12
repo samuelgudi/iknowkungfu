@@ -151,7 +151,7 @@ def test_init_env_var_scan_detects_shell_style(tmp_path, fake_gh, monkeypatch):
     (skill / "SKILL.md").write_text(
         "---\nname: x\ndescription: y\n---\n\n"
         "Set $SPOTIFY_CLIENT_ID and ${SPOTIFY_CLIENT_SECRET}.\n"
-        "Python: os.environ.get('GITHUB_TOKEN') or os.getenv('AGENT_SKILLS_DEFAULT_AGENT').\n"
+        "Python: os.environ.get('GITHUB_TOKEN') or os.getenv('IKNOWKUNGFU_DEFAULT_AGENT').\n"
     )
     # Accept default detection (empty input on env_vars prompt accepts the
     # detected CSV).
@@ -169,7 +169,7 @@ def test_init_env_var_scan_detects_shell_style(tmp_path, fake_gh, monkeypatch):
     assert "SPOTIFY_CLIENT_ID" in detected
     assert "SPOTIFY_CLIENT_SECRET" in detected
     assert "GITHUB_TOKEN" in detected
-    assert "AGENT_SKILLS_DEFAULT_AGENT" in detected
+    assert "IKNOWKUNGFU_DEFAULT_AGENT" in detected
 
 
 def test_init_defaults_id_to_frontmatter_name_not_dir(tmp_path, fake_gh, monkeypatch):

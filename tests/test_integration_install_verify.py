@@ -56,7 +56,7 @@ def test_install_then_verify_clean(tmp_path, monkeypatch):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     shutil.copy(repo / "registry.json", cache / "registry.json")
     shutil.copytree(repo, cache / "registry-repo")
@@ -74,7 +74,7 @@ def test_install_then_verify_clean(tmp_path, monkeypatch):
     assert rc == 0, "install must succeed"
     target = home / ".claude/skills/test-author-example"
     assert (target / "SKILL.md").exists()
-    assert (target / ".agent-skills-marker.json").exists()
+    assert (target / ".iknowkungfu-marker.json").exists()
 
     # Run verify — MUST return clean.
     from agent_skills.verbs.verify import run as verify_run
@@ -84,7 +84,7 @@ def test_install_then_verify_clean(tmp_path, monkeypatch):
     assert rc == 0, "verify --json always returns 0; status must be 'clean' in payload"
 
     # Sanity-check: marker's hash == registry's hash == on-disk hash.
-    marker = json.loads((target / ".agent-skills-marker.json").read_text(encoding="utf-8"))
+    marker = json.loads((target / ".iknowkungfu-marker.json").read_text(encoding="utf-8"))
     registry = json.loads((cache / "registry.json").read_text(encoding="utf-8"))
     registry_hash = registry["skills"][0]["source"]["content_hash"]
     assert marker["registry_content_hash"] == registry_hash
@@ -108,7 +108,7 @@ def test_uninstall_without_force_succeeds_after_install(tmp_path, monkeypatch):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     shutil.copy(repo / "registry.json", cache / "registry.json")
     shutil.copytree(repo, cache / "registry-repo")

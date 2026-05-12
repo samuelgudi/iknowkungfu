@@ -23,10 +23,10 @@ def run_cli(*args, env_extra=None):
 
 @pytest.fixture
 def cache_dir(tmp_path, monkeypatch):
-    """Redirect ~/.cache/agent-skills to a tmpdir, populate with a tiny registry."""
+    """Redirect ~/.cache/iknowkungfu to a tmpdir, populate with a tiny registry."""
     home = tmp_path / "home"
     home.mkdir()
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     monkeypatch.setattr(Path, "home", lambda: home)
     # Touch a fake .claude so detect_host doesn't fail
@@ -126,7 +126,7 @@ def test_show_renders_tags_with_hash_prefix(tmp_path, monkeypatch, capsys):
     home = tmp_path / "home"; home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"; cache.mkdir(parents=True)
+    cache = home / ".cache/iknowkungfu"; cache.mkdir(parents=True)
     import json as _json
     (cache / "registry.json").write_text(_json.dumps({
         "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z",

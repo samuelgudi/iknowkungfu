@@ -1,7 +1,7 @@
 """Tests for host auto-detection. Locks the contract:
 - All declared agents are registered in ADAPTERS
 - detect_host honours --agent override
-- Multi-host detection falls back to AGENT_SKILLS_DEFAULT_AGENT env var
+- Multi-host detection falls back to IKNOWKUNGFU_DEFAULT_AGENT env var
 """
 from pathlib import Path
 
@@ -34,21 +34,21 @@ def test_override_rejects_unknown(monkeypatch, tmp_path):
 
 def test_no_host_detected_raises(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.delenv("AGENT_SKILLS_DEFAULT_AGENT", raising=False)
+    monkeypatch.delenv("IKNOWKUNGFU_DEFAULT_AGENT", raising=False)
     with pytest.raises(SystemExit, match="No agent host detected"):
         detect_host()
 
 
 def test_single_host_detected_returns_it(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.delenv("AGENT_SKILLS_DEFAULT_AGENT", raising=False)
+    monkeypatch.delenv("IKNOWKUNGFU_DEFAULT_AGENT", raising=False)
     (tmp_path / ".codex").mkdir()
     assert detect_host() == "codex"
 
 
 def test_multi_host_without_default_raises(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    monkeypatch.delenv("AGENT_SKILLS_DEFAULT_AGENT", raising=False)
+    monkeypatch.delenv("IKNOWKUNGFU_DEFAULT_AGENT", raising=False)
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".config/opencode").mkdir(parents=True)
     with pytest.raises(SystemExit, match="Multiple agent hosts detected"):
@@ -59,7 +59,7 @@ def test_multi_host_with_default_returns_default(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".config/opencode").mkdir(parents=True)
-    monkeypatch.setenv("AGENT_SKILLS_DEFAULT_AGENT", "opencode")
+    monkeypatch.setenv("IKNOWKUNGFU_DEFAULT_AGENT", "opencode")
     assert detect_host() == "opencode"
 
 

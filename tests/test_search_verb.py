@@ -62,8 +62,8 @@ def _registry():
 
 @pytest.fixture
 def cached_registry(fake_home):
-    """Write a registry.json into the patched ~/.cache/agent-skills/."""
-    cache = fake_home / ".cache" / "agent-skills"
+    """Write a registry.json into the patched ~/.cache/iknowkungfu/."""
+    cache = fake_home / ".cache" / "iknowkungfu"
     cache.mkdir(parents=True)
     (cache / "registry.json").write_text(json.dumps(_registry()), encoding="utf-8")
     return cache

@@ -6,6 +6,36 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.4] — 2026-05-12
+
+Cleanup release. The 0.1.2 brand rename kept `agent-skills` everywhere as a "back-compat alias" — but there was nothing to be back-compatible with: the project had never been published before today. This release drops every `agent-skills` literal from the user-facing surface so a fresh reader doesn't have to learn a legacy name on their way in.
+
+### Changed (BREAKING — internal storage paths and env vars)
+
+- **CLI alias `agent-skills` removed** from `[project.scripts]` in `pyproject.toml`. The only CLI entry point is `kfu`. The MCP binary `iknowkungfu-mcp` is unchanged.
+- **Cache directory renamed**: `~/.cache/agent-skills/` → `~/.cache/iknowkungfu/`. After upgrading, your next `kfu update` will populate the new path; the old path can be deleted.
+- **Install marker renamed**: `.agent-skills-marker.json` → `.iknowkungfu-marker.json`. Skills installed with 0.1.2/0.1.3 won't be recognized as managed installs by 0.1.4 — `kfu verify` on those would report "no marker". The clean path is to `kfu uninstall <id>` against the old install (or just delete the directory) and `kfu install <id>` again under 0.1.4.
+- **Environment variables renamed**:
+  - `AGENT_SKILLS_REGISTRY_URL` → `IKNOWKUNGFU_REGISTRY_URL`
+  - `AGENT_SKILLS_REGISTRY_REPO` → `IKNOWKUNGFU_REGISTRY_REPO`
+  - `AGENT_SKILLS_SKIP_REPO_SYNC` → `IKNOWKUNGFU_SKIP_REPO_SYNC`
+  - `AGENT_SKILLS_DEFAULT_AGENT` → `IKNOWKUNGFU_DEFAULT_AGENT`
+- **Meta-skill registry IDs renamed**:
+  - `samuelgudi/agent-skills-contribution` → `samuelgudi/iknowkungfu-contribution`
+  - `samuelgudi/agent-skills-discovery` → `samuelgudi/iknowkungfu-discovery`
+
+Both renamed meta-skills reset to version `0.1.0` under their new IDs (a fresh start; their 0.1.1 history under the old IDs is gone with the old IDs).
+
+### Removed
+
+- `yanks.json` cleared — the 0.1.0 yank entries from 0.1.3 referenced the old `samuelgudi/agent-skills-*` IDs, which no longer exist. New IDs start fresh, so there is nothing to yank.
+
+### Migration notes
+
+This release is BREAKING in the literal sense that any 0.1.2 or 0.1.3 install on your machine has cache/marker paths and env var names that 0.1.4 doesn't read. In practice, there are five people in the world who installed those versions (Samuel + MILO + 3 unknown if any). The migration is: `kfu update` to repopulate the new cache, and reinstall any skills you had installed.
+
+---
+
 ## [0.1.3] — 2026-05-12
 
 Patch release surfaced by the first external field test (MILO agent on WSL, 36 minutes after 0.1.2 went live). The `install_skill` path was broken end-to-end; everything else worked. Both root causes fixed.

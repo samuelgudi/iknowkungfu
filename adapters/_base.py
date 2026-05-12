@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-MARKER_FILENAME = ".agent-skills-marker.json"
+MARKER_FILENAME = ".iknowkungfu-marker.json"
 
 # File extensions and bare names we treat as text — these get CRLF->LF
 # normalisation before hashing so a Windows checkout (autocrlf=true) produces

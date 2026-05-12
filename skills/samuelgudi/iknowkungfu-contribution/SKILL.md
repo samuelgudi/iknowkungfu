@@ -1,5 +1,5 @@
 ---
-name: agent-skills-contribution
+name: iknowkungfu-contribution
 description: Submit a new skill or update an existing one in the I Know Kung Fu registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.
 ---
 
@@ -23,8 +23,6 @@ kfu issue <id>             # open an improvement issue
 kfu deprecate <id> --in-favor-of <new-id>
 kfu yank <id>@<version> --reason "..."
 ```
-
-The back-compat `agent-skills` alias resolves to the same entry point, so existing scripts continue to work; new automation should prefer `kfu`.
 
 ## Required by the registry
 

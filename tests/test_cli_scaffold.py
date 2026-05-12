@@ -59,7 +59,7 @@ def test_cli_search_unicode_star_does_not_crash(tmp_path, monkeypatch, capsys):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     (cache / "registry.json").write_text(_json.dumps({
         "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z",
@@ -102,7 +102,7 @@ def test_detect_host_multi_host_message_includes_example(monkeypatch):
 
     monkeypatch.setattr(ClaudeCodeAdapter, "detect", lambda self: True)
     monkeypatch.setattr(HermesAdapter, "detect", lambda self: True)
-    monkeypatch.delenv("AGENT_SKILLS_DEFAULT_AGENT", raising=False)
+    monkeypatch.delenv("IKNOWKUNGFU_DEFAULT_AGENT", raising=False)
 
     with pytest.raises(SystemExit) as exc:
         detect_host()
@@ -112,4 +112,4 @@ def test_detect_host_multi_host_message_includes_example(monkeypatch):
     # Inline copy-pastable example
     assert "--agent claude-code" in msg or "--agent hermes" in msg
     # Env var override mentioned
-    assert "AGENT_SKILLS_DEFAULT_AGENT" in msg
+    assert "IKNOWKUNGFU_DEFAULT_AGENT" in msg

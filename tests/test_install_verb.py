@@ -9,7 +9,7 @@ import pytest
 
 
 def setup_registry_repo(tmp_path):
-    """Build a local git repo that looks like the agent-skills registry.
+    """Build a local git repo that looks like the iknowkungfu registry.
     Returns (repo_path, registry_dict_with_versions_pointing_to_real_shas)."""
     repo = tmp_path / "registry-repo"
     repo.mkdir()
@@ -51,7 +51,7 @@ def install_env(tmp_path, monkeypatch):
     home.mkdir()
     (home / ".claude").mkdir()
     monkeypatch.setattr(Path, "home", lambda: home)
-    cache = home / ".cache/agent-skills"
+    cache = home / ".cache/iknowkungfu"
     cache.mkdir(parents=True)
     repo, sha = setup_registry_repo(tmp_path)
     # Move repo to where install expects it
@@ -116,7 +116,7 @@ def test_install_default_latest(install_env):
     target = install_env["home"] / ".claude/skills/test-author-example"
     assert rc == 0
     assert (target / "SKILL.md").exists()
-    assert (target / ".agent-skills-marker.json").exists()
+    assert (target / ".iknowkungfu-marker.json").exists()
 
 
 def test_install_explicit_version_ok(install_env):

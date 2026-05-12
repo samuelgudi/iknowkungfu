@@ -29,10 +29,9 @@ Stage refers to agentskills.io's progressive-disclosure model (metadata → body
 pip install iknowkungfu     # or: uv tool install iknowkungfu
 ```
 
-This installs three CLI entry points:
+This installs two CLI entry points:
 
-* `kfu` — the CLI for humans (primary command)
-* `agent-skills` — back-compat alias; resolves to the same entry point as `kfu`
+* `kfu` — the CLI for humans
 * `iknowkungfu-mcp` — the MCP server (spawned by agent runtimes, not invoked directly)
 
 Verify:
@@ -214,7 +213,7 @@ The MCP `search` tool inherits the determinism contract from the underlying rank
 
 * **Read tools** (`search`, `get_skill`, `get_skill_file`, `list_*`) read only from the local cache. No network calls.
 * **`update_registry`** fetches `registry.json` over HTTPS from GitHub raw. Rollback-guarded by `generated_at` timestamp comparison — a fetched older registry refuses to overwrite a cached newer one.
-* **`install_skill`** writes files to the agent host's canonical skills directory. Marker files (`.agent-skills-marker.json`) record install provenance for `verify` and `uninstall`.
+* **`install_skill`** writes files to the agent host's canonical skills directory. Marker files (`.iknowkungfu-marker.json`) record install provenance for `verify` and `uninstall`.
 * **`get_skill_file`** rejects path-traversal: `file_path` is resolved and required to live under the skill's directory. Tested in `tests/test_mcp_server.py`.
 
 ---

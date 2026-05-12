@@ -37,13 +37,13 @@ DEFAULT_REGISTRY_REPO = "https://github.com/samuelgudi/iknowkungfu.git"
 
 
 def _cache_dir() -> Path:
-    d = Path.home() / ".cache/agent-skills"
+    d = Path.home() / ".cache/iknowkungfu"
     d.mkdir(parents=True, exist_ok=True)
     return d
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.3"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.4"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
@@ -85,10 +85,10 @@ def _sync_registry_repo(repo_url: str, dest: Path) -> None:
 
 def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> int:
     """Fetch registry.json + yanks.json, verify rollback, write atomically.
-    Sync registry-repo clone (skipped if AGENT_SKILLS_SKIP_REPO_SYNC=1).
+    Sync registry-repo clone (skipped if IKNOWKUNGFU_SKIP_REPO_SYNC=1).
     Returns 0 on success, 1 on error/rollback."""
     cache = _cache_dir()
-    url = registry_url or os.environ.get("AGENT_SKILLS_REGISTRY_URL", DEFAULT_REGISTRY_URL)
+    url = registry_url or os.environ.get("IKNOWKUNGFU_REGISTRY_URL", DEFAULT_REGISTRY_URL)
 
     try:
         reg_bytes = _http_fetch(url)
@@ -141,8 +141,8 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
         pass  # yanks.json optional
 
     # Sync the registry-repo clone (needed for install's git archive step)
-    if os.environ.get("AGENT_SKILLS_SKIP_REPO_SYNC") != "1":
-        repo = repo_url or os.environ.get("AGENT_SKILLS_REGISTRY_REPO", DEFAULT_REGISTRY_REPO)
+    if os.environ.get("IKNOWKUNGFU_SKIP_REPO_SYNC") != "1":
+        repo = repo_url or os.environ.get("IKNOWKUNGFU_REGISTRY_REPO", DEFAULT_REGISTRY_REPO)
         repo_cache = cache / "registry-repo"
         try:
             _sync_registry_repo(repo, repo_cache)
