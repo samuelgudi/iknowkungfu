@@ -68,7 +68,12 @@ def install_env(tmp_path, monkeypatch):
     staging_probe = tmp_path / "staging-probe"
     staging_probe.mkdir()
     with _tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tf:
-        tf.extractall(staging_probe)
+        # Mirror install.py's filter='data' on 3.12+; silently fall back on
+        # 3.10/3.11 where the kwarg isn't accepted.
+        if sys.version_info >= (3, 12):
+            tf.extractall(staging_probe, filter="data")
+        else:
+            tf.extractall(staging_probe)
     content_hash = compute_dir_content_hash(staging_probe)
 
     # Write registry.json that references the tree sha + the correct content_hash.

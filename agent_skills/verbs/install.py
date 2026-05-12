@@ -37,7 +37,16 @@ def materialize_tree(repo_path: Path, tree_sha: str, source_subpath: str, stagin
     )
     import tarfile, io
     with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tf:
-        tf.extractall(staging)
+        # `filter='data'` was added in Python 3.12 and will be the default in
+        # 3.14 (DeprecationWarning fires now without it). It rejects absolute
+        # paths, links escaping the destination, and dangerous metadata. We
+        # extract from a registry-anchored git tree (post-tamper-check), so
+        # the threat surface is small, but defence in depth is cheap. Older
+        # interpreters (3.10/3.11) don't accept the kwarg; fall back silently.
+        if sys.version_info >= (3, 12):
+            tf.extractall(staging, filter="data")
+        else:
+            tf.extractall(staging)
 
 
 def resolve_install_id(registry: dict, raw_id: str) -> str | None:
