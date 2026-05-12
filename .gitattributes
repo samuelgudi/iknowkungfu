@@ -1,0 +1,17 @@
+# Enforce LF line endings across all platforms so file content hashes (sha256)
+# are identical on Windows, Linux, and macOS. Without this, generate_manifest.py
+# produces a different registry.json depending on the developer's autocrlf
+# setting, and CI's `--check` step fails on cross-platform drift.
+
+* text=auto eol=lf
+
+# Common binary types — git auto-detect handles these too, but list explicitly.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary

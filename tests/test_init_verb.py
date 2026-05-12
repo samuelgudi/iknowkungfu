@@ -93,15 +93,18 @@ def test_init_fails_missing_skill_md(tmp_path, fake_gh, capsys):
     assert "SKILL.md" in (captured.out + captured.err)
 
 
-@pytest.mark.skipif(
-    os.name == "nt",
-    reason="NTFS is case-insensitive — cannot create distinct SKILL.md and skill.md simultaneously",
-)
 def test_init_fails_both_uppercase_and_lowercase_skill_md(tmp_path, fake_gh, capsys):
+    """Both SKILL.md and skill.md present is a hard fail. Only meaningful on
+    case-sensitive filesystems (default Linux). NTFS and default APFS/HFS+ are
+    case-insensitive, so the two writes collapse to one file — we detect that
+    at runtime and skip rather than guess via os.name (macOS isn't NT but is
+    also case-insensitive by default)."""
     skill = tmp_path / "conflicted"
     skill.mkdir()
     (skill / "SKILL.md").write_text("---\nname: x\ndescription: x\n---\n")
     (skill / "skill.md").write_text("---\nname: x\ndescription: x\n---\n")
+    if len(os.listdir(skill)) < 2:
+        pytest.skip("case-insensitive filesystem — cannot stage both SKILL.md and skill.md")
     from agent_skills.verbs.init import run
     class Args:
         target = str(skill)

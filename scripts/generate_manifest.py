@@ -27,9 +27,22 @@ def parse_frontmatter(skill_md: Path) -> dict:
     return yaml.safe_load(text[4:end])
 
 
+_TEXT_SUFFIXES = {
+    ".md", ".py", ".pyi", ".js", ".ts", ".mjs", ".sh", ".bash", ".zsh",
+    ".json", ".yaml", ".yml", ".txt", ".toml", ".cfg", ".ini", ".rst",
+}
+
+
 def sha256_file(p: Path) -> str:
+    """Hash file bytes. For text files, normalise CRLF -> LF so the hash is
+    platform-independent (Windows autocrlf produces CRLF in the working tree
+    even when the repo stores LF; without normalisation, manifest --check
+    fails on Linux CI after a Windows-generated commit)."""
     h = hashlib.sha256()
-    h.update(p.read_bytes())
+    data = p.read_bytes()
+    if p.suffix.lower() in _TEXT_SUFFIXES or p.name in {"SKILL.md", "skill.md", "README.md", "LICENSE", "CONTRIBUTING.md", "SECURITY.md", "SCHEMA.md"}:
+        data = data.replace(b"\r\n", b"\n")
+    h.update(data)
     return h.hexdigest()
 
 
@@ -44,10 +57,17 @@ def compute_content_hash(skill_dir: Path) -> tuple[str, list[str]]:
     return "sha256:" + hashlib.sha256(combined).hexdigest(), [str(rel).replace("\\", "/") for rel in files]
 
 
+def _posix(p) -> str:
+    """Normalise a Path or path string to forward-slash form.
+    Required because `git show <sha>:<path>` and `git log -- <path>` reject
+    backslash paths on Windows (the file isn't found in the index)."""
+    return str(p).replace("\\", "/")
+
+
 def get_git_tree_sha(repo: Path, skill_path: Path) -> str:
     rel = skill_path.relative_to(repo)
     result = subprocess.run(
-        ["git", "-C", str(repo), "log", "-1", "--format=%T", "--", str(rel)],
+        ["git", "-C", str(repo), "log", "-1", "--format=%T", "--", _posix(rel)],
         capture_output=True, text=True
     )
     return result.stdout.strip()
@@ -55,9 +75,9 @@ def get_git_tree_sha(repo: Path, skill_path: Path) -> str:
 
 def get_skill_versions(repo: Path, skill_dir: Path) -> dict:
     """Walk git log for the skill's meta.json; record each version's tree SHA + release date."""
-    meta_rel = (skill_dir / "meta.json").relative_to(repo)
+    meta_rel = _posix((skill_dir / "meta.json").relative_to(repo))
     result = subprocess.run(
-        ["git", "-C", str(repo), "log", "--reverse", "--format=%H %cI", "--", str(meta_rel)],
+        ["git", "-C", str(repo), "log", "--reverse", "--format=%H %cI", "--", meta_rel],
         capture_output=True, text=True
     )
     versions = {}
@@ -67,7 +87,7 @@ def get_skill_versions(repo: Path, skill_dir: Path) -> dict:
         commit_sha, released = line.split(maxsplit=1)
         show = subprocess.run(
             ["git", "-C", str(repo), "show", f"{commit_sha}:{meta_rel}"],
-            capture_output=True, text=True
+            capture_output=True, text=True, encoding="utf-8"
         )
         try:
             meta = json.loads(show.stdout)
@@ -96,9 +116,9 @@ def get_commit_timestamp(repo: Path) -> str:
 
 
 def get_provenance(repo: Path, skill_dir: Path) -> dict:
-    rel = skill_dir.relative_to(repo)
+    rel = _posix(skill_dir.relative_to(repo))
     result = subprocess.run(
-        ["git", "-C", str(repo), "log", "-1", "--format=%cI %s", "--", str(rel)],
+        ["git", "-C", str(repo), "log", "-1", "--format=%cI %s", "--", rel],
         capture_output=True, text=True
     )
     line = result.stdout.strip()
@@ -208,8 +228,21 @@ def main(argv: list[str] | None = None) -> int:
 
     reg_path = repo / "registry.json"
     if args.check:
-        current = reg_path.read_text(encoding="utf-8") if reg_path.exists() else ""
-        if current != serialized:
+        if not reg_path.exists():
+            print("registry.json missing.")
+            return 1
+        try:
+            current = json.loads(reg_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            print(f"registry.json parse error: {e}")
+            return 1
+        # Compare structural content (skills array + schema_version), ignoring
+        # generated_at which reflects HEAD's commit time and necessarily drifts
+        # on every commit. The on-merge workflow refreshes generated_at; --check
+        # only flags semantic drift in the skills array.
+        current_skills = current.get("skills")
+        manifest_skills = manifest["skills"]
+        if current.get("schema_version") != manifest["schema_version"] or current_skills != manifest_skills:
             print("registry.json out of sync. Run generate_manifest.py to regenerate.")
             return 1
         return 0

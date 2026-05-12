@@ -57,7 +57,24 @@ def test_check_mode_passes_on_synced(tmp_path):
     assert result.returncode == 0
 
 
-def test_check_mode_fails_on_drift(tmp_path):
+def test_check_mode_fails_on_skill_drift(tmp_path):
+    """Drift in the skills array (the canonical, version-stable content) fails --check.
+    Tampering only with generated_at does NOT fail — that field is intentionally
+    excluded from --check because it reflects HEAD's commit time and necessarily
+    changes on every commit. See generate_manifest.py::main for the rationale."""
+    repo = setup_test_repo(tmp_path)
+    run_gen(repo)
+    reg_path = repo / "registry.json"
+    data = json.loads(reg_path.read_text())
+    # Tamper a real content field: change the skill's version
+    data["skills"][0]["version"] = "9.9.9"
+    reg_path.write_text(json.dumps(data))
+    result = run_gen(repo, "--check")
+    assert result.returncode == 1
+
+
+def test_check_mode_ignores_generated_at_drift(tmp_path):
+    """generated_at is excluded from --check; tampering with it must NOT fail."""
     repo = setup_test_repo(tmp_path)
     run_gen(repo)
     reg_path = repo / "registry.json"
@@ -65,7 +82,7 @@ def test_check_mode_fails_on_drift(tmp_path):
     data["generated_at"] = "1999-01-01T00:00:00Z"
     reg_path.write_text(json.dumps(data))
     result = run_gen(repo, "--check")
-    assert result.returncode == 1
+    assert result.returncode == 0
 
 
 def test_schema_valid(tmp_path):
