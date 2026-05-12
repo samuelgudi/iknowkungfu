@@ -39,6 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history needed: generate_manifest.py walks git log per
+          # skill's meta.json to populate versions[].sha + .released. With
+          # the default fetch-depth: 1 it only sees HEAD, falls back to
+          # HEAD's commit time, and produces a registry that fails --check.
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

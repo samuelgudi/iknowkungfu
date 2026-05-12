@@ -251,13 +251,7 @@ def main(argv: list[str] | None = None) -> int:
         current_skills = current.get("skills")
         manifest_skills = manifest["skills"]
         if current.get("schema_version") != manifest["schema_version"] or current_skills != manifest_skills:
-            print("registry.json out of sync. Run generate_manifest.py to regenerate.")
-            # Diagnostic (temporary): show which skill / field differs on CI vs disk
-            import difflib
-            committed = json.dumps({"schema_version": current.get("schema_version"), "skills": current_skills}, indent=2, sort_keys=False).splitlines()
-            regenerated = json.dumps({"schema_version": manifest["schema_version"], "skills": manifest_skills}, indent=2, sort_keys=False).splitlines()
-            for line in difflib.unified_diff(committed, regenerated, fromfile="committed", tofile="regenerated", lineterm="", n=2):
-                print(line)
+            print("registry.json out of sync. Run generate_manifest.py to regenerate.", file=sys.stderr)
             return 1
         return 0
     reg_path.write_text(serialized, encoding="utf-8")
