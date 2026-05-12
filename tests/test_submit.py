@@ -13,7 +13,8 @@ REPO_ROOT = Path(__file__).parent.parent
 
 @pytest.fixture
 def test_repo(tmp_path):
-    """Copy the agent-skills repo (minus .git) into tmp_path; git init; capture path."""
+    """Copy the agent-skills repo (minus .git) into tmp_path; git init; wire up a bare
+    origin so submit can actually push (mirrors the real contribution flow)."""
     repo = tmp_path / "registry-repo"
     shutil.copytree(REPO_ROOT, repo, ignore=shutil.ignore_patterns(".git", "__pycache__", "*.egg-info", ".pytest_cache"))
     subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True, capture_output=True)
@@ -21,6 +22,11 @@ def test_repo(tmp_path):
     subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
     subprocess.run(["git", "add", "-A"], cwd=repo, check=True, capture_output=True)
     subprocess.run(["git", "commit", "-m", "init"], cwd=repo, check=True, capture_output=True)
+    # Bare origin so `git push` inside submit_skill has somewhere to go.
+    origin = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "--bare", str(origin)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(repo), "remote", "add", "origin", str(origin)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(repo), "push", "-u", "origin", "main"], check=True, capture_output=True)
     return repo
 
 
@@ -142,3 +148,20 @@ def test_submit_review_md_template_populated(test_repo, clean_skill, fake_gh):
     review = (test_repo / "submitted/test-author-example/REVIEW.md").read_text(encoding="utf-8")
     assert "test-author/example" in review
     assert "0.1.0" in review
+
+
+def test_submit_pushes_branch_to_origin(test_repo, clean_skill, fake_gh):
+    """Regression lock: submit must push the contrib branch to origin before calling
+    `gh pr create`. Without the push, `gh pr create` aborts with
+    'you must first push the current branch to a remote' on real (non-shimmed) gh."""
+    from clients.skill_contribution.submit import submit_skill
+    result = submit_skill(clean_skill, test_repo, yes=True)
+    assert result.success, f"error={result.error}"
+    # The bare origin lives alongside the working repo in tmp_path (see fixture).
+    origin = test_repo.parent / "origin.git"
+    branches = subprocess.run(
+        ["git", "-C", str(origin), "branch"], capture_output=True, text=True, check=True
+    ).stdout
+    assert "contrib/test-author-example" in branches, (
+        f"contrib branch not pushed to origin. origin branches:\n{branches}"
+    )

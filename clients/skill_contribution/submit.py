@@ -166,6 +166,17 @@ def submit_skill(target: Path, repo: Path, *, yes: bool = False) -> SubmitResult
     subprocess.run(["git", "-C", str(repo), "add", f"submitted/{flat}"], check=True, capture_output=True)
     subprocess.run(["git", "-C", str(repo), "commit", "-m", title], check=True, capture_output=True)
 
+    # Push the branch to origin. Without this, `gh pr create` aborts with
+    # "you must first push the current branch to a remote" in non-interactive mode.
+    # --force-with-lease is safe on a fresh branch (no remote ref to lease against) and
+    # tolerates re-submission cycles where the local contrib branch was rebuilt.
+    push = subprocess.run(
+        ["git", "-C", str(repo), "push", "-u", "--force-with-lease", "origin", branch],
+        capture_output=True, text=True,
+    )
+    if push.returncode != 0:
+        return SubmitResult(False, error=f"git push failed: {push.stderr.strip() or push.stdout.strip()}")
+
     gh_exe = _find_gh()
     gh = subprocess.run(
         [gh_exe, "pr", "create", "--title", title, "--body", pr_body],
