@@ -3,6 +3,29 @@ import argparse
 import sys
 
 
+def _force_utf8_streams() -> None:
+    """Force sys.stdout/stderr to UTF-8 at CLI entry. Windows consoles default
+    to CP1252 (or similar legacy code page), which can't encode common output
+    glyphs (★, em-dash). Reconfiguring at the entrypoint costs nothing on POSIX
+    (already UTF-8) and prevents UnicodeEncodeError tracebacks on Windows.
+    Uses errors='replace' on stderr so warning messages never bubble a second
+    fault if a truly unmappable char slips through."""
+    for stream_name in ("stdout", "stderr"):
+        stream = getattr(sys, stream_name, None)
+        if stream is None:
+            continue
+        # Some test environments wrap streams in non-reconfigurable BufferedIO;
+        # guard with hasattr so we degrade gracefully rather than blow up.
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            # Stream not text-mode or already detached; nothing to do.
+            pass
+
+
 VERBS = [
     "search", "show", "install", "uninstall", "verify",
     "list", "update", "init", "submit", "issue", "deprecate", "yank",
@@ -97,6 +120,7 @@ def make_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _force_utf8_streams()
     p = make_parser()
     args = p.parse_args(argv)
     # Verb dispatch: each verb's run() function is in agent_skills/verbs/<verb>.py.

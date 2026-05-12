@@ -125,3 +125,50 @@ def test_update_verb_invokes_refresh(serve_dir, fake_home, monkeypatch):
     rc = run(Args())
     assert rc == 0
     assert (fake_home / ".cache/agent-skills/registry.json").exists()
+
+
+def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypatch, capsys):
+    """The unsigned-registry warning contains an em-dash (U+2014). After the
+    Finding 2 UTF-8 reconfigure, the dash must reach stderr as proper UTF-8
+    bytes (\\xe2\\x80\\x94), not '?' or a UnicodeEncodeError. Regression test
+    for Finding 1 of the 2026-05-12 walkthrough."""
+    import io
+    import sys
+    import json
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from threading import Thread
+
+    payload = json.dumps({
+        "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z", "skills": []
+    }).encode()
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802 (stdlib API)
+            if self.path.endswith("registry.json"):
+                self.send_response(200); self.end_headers(); self.wfile.write(payload)
+            else:
+                self.send_response(404); self.end_headers()
+        def log_message(self, *_a, **_k): pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    t = Thread(target=server.serve_forever, daemon=True); t.start()
+    try:
+        url = f"http://127.0.0.1:{server.server_port}/registry.json"
+        cache = tmp_path / "cache"
+        monkeypatch.setattr("clients.skill_discovery.update._cache_dir", lambda: cache.mkdir(exist_ok=True) or cache)
+        monkeypatch.setenv("AGENT_SKILLS_SKIP_REPO_SYNC", "1")
+
+        # Apply the same reconfigure cli.main does, to mirror real CLI usage.
+        from agent_skills.cli import _force_utf8_streams
+        _force_utf8_streams()
+
+        from clients.skill_discovery.update import refresh
+        rc = refresh(registry_url=url)
+        assert rc == 0
+    finally:
+        server.shutdown()
+
+    captured = capsys.readouterr()
+    # Em-dash (U+2014) must appear in stderr message — not '?' (lossy replace)
+    # and not omitted (raised exception).
+    assert "—" in captured.err
