@@ -93,7 +93,8 @@ def _emit_ndjson(result: SearchResult) -> None:
 def _emit_pretty(result: SearchResult) -> None:
     if not result.results:
         print(
-            "No skills match. Try a broader query or run `kfu list-categories`."
+            "No skills match. Try a broader query, or filter by `category:` "
+            "(one of: dev, media, ops, data, comms, docs, meta, ai)."
         )
         return
     for i, item in enumerate(result.results, 1):

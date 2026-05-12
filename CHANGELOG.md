@@ -25,6 +25,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - **New CLI flags on `search`**: `--include-deprecated`, `--ndjson`, `--limit`, `--offset`.
 - **ADR-001** locking the project name and the boundary between external-rename and internal-stability ([`docs/decisions.md`](docs/decisions.md)).
 
+### Fixed
+
+- **Empty-search-result hint** (`agent_skills/verbs/search.py`): previously suggested running `agent-skills list-categories` / `kfu list-categories`, a verb that doesn't exist. Replaced with an inline list of the eight valid categories so the suggestion is actionable.
+
 ### Stayed the same (back-compat, by design)
 
 The rename is deliberately scoped to external surfaces. The following are unchanged so that existing installs continue to work without migration:
