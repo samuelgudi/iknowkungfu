@@ -37,11 +37,31 @@ def make_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="verb", required=True)
     for v in VERBS:
         if v == "search":
-            sp = sub.add_parser("search", help="Find skills by keyword")
-            sp.add_argument("terms", nargs="+")
-            sp.add_argument("--agent")
+            sp = sub.add_parser(
+                "search",
+                help="Find skills using the query DSL (tag:, agent:, version:>=, etc.)",
+            )
+            # `terms` is now the raw query DSL string. nargs='*' so callers can
+            # pass zero positional args (filter-only queries like `--tag rust`).
+            sp.add_argument("terms", nargs="*", default=[])
+            # Deprecated flags retained for one release cycle. Translated to
+            # DSL prefixes internally and emit a stderr warning.
+            sp.add_argument("--agent", help="DEPRECATED: use 'agent:X' in the query")
+            sp.add_argument("--category", help="DEPRECATED: use 'category:X' in the query")
+            sp.add_argument("--tag", help="DEPRECATED: use 'tag:X' in the query")
+            # Pagination + filters.
             sp.add_argument("--limit", type=int, default=5)
+            sp.add_argument("--offset", type=int, default=0)
+            sp.add_argument(
+                "--include-deprecated",
+                action="store_true",
+                help="Include skills with status:deprecated",
+            )
+            # Output formats.
             sp.add_argument("--json", action="store_true")
+            sp.add_argument(
+                "--ndjson", action="store_true", help="Newline-delimited JSON"
+            )
             sp.add_argument("--yes", action="store_true")
         elif v == "show":
             sp = sub.add_parser("show", help="Show details for one skill")
