@@ -2,17 +2,46 @@
   "id": "samuelgudi/agent-skills-discovery",
   "version": "0.1.0",
   "status": "active",
-  "author": { "name": "Samuel Gudi", "github_login": "samuelgudi", "github_id": 124914565 },
+  "author": {
+    "name": "Samuel Gudi",
+    "github_login": "samuelgudi",
+    "github_id": 124914565
+  },
   "category": "meta",
-  "tags": ["agent-skills", "discovery", "search", "registry"],
-  "platforms": ["linux", "macos", "windows"],
-  "agent_compat": ["claude-code", "hermes"],
-  "requires": { "env_vars": [], "commands": ["agent-skills"] },
+  "tags": [
+    "iknowkungfu",
+    "agent-skills",
+    "discovery",
+    "search",
+    "registry"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "claude-code",
+    "hermes"
+  ],
+  "requires": {
+    "env_vars": [],
+    "commands": [
+      "kfu"
+    ]
+  },
   "license": "MIT",
-  "install": { "claude-code": { "scope": "user" }, "hermes": {} },
+  "install": {
+    "claude-code": {
+      "scope": "user"
+    },
+    "hermes": {}
+  },
   "composes": [],
   "extends": null,
   "supersedes": [],
   "superseded_by": null,
-  "related_skills": ["samuelgudi/agent-skills-contribution"]
+  "related_skills": [
+    "samuelgudi/agent-skills-contribution"
+  ]
 }

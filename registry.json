@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T08:51:19Z",
+  "generated_at": "2026-05-12T15:03:48Z",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
       "name": "agent-skills-contribution",
-      "description": "Submit a new agent-skill or update an existing one to the agent-skills registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.",
+      "description": "Submit a new skill or update an existing one in the I Know Kung Fu registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.",
       "version": "0.1.0",
       "status": "active",
       "author": {
@@ -15,6 +15,7 @@
       },
       "category": "meta",
       "tags": [
+        "iknowkungfu",
         "agent-skills",
         "contribution",
         "submit",
@@ -32,7 +33,7 @@
       "requires": {
         "env_vars": [],
         "commands": [
-          "agent-skills",
+          "kfu",
           "git",
           "gh"
         ]
@@ -47,7 +48,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-contribution",
-        "content_hash": "sha256:bd5a4a23086b0f2acfebdbf5303eeb02521aed2120666ddd54bec7c531a82f64",
+        "content_hash": "sha256:8acb55b16a46881ab12ab42bb81bcd450946da09ef43d862f753512512f38965",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -71,7 +72,7 @@
     {
       "id": "samuelgudi/agent-skills-discovery",
       "name": "agent-skills-discovery",
-      "description": "Query the agent-skills registry for a skill that matches the current task. Use ONLY when explicitly asked to search for a skill. Do not invoke reflexively for every task.",
+      "description": "Query the I Know Kung Fu registry for a skill that matches the current task. Use ONLY when explicitly asked to search for a skill. Do not invoke reflexively for every task.",
       "version": "0.1.0",
       "status": "active",
       "author": {
@@ -81,6 +82,7 @@
       },
       "category": "meta",
       "tags": [
+        "iknowkungfu",
         "agent-skills",
         "discovery",
         "search",
@@ -98,7 +100,7 @@
       "requires": {
         "env_vars": [],
         "commands": [
-          "agent-skills"
+          "kfu"
         ]
       },
       "has_scripts": false,
@@ -111,7 +113,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-discovery",
-        "content_hash": "sha256:fa5d45338719299bb098cafd5aa07ef5e2698ad7c805663cb1086012d69ee514",
+        "content_hash": "sha256:c6b9edffdf4c2453d8a23c58874e73a15202d969c6a591da0d157e81c4f60d81",
         "files": [
           "SKILL.md",
           "meta.json"
