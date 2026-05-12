@@ -117,3 +117,37 @@ def test_show_no_cache_returns_1(tmp_path, monkeypatch, capsys):
         yes = False
     rc = run(Args())
     assert rc == 1
+
+
+def test_show_renders_tags_with_hash_prefix(tmp_path, monkeypatch, capsys):
+    """show's plaintext output uses #tag notation matching search verb.
+    Finding 7 of the 2026-05-12 walkthrough — search and show used different
+    tag formats, which is just visual inconsistency."""
+    home = tmp_path / "home"; home.mkdir()
+    (home / ".claude").mkdir()
+    monkeypatch.setattr(Path, "home", lambda: home)
+    cache = home / ".cache/agent-skills"; cache.mkdir(parents=True)
+    import json as _json
+    (cache / "registry.json").write_text(_json.dumps({
+        "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z",
+        "skills": [{
+            "id": "test/example", "name": "example", "description": "d",
+            "version": "0.1.0", "status": "active",
+            "author": {"name": "T", "github_login": "test", "github_id": 1},
+            "category": "meta", "tags": ["alpha", "beta"],
+            "platforms": ["linux"], "agent_compat": ["claude-code"],
+            "license": "MIT", "install": {"claude-code": {"scope": "user"}},
+            "has_scripts": False,
+            "requires": {"env_vars": [], "commands": []},
+            "versions": {"0.1.0": {"sha": "x" * 40, "released": "2026-05-11T00:00:00Z"}},
+            "source": {"path": "skills/test/example", "content_hash": "sha256:0", "files": []},
+        }],
+    }))
+    from agent_skills.verbs.show import run
+    class Args:
+        id = "test/example"; agent = "claude-code"; json = False; yes = False
+    run(Args())
+    out = capsys.readouterr().out
+    assert "#alpha" in out and "#beta" in out
+    # The old space-separated bare form should be gone
+    assert "alpha beta" not in out

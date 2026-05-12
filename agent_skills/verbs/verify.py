@@ -40,10 +40,16 @@ def run(args) -> int:
 
     vr = adapter.verify(args.id, registry_hash=registry_hash, yanked=yanked, yank_reason=yank_reason)
 
+    # Exit-code matrix:
+    #   Without --json:  0 = clean ; 1 = any non-clean status.
+    #   With    --json:  0 = verify ran (status in payload) ; non-zero only on
+    #                    hard errors (missing registry, unknown agent, etc.).
+    #                    The JSON payload IS the machine-readable answer in all
+    #                    non-error cases. Finding 6 of the 2026-05-12 walkthrough.
     if args.json:
         print(json.dumps({"id": args.id, "status": vr.status, "message": vr.message}, indent=2))
-    else:
-        print(f"{args.id}: {vr.status.upper()}")
-        print(f"  {vr.message}")
+        return 0
 
+    print(f"{args.id}: {vr.status.upper()}")
+    print(f"  {vr.message}")
     return 0 if vr.status == "clean" else 1

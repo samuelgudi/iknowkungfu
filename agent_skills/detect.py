@@ -22,7 +22,12 @@ def detect_host(*, override: str | None = None) -> str:
     pref = os.environ.get("AGENT_SKILLS_DEFAULT_AGENT")
     if pref and pref in found:
         return pref
-    raise SystemExit(f"Multiple hosts detected ({found}). Set AGENT_SKILLS_DEFAULT_AGENT or pass --agent.")
+    raise SystemExit(
+        "Multiple agent hosts detected: " + ", ".join(found) + ".\n"
+        "Pick one with --agent, e.g.:\n"
+        f"  agent-skills <verb> --agent {found[0]}\n"
+        "Or set a default: export AGENT_SKILLS_DEFAULT_AGENT=" + found[0]
+    )
 
 
 def get_adapter(name: str):

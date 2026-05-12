@@ -88,3 +88,28 @@ def test_cli_search_unicode_star_does_not_crash(tmp_path, monkeypatch, capsys):
     raw = fake_stdout.buffer.getvalue()
     # After fix, stdout has been reconfigured to UTF-8; the star is encodable.
     assert "★".encode("utf-8") in raw or b"\xe2\x98\x85" in raw
+
+
+def test_detect_host_multi_host_message_includes_example(monkeypatch):
+    """When multiple hosts are detected, the SystemExit message must give a
+    ready-to-copy `--agent <name>` example and name the env var override.
+    Finding 3 of the 2026-05-12 walkthrough — Samuel had both stacks installed
+    and the bare `repr(['claude-code', 'hermes'])` was unfriendly."""
+    import pytest
+    from agent_skills.detect import detect_host
+    from adapters.claude_code import ClaudeCodeAdapter
+    from adapters.hermes import HermesAdapter
+
+    monkeypatch.setattr(ClaudeCodeAdapter, "detect", lambda self: True)
+    monkeypatch.setattr(HermesAdapter, "detect", lambda self: True)
+    monkeypatch.delenv("AGENT_SKILLS_DEFAULT_AGENT", raising=False)
+
+    with pytest.raises(SystemExit) as exc:
+        detect_host()
+    msg = str(exc.value)
+    # Conversational text, not bare repr
+    assert "claude-code" in msg and "hermes" in msg
+    # Inline copy-pastable example
+    assert "--agent claude-code" in msg or "--agent hermes" in msg
+    # Env var override mentioned
+    assert "AGENT_SKILLS_DEFAULT_AGENT" in msg

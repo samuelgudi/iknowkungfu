@@ -104,3 +104,47 @@ def test_verify_not_installed(tmp_path, monkeypatch, capsys):
         id = "noone/nope"; agent = "claude-code"; json = False; yes = False
     rc = run(Args())
     assert rc != 0
+
+
+def test_verify_json_returns_zero_on_drift(tmp_path, monkeypatch, capsys):
+    """With --json, verify always exits 0 — the JSON status field IS the
+    machine-readable answer. Without --json, drift still exits 1 (unchanged).
+    Finding 6 of the 2026-05-12 walkthrough."""
+    setup_installed(tmp_path, monkeypatch, drift=True)
+    from agent_skills.verbs.verify import run
+    class Args:
+        id = "test-author/example"; agent = "claude-code"; json = True; yes = False
+    rc = run(Args())
+    captured = capsys.readouterr()
+    import json as _json
+    payload = _json.loads(captured.out)
+    assert rc == 0, "--json mode always exits 0 — status is in the payload"
+    assert payload["status"] == "drift"
+
+
+def test_verify_json_returns_zero_on_yanked(tmp_path, monkeypatch, capsys):
+    setup_installed(tmp_path, monkeypatch, yanked=True)
+    from agent_skills.verbs.verify import run
+    class Args:
+        id = "test-author/example"; agent = "claude-code"; json = True; yes = False
+    rc = run(Args())
+    captured = capsys.readouterr()
+    import json as _json
+    payload = _json.loads(captured.out)
+    assert rc == 0
+    assert payload["status"] == "yanked"
+
+
+def test_verify_json_returns_nonzero_on_hard_error(tmp_path, monkeypatch, capsys):
+    """Even with --json, true hard errors (missing registry) must exit non-zero
+    so CI scripts can distinguish 'verify ran and reported a status' from
+    'verify couldn't run'."""
+    home = tmp_path / "home"; home.mkdir()
+    (home / ".claude").mkdir()
+    monkeypatch.setattr(Path, "home", lambda: home)
+    # No registry.json written
+    from agent_skills.verbs.verify import run
+    class Args:
+        id = "any/thing"; agent = "claude-code"; json = True; yes = False
+    rc = run(Args())
+    assert rc != 0  # hard error: no registry cache

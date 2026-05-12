@@ -64,7 +64,9 @@ def run(args) -> int:
     print(f"  {skill.get('description', '')}")
     print()
     print(f"  Category:  {skill['category']}")
-    print(f"  Tags:      {' '.join(skill.get('tags', [])) or '—'}")
+    tags = skill.get("tags", [])
+    tag_line = " ".join(f"#{t}" for t in tags) if tags else "—"
+    print(f"  Tags:      {tag_line}")
     print(f"  Platforms: {', '.join(skill.get('platforms', [])) or '—'}")
     print(f"  Agents:    {', '.join(skill.get('agent_compat', [])) or '—'}")
     if skill.get("requires"):

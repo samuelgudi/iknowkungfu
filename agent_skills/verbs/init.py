@@ -24,9 +24,16 @@ COMMAND_TOKENS = {
     "zip", "unzip", "jq", "yq", "sed", "awk", "grep",
 }
 
-ENV_VAR_SKIP = {"URL", "API", "PR", "ID", "TODO", "FIXME", "OK", "EOF", "CI", "CD"}
-
-ENV_VAR_RE = re.compile(r"\b([A-Z][A-Z0-9_]{2,})\b")
+# Real env-var USES, not bare acronyms. Patterns:
+#   $VAR / ${VAR}               (shell)
+#   os.environ[X] / .get(X)     (Python dict-style and method-style)
+#   os.getenv(X)                (Python)
+# Captures the variable name itself.
+ENV_VAR_PATTERNS = [
+    re.compile(r"\$\{?([A-Z_][A-Z0-9_]*)\}?"),
+    re.compile(r"os\.environ(?:\[|\.get\(\s*)[\"']([A-Z_][A-Z0-9_]*)[\"']"),
+    re.compile(r"os\.getenv\(\s*[\"']([A-Z_][A-Z0-9_]*)[\"']"),
+]
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -66,16 +73,21 @@ def _parse_frontmatter(text: str) -> tuple[dict, str]:
 
 
 def _scan_body(body: str) -> tuple[list[str], list[str]]:
-    """Scan body text for potential env vars and command tokens."""
-    env_vars = []
+    """Scan body text for env-var USES (not bare ALL_CAPS acronyms) and
+    command tokens. Pre-Finding-8a, the env-var heuristic was a bare
+    `\\b[A-Z][A-Z0-9_]{2,}\\b` regex which matched any prose acronym
+    (SSH, LLM, NFS) — high false-positive rate. Now patterns require an
+    actual use site: $VAR, ${VAR}, os.environ[...], os.getenv(...)."""
+    env_vars: list[str] = []
     seen_env: set[str] = set()
-    for match in ENV_VAR_RE.finditer(body):
-        token = match.group(1)
-        if token not in ENV_VAR_SKIP and token not in seen_env:
-            env_vars.append(token)
-            seen_env.add(token)
+    for pat in ENV_VAR_PATTERNS:
+        for m in pat.finditer(body):
+            tok = m.group(1)
+            if tok and tok not in seen_env:
+                env_vars.append(tok)
+                seen_env.add(tok)
 
-    # Command tokens: whole-word match only
+    # commands unchanged
     commands = []
     seen_cmd: set[str] = set()
     for token in COMMAND_TOKENS:
@@ -84,7 +96,6 @@ def _scan_body(body: str) -> tuple[list[str], list[str]]:
             commands.append(token)
             seen_cmd.add(token)
     commands.sort()
-
     return env_vars, commands
 
 
@@ -204,7 +215,11 @@ def run(args) -> int:
         print("  Scanning SKILL.md for shell-command patterns… none detected.")
 
     # ── Step 5: interactive prompts ───────────────────────────────────────────
-    slug = target.name
+    # Default id slug comes from SKILL.md frontmatter `name` (source of truth),
+    # not from `target.name` — the dir is incidental, the frontmatter is
+    # canonical. Falls back to target.name only if frontmatter parsing failed
+    # somehow (defensive; the missing-name case already exits earlier).
+    slug = name or target.name
     default_id = f"{gh_login}/{slug}"
 
     print()

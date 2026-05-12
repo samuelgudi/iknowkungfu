@@ -113,3 +113,87 @@ def test_init_fails_both_uppercase_and_lowercase_skill_md(tmp_path, fake_gh, cap
     captured = capsys.readouterr()
     assert rc != 0
     assert "both" in (captured.out + captured.err).lower() or "conflict" in (captured.out + captured.err).lower()
+
+
+def test_init_env_var_scan_ignores_prose_acronyms(tmp_path, fake_gh, monkeypatch):
+    """Acronyms in prose (SSH, LLM, NFS, README, CLAUDE) must not be flagged
+    as env vars. Finding 8a of the 2026-05-12 walkthrough — Samuel's
+    homelab-docs SKILL.md generated 5 false positives ('README', 'CLAUDE',
+    'LLM', 'NFS', 'SSH'), all of which were bare prose acronyms."""
+    skill = tmp_path / "homelab"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text(
+        "---\nname: homelab\ndescription: x\n---\n\n"
+        "Use SSH and NFS to access ~/.claude/ on the LLM cluster.\n"
+        "See README.md for setup.\n"
+    )
+    inputs = "\n".join(["", "", "", "", "3", "", "", "1", "", ""]) + "\n"
+    monkeypatch.setattr("sys.stdin", io.StringIO(inputs))
+    import agent_skills.verbs.init as init_mod
+    monkeypatch.setattr(init_mod, "_fetch_gh_user", lambda: ("test-author", 1))
+
+    from agent_skills.verbs.init import run
+    class Args:
+        target = str(skill); yes = False
+    run(Args())
+    meta = json.loads((skill / "meta.json").read_text(encoding="utf-8"))
+    # None of these prose acronyms is a real env var
+    assert meta["requires"]["env_vars"] == [], (
+        f"expected empty env_vars, got {meta['requires']['env_vars']}"
+    )
+
+
+def test_init_env_var_scan_detects_shell_style(tmp_path, fake_gh, monkeypatch):
+    """Real env var uses (shell $VAR / ${VAR}, os.environ, os.getenv) ARE
+    detected. Counterpoint to test_init_env_var_scan_ignores_prose_acronyms."""
+    skill = tmp_path / "real-env"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text(
+        "---\nname: x\ndescription: y\n---\n\n"
+        "Set $SPOTIFY_CLIENT_ID and ${SPOTIFY_CLIENT_SECRET}.\n"
+        "Python: os.environ.get('GITHUB_TOKEN') or os.getenv('AGENT_SKILLS_DEFAULT_AGENT').\n"
+    )
+    # Accept default detection (empty input on env_vars prompt accepts the
+    # detected CSV).
+    inputs = "\n".join(["", "", "", "", "3", "", "", "1", "", ""]) + "\n"
+    monkeypatch.setattr("sys.stdin", io.StringIO(inputs))
+    import agent_skills.verbs.init as init_mod
+    monkeypatch.setattr(init_mod, "_fetch_gh_user", lambda: ("test-author", 1))
+
+    from agent_skills.verbs.init import run
+    class Args:
+        target = str(skill); yes = False
+    run(Args())
+    meta = json.loads((skill / "meta.json").read_text(encoding="utf-8"))
+    detected = set(meta["requires"]["env_vars"])
+    assert "SPOTIFY_CLIENT_ID" in detected
+    assert "SPOTIFY_CLIENT_SECRET" in detected
+    assert "GITHUB_TOKEN" in detected
+    assert "AGENT_SKILLS_DEFAULT_AGENT" in detected
+
+
+def test_init_defaults_id_to_frontmatter_name_not_dir(tmp_path, fake_gh, monkeypatch):
+    """When the local dir name differs from the SKILL.md frontmatter `name`,
+    init defaults the id slug to the FRONTMATTER name (the source of truth),
+    not the dir basename. Finding 8b of the 2026-05-12 walkthrough — Samuel
+    tested in /tmp/homelab-docs-test/ with frontmatter name: homelab-docs,
+    and the wrong default broke validate.py's cross-file consistency check."""
+    skill = tmp_path / "homelab-docs-test"
+    skill.mkdir()
+    (skill / "SKILL.md").write_text(
+        "---\nname: homelab-docs\ndescription: real name\n---\n# body\n"
+    )
+    inputs = "\n".join(["", "", "", "", "3", "", "", "1", "", ""]) + "\n"
+    monkeypatch.setattr("sys.stdin", io.StringIO(inputs))
+    import agent_skills.verbs.init as init_mod
+    monkeypatch.setattr(init_mod, "_fetch_gh_user", lambda: ("test-author", 1))
+
+    from agent_skills.verbs.init import run
+    class Args:
+        target = str(skill); yes = False
+    run(Args())
+    meta = json.loads((skill / "meta.json").read_text(encoding="utf-8"))
+    # Slug part of id MUST come from frontmatter, not dir
+    assert meta["id"] == "test-author/homelab-docs", (
+        f"expected id 'test-author/homelab-docs', got {meta['id']!r}"
+    )
