@@ -209,3 +209,81 @@ def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypat
     # Em-dash (U+2014) must appear in stderr message — not '?' (lossy replace)
     # and not omitted (raised exception).
     assert "—" in captured.err
+
+
+# ─── Regression: registry-repo clone MUST NOT be shallow ──────────────────
+#
+# Before 0.1.3, _sync_registry_repo used `git clone --depth=1` and
+# `git fetch --depth=1`. The depth=1 clone is incompatible with
+# install_skill, which `git archive`s a version-pinned SHA that may
+# predate origin/main's tip. The pinned SHA's tree isn't in a shallow
+# clone, so git archive returns exit 128 and install fails.
+# These tests pin the contract: no --depth flag may appear in the git
+# argv produced by _sync_registry_repo.
+
+class _CapturingRun:
+    """Drop-in replacement for subprocess.run that records argv lists."""
+
+    def __init__(self):
+        self.calls: list[list[str]] = []
+
+    def __call__(self, argv, *args, **kwargs):
+        self.calls.append(list(argv))
+
+        class _Done:
+            returncode = 0
+            stdout = b""
+            stderr = b""
+
+        return _Done()
+
+
+def test_sync_registry_repo_clone_is_full_history(tmp_path, monkeypatch):
+    from clients.skill_discovery import update as upd
+
+    capture = _CapturingRun()
+    monkeypatch.setattr(upd.subprocess, "run", capture)
+
+    # Fresh dest → triggers the clone branch.
+    upd._sync_registry_repo("https://example.test/repo.git", tmp_path / "fresh")
+
+    assert capture.calls, "expected at least one git invocation"
+    for argv in capture.calls:
+        assert "--depth=1" not in argv, (
+            f"shallow clone forbidden — install_skill needs full history. "
+            f"Offending argv: {argv}"
+        )
+        assert "--depth" not in argv, (
+            f"any --depth limit forbidden. Offending argv: {argv}"
+        )
+    # The clone command specifically must look like `git clone <url> <dest>`.
+    clone_calls = [a for a in capture.calls if "clone" in a]
+    assert clone_calls, "expected a `git clone` invocation"
+
+
+def test_sync_registry_repo_fetch_is_full_history(tmp_path, monkeypatch):
+    from clients.skill_discovery import update as upd
+
+    dest = tmp_path / "existing"
+    (dest / ".git").mkdir(parents=True)  # pretend the repo is already cloned
+
+    capture = _CapturingRun()
+    monkeypatch.setattr(upd.subprocess, "run", capture)
+
+    upd._sync_registry_repo("https://example.test/repo.git", dest)
+
+    assert capture.calls, "expected git fetch + reset invocations"
+    for argv in capture.calls:
+        assert "--depth=1" not in argv, (
+            f"shallow fetch forbidden — install_skill needs full history. "
+            f"Offending argv: {argv}"
+        )
+        assert "--depth" not in argv, (
+            f"any --depth limit forbidden. Offending argv: {argv}"
+        )
+    # Tags must travel along so the install verb can resolve `v{ver}-<slug>`.
+    fetch_calls = [a for a in capture.calls if "fetch" in a]
+    assert fetch_calls, "expected a `git fetch` invocation"
+    assert any("--tags" in a for a in fetch_calls), (
+        "fetch must include --tags so version tags reach the local clone"
+    )

@@ -80,5 +80,9 @@ def run(args) -> int:
     for f in skill.get("source", {}).get("files", []):
         print(f"    {f}")
     print()
-    print(f"  Installed: {'yes (' + agent + ')' if installed else 'no'}")
+    if installed:
+        print(f"  Installed: yes ({agent})")
+    else:
+        print(f"  Installed: no")
+        print(f"    Run: kfu install {skill['id']}")
     return 0

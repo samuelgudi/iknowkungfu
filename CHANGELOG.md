@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.3] — 2026-05-12
+
+Patch release surfaced by the first external field test (MILO agent on WSL, 36 minutes after 0.1.2 went live). The `install_skill` path was broken end-to-end; everything else worked. Both root causes fixed.
+
+### Fixed
+
+- **Registry-repo shallow clone broke `install_skill`** (`clients/skill_discovery/update.py`): `kfu update` was cloning and fetching the registry repo with `--depth=1`. The install verb then `git archive`s a version-pinned SHA that can predate `origin/main`'s tip, so the tree isn't in the shallow clone and `git archive` returns exit 128. Switched to full-history clone + `git fetch --tags origin main`. Added two regression tests in `tests/test_update.py` that assert no `--depth` flag appears in any git argv produced by `_sync_registry_repo`.
+- **Content-hash mismatch on all three skills**: `registry.json`'s `source.content_hash` is recomputed from the working tree on every regeneration, but `versions[<v>].sha` is frozen at the version's *first* commit (where the meta.json `version` field was introduced). Between iknowkungfu's 0.1.2 pre-publication audit and the brand rename, all three meta-skills' working-tree content changed without a version bump, so `source.content_hash` (working-tree-derived) diverged from what `git archive <version_sha>` produces (frozen old content). Worked around for 0.1.3 by bumping every skill 0.1.0 → 0.1.1 (new version pins a new tree SHA matching current content) and yanking 0.1.0 (so explicit `@0.1.0` installs hard-refuse with a clear yank message rather than hit the hash mismatch). Yanked versions can never be installed — there is no override flag (spec Decision #10).
+- **`kfu list` exited non-zero when multiple agent hosts were detected** (`agent_skills/verbs/list.py`): the verb shared `detect_host`'s exit-1 "pick one with --agent" raise. `list` is read-only — when multiple hosts are detected, it now sections the output per host instead of forcing the user to pick. JSON shape is back-compat: single-host returns the old `{agent, installed:[...]}`; multi-host returns the new `{agents:[{agent, installed:[...]}, ...]}`.
+- **`kfu show` left the user dangling on `Installed: no`** (`agent_skills/verbs/show.py`): now prints the exact `kfu install <id>` command on the next line so the next step is obvious.
+
+### Known design issue (deferred)
+
+The generator's `content_hash` is computed from the working tree rather than from `git archive <version_sha>`'s output. This means: **if anyone ever edits a skill's working-tree content without bumping its `version` field, the content_hash silently drifts and install will refuse the version**. The 0.1.1 version-bump-and-yank pattern is the manual workaround until the generator is rewritten to compute `content_hash` from the version's frozen git content. Documenting in CONTRIBUTING for now; tracked for the next minor.
+
+### Field test
+
+First external dogfood by MILO (Hermes Agent on WSL/Morpheus), 2026-05-12 ~21:18 CEST. Report covered: clean pip install, all CLI verbs working, MCP tool discovery + 5 of 8 tools working, `install_skill` broken (the two root causes above), plus a clear friction journal that drove the 0.1.3 UX nits. Thread: agentmail thread `ca2a8a21-d2dc-4006-ae05-5ddc896bfae3`.
+
+---
+
 ## [0.1.2] — 2026-05-12
 
 ### Changed (BREAKING — pip install name)

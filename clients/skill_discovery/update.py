@@ -43,7 +43,7 @@ def _cache_dir() -> Path:
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.2"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.3"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
@@ -61,14 +61,25 @@ def _atomic_write(target: Path, data: bytes) -> None:
 
 
 def _sync_registry_repo(repo_url: str, dest: Path) -> None:
+    """Clone or refresh the registry-repo working tree at `dest`.
+
+    NOTE — full history, not shallow: install_skill resolves a skill's
+    pinned version SHA from registry.json and then does
+    `git archive <sha>:skills/<id>`. The pinned SHA can be older than
+    `origin/main`'s tip, so a shallow clone (--depth=1) makes git unable
+    to materialize that tree and the install fails with exit 128. We pay
+    the disk-and-bandwidth cost of full history so install_skill works
+    for every version, not just the latest. --tags ensures version tags
+    travel along with commits.
+    """
     if (dest / ".git").exists():
-        subprocess.run(["git", "-C", str(dest), "fetch", "--depth=1", "origin", "main"],
+        subprocess.run(["git", "-C", str(dest), "fetch", "--tags", "origin", "main"],
                        check=True, capture_output=True)
         subprocess.run(["git", "-C", str(dest), "reset", "--hard", "FETCH_HEAD"],
                        check=True, capture_output=True)
         return
     dest.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["git", "clone", "--depth=1", repo_url, str(dest)],
+    subprocess.run(["git", "clone", repo_url, str(dest)],
                    check=True, capture_output=True)
 
 
