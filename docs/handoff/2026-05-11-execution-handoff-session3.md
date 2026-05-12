@@ -112,7 +112,7 @@ Tasks 29-30 are short — direct YAML authoring with `actions/checkout@v4` etc. 
 
 - Python 3.13.3 + pytest 9.0.2 — running clean on Windows.
 - `pip install -e .[dev]` last run in session 1; no re-install needed unless `packages.find.include` changes again.
-- `gh` CLI authenticated as samuelgudi (Active) + vincenzodimarzo (secondary).
+- `gh` CLI authenticated as samuelgudi.
 - Repository: clean working tree; all commits pushed to origin/main.
 
 ---

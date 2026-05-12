@@ -85,7 +85,7 @@ These tests would have caught every blocker discovered during the dogfood walkth
 
 - Python: 3.13.3 in use; 3.10–3.13 supported (matrix CI green).
 - `pip install -e .[dev]` was run after `0.1.0` bump; still valid for `0.1.1` (entry point unchanged).
-- `gh` CLI: authenticated as `samuelgudi` (active) and `vincenzodimarzo`.
+- `gh` CLI: authenticated as `samuelgudi`.
 - Repository: clean working tree, no uncommitted changes.
 
 ---

@@ -95,7 +95,7 @@ If you ever modify `packages.find.include` again or hit ImportError after creati
 
 ## Environment state (unchanged from prior handoff)
 
-- `gh` CLI: authenticated as `samuelgudi` (active) and `vincenzodimarzo` (secondary)
+- `gh` CLI: authenticated as `samuelgudi`
 - Python: 3.13.3 in use; 3.10+ supported
 - pytest: 9.0.2 (works fine with the test code)
 - `pip install -e .[dev]` ran successfully and stays editable

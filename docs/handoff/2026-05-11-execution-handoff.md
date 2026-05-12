@@ -20,9 +20,9 @@
 | Latest commit | `3fee52a` — docs: add v0 implementation plan |
 | Design spec (v4) | `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md` |
 | Implementation plan | `docs/superpowers/plans/2026-05-11-agent-skills-hub-v0.md` |
-| MILO review (raw email) | `C:\Users\Samue\.thalamus\milo_review_part1.md` + `milo_review_part2.md` |
-| MILO session JSON | `C:\Users\Samue\.thalamus\milo_session.json` (1027KB; deepseek-v4-pro, 44 messages, evidence-grounded) |
-| Gemini review (raw) | `C:\Users\Samue\.thalamus\gemini_review_output.md` |
+| MILO review (raw email) | `~/.thalamus/milo_review_part1.md` + `milo_review_part2.md` |
+| MILO session JSON | `~/.thalamus/milo_session.json` (1027KB; deepseek-v4-pro, 44 messages, evidence-grounded) |
+| Gemini review (raw) | `~/.thalamus/gemini_review_output.md` |
 
 ---
 
@@ -101,7 +101,7 @@ After the subagent reports done: **always run `git log` + `git diff HEAD~` yours
 
 | Thing | State |
 |---|---|
-| `gh` CLI | Authenticated as `samuelgudi` (active) and `vincenzodimarzo` (secondary). Token scopes include `repo`, `delete_repo`, `workflow`. |
+| `gh` CLI | Authenticated as `samuelgudi`. Token scopes include `repo`, `delete_repo`, `workflow`. |
 | Python | 3.10+ assumed by `pyproject.toml`. Verify with `python --version`. |
 | Test framework | pytest (in `[project.optional-dependencies].dev`); install via `pip install -e .[dev]` after Task 1. |
 | Operating system | Windows 11, with WSL Debian available (used in this session to access MILO's session JSON). |

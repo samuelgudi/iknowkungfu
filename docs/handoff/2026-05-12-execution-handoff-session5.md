@@ -140,7 +140,7 @@ None are v0-blocking now. Listed in order of recommended next-session priority:
 
 - Python: 3.13.3 in use; 3.10–3.13 supported (matrix CI green).
 - `pip install -e .[dev]` was run after the session — entry point unchanged.
-- `gh` CLI: authenticated as `samuelgudi` (active) and `vincenzodimarzo`.
+- `gh` CLI: authenticated as `samuelgudi`.
 - Repository: clean working tree, no uncommitted changes.
 - Live skills published in the registry: 3 (`agent-skills-contribution`, `agent-skills-discovery`, `semver-bump-decider`).
 
