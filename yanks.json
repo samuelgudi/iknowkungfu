@@ -1,3 +1,19 @@
 {
-  "yanks": []
+  "yanks": [
+    {
+      "id": "samuelgudi/agent-skills-contribution",
+      "version": "0.1.0",
+      "reason": "v0.1.0 content-hash drift: the tree pinned by versions[0.1.0].sha predates the brand-rename + author-normalization edits that landed in iknowkungfu v0.1.2, so install_skill's git-archive of that SHA produces content whose hash no longer matches registry.json's source.content_hash. Install with @0.1.0 would hard-refuse with a mismatch error rather than drift silently. Use 0.1.1 instead — same content, hash-consistent."
+    },
+    {
+      "id": "samuelgudi/agent-skills-discovery",
+      "version": "0.1.0",
+      "reason": "v0.1.0 content-hash drift: same root cause as agent-skills-contribution 0.1.0. Install with @0.1.0 would fail content-hash verification. Use 0.1.1."
+    },
+    {
+      "id": "samuelgudi/semver-bump-decider",
+      "version": "0.1.0",
+      "reason": "v0.1.0 content-hash drift: the pinned SHA predates the author.name normalization (`samuelgudi` -> `Samuel Gudi`) that landed during the iknowkungfu v0.1.2 pre-publication audit, so install_skill's git-archive of that SHA hashes to a value that no longer matches the regenerated source.content_hash. Use 0.1.1 — same content, hash-consistent."
+    }
+  ]
 }
