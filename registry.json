@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T20:25:42Z",
+  "generated_at": "2026-05-12T20:38:32Z",
   "skills": [
     {
       "id": "samuelgudi/iknowkungfu-contribution",
@@ -55,11 +55,14 @@
       },
       "versions": {
         "0.1.0": {
-          "sha": "",
-          "released": "2026-05-12T20:25:42Z"
+          "sha": "0c2bd5c7909e366c42ffb1953d3152fdc9bc1f23",
+          "released": "2026-05-12T20:38:32Z"
         }
       },
-      "provenance": {},
+      "provenance": {
+        "merged_at": "2026-05-12T20:38:32Z",
+        "reviewed_by": "samuelgudi"
+      },
       "composes": [],
       "extends": null,
       "supersedes": [],
@@ -116,11 +119,14 @@
       },
       "versions": {
         "0.1.0": {
-          "sha": "",
-          "released": "2026-05-12T20:25:42Z"
+          "sha": "0c2bd5c7909e366c42ffb1953d3152fdc9bc1f23",
+          "released": "2026-05-12T20:38:32Z"
         }
       },
-      "provenance": {},
+      "provenance": {
+        "merged_at": "2026-05-12T20:38:32Z",
+        "reviewed_by": "samuelgudi"
+      },
       "composes": [],
       "extends": null,
       "supersedes": [],
