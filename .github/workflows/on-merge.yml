@@ -85,6 +85,21 @@ jobs:
             echo "EOF" >> "$GITHUB_OUTPUT"
           fi
 
+      # Commit the promotion FIRST, before regenerating the manifest. The manifest
+      # generator walks `git log -- skills/<author>/<slug>/meta.json` to populate
+      # versions[v].sha — that lookup returns empty for files that exist only in
+      # the working tree (uncommitted), so the resulting registry entry would have
+      # an empty sha and install would fail with `git archive :<path>` (empty ref).
+      - name: Commit promotion
+        if: steps.promote.outputs.changed != ''
+        shell: bash
+        run: |
+          set -e
+          first=$(printf '%s' "${{ steps.promote.outputs.changed }}" | head -n 1)
+          IFS='|' read -r id_value version_value tag_name <<< "$first"
+          msg="chore: promote ${id_value} v${version_value}"
+          git commit -m "$msg" || { echo "Nothing to commit."; exit 0; }
+
       - name: Regenerate manifest
         shell: bash
         run: |
@@ -97,22 +112,26 @@ jobs:
             echo "Manifest regenerated."
           fi
 
-      - name: Commit + tag + push
+      - name: Commit manifest + tag + push
         if: steps.promote.outputs.changed != ''
         shell: bash
         run: |
           set -e
-          # Compose commit message + tags from the changed-skills list
-          first=$(printf '%s' "${{ steps.promote.outputs.changed }}" | head -n 1)
-          IFS='|' read -r id_value version_value tag_name <<< "$first"
-          msg="chore: promote ${id_value} v${version_value} + regenerate manifest"
-          git commit -m "$msg" || { echo "Nothing to commit."; exit 0; }
-          # Tag each promoted skill
+          # Manifest commit only if there are staged changes (regen produced a diff).
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: regenerate manifest"
+          fi
+          # Tag the PROMOTION commit (one before HEAD if manifest also changed,
+          # otherwise HEAD). Tag points to the canonical "skill released" commit.
+          if git log -1 --format=%s | grep -q '^chore: regenerate manifest'; then
+            tag_ref="HEAD~1"
+          else
+            tag_ref="HEAD"
+          fi
           while IFS='|' read -r id_value version_value tag_name; do
             if [ -z "$tag_name" ]; then continue; fi
-            git tag -a "$tag_name" -m "Release $id_value v$version_value"
+            git tag -a "$tag_name" -m "Release $id_value v$version_value" "$tag_ref"
           done <<< "${{ steps.promote.outputs.changed }}"
-          # Push commit + tags
           git push origin main
           git push origin --tags
 
