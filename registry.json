@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T09:47:17+02:00",
+  "generated_at": "2026-05-12T10:43:59+02:00",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
@@ -127,6 +127,69 @@
         "merged_at": "2026-05-11T22:08:27+02:00",
         "reviewed_by": "samuelgudi"
       },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/semver-bump-decider",
+      "name": "semver-bump-decider",
+      "description": "Use this skill when deciding whether the next release of a SemVer-versioned library should bump major, minor, or patch. Walks through a checklist of change classes, surfaces the breaking-change risks people commonly miss, and explains 0.x and pre-1.0 conventions.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "samuelgudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "dev",
+      "tags": [
+        "semver",
+        "versioning",
+        "release",
+        "changelog"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes",
+        "codex",
+        "opencode"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {},
+        "codex": {},
+        "opencode": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/semver-bump-decider",
+        "content_hash": "sha256:cc6d662791c07f6e566e628c6b1e23729be7bb516d4d78494e5156236f598aa0",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "",
+          "released": "2026-05-12T10:43:59+02:00"
+        }
+      },
+      "provenance": {},
       "composes": [],
       "extends": null,
       "supersedes": [],
