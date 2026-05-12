@@ -106,7 +106,22 @@ def run(args) -> int:
             print(f"git archive failed for tree {tree_sha}:{source_path}: {e}", file=sys.stderr)
             return 1
 
-        content_hash = compute_dir_content_hash(staging)
+        # Use the registry's canonical hash for the marker. Defensively verify
+        # the staging dir hashes to the same value — if it doesn't, either
+        # (a) the canonical hash function in adapters._base has a bug, or
+        # (b) the git archive returned different bytes than the registry was
+        # built from (tamper signal — abort).
+        registry_hash = skill.get("source", {}).get("content_hash", "")
+        staging_hash = compute_dir_content_hash(staging)
+        if registry_hash and staging_hash != registry_hash:
+            print(
+                f"Install aborted: materialized tree hash {staging_hash} does not match\n"
+                f"registry-declared hash {registry_hash} for {full_id}@{target_version}.\n"
+                f"The git tree at sha {tree_sha} may have been altered.",
+                file=sys.stderr,
+            )
+            return 1
+        content_hash = registry_hash or staging_hash
 
         agent = detect_host(override=args.agent)
         adapter = get_adapter(agent)

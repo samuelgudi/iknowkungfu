@@ -5,6 +5,10 @@
 
 * text=auto eol=lf
 
+# Explicit rules for the two highest-impact skill filenames (defensive belt-and-braces).
+SKILL.md text eol=lf
+meta.json text eol=lf
+
 # Common binary types — git auto-detect handles these too, but list explicitly.
 *.png binary
 *.jpg binary

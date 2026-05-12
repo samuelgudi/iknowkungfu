@@ -2,14 +2,20 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
+# Ensure repo root is on sys.path so `adapters._base` is importable when this
+# script is invoked directly (e.g. `python scripts/generate_manifest.py`) from
+# a non-editable-installed checkout. In CI, `pip install -e .[dev]` makes the
+# package importable without this shim; the shim is a no-op in that case.
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import yaml
+from adapters._base import compute_dir_content_hash
 
 
 ROOT = Path(__file__).parent.parent
@@ -26,43 +32,6 @@ def parse_frontmatter(skill_md: Path) -> dict:
         return {}
     return yaml.safe_load(text[4:end])
 
-
-_TEXT_SUFFIXES = {
-    ".md", ".py", ".pyi", ".js", ".ts", ".mjs", ".sh", ".bash", ".zsh",
-    ".json", ".yaml", ".yml", ".txt", ".toml", ".cfg", ".ini", ".rst",
-}
-
-
-def sha256_file(p: Path) -> str:
-    """Hash file bytes. For text files, normalise CRLF -> LF so the hash is
-    platform-independent (Windows autocrlf produces CRLF in the working tree
-    even when the repo stores LF; without normalisation, manifest --check
-    fails on Linux CI after a Windows-generated commit)."""
-    h = hashlib.sha256()
-    data = p.read_bytes()
-    if p.suffix.lower() in _TEXT_SUFFIXES or p.name in {"SKILL.md", "skill.md", "README.md", "LICENSE", "CONTRIBUTING.md", "SECURITY.md", "SCHEMA.md"}:
-        data = data.replace(b"\r\n", b"\n")
-    h.update(data)
-    return h.hexdigest()
-
-
-def compute_content_hash(skill_dir: Path) -> tuple[str, list[str]]:
-    """Compute a stable content hash + sorted file list for a skill dir.
-    Sorts files by POSIX-style string explicitly: WindowsPath sorts case-
-    insensitively while PosixPath is case-sensitive, so sorting Path objects
-    directly produces platform-dependent output (e.g. ['meta.json','SKILL.md']
-    on Windows vs ['SKILL.md','meta.json'] on Linux). The hash also depends on
-    file order, so the platform-dependent sort cascades into a hash mismatch
-    that breaks `--check` on CI Linux after a Windows-generated commit."""
-    files = sorted(
-        str(f.relative_to(skill_dir)).replace("\\", "/")
-        for f in skill_dir.rglob("*") if f.is_file()
-    )
-    combined = b"\n".join(
-        rel.encode() + b"\0" + sha256_file(skill_dir / rel).encode()
-        for rel in files
-    )
-    return "sha256:" + hashlib.sha256(combined).hexdigest(), files
 
 
 def _posix(p) -> str:
@@ -146,7 +115,11 @@ def get_provenance(repo: Path, skill_dir: Path) -> dict:
 def build_skill_entry(repo: Path, skill_dir: Path, status: str) -> dict:
     meta = json.loads((skill_dir / "meta.json").read_text(encoding="utf-8"))
     fm = parse_frontmatter(skill_dir / "SKILL.md")
-    content_hash, files = compute_content_hash(skill_dir)
+    content_hash = compute_dir_content_hash(skill_dir)
+    files = sorted(
+        str(f.relative_to(skill_dir)).replace("\\", "/")
+        for f in skill_dir.rglob("*") if f.is_file()
+    )
     has_scripts = (skill_dir / "scripts").is_dir()
     # Derive skill id from directory path: <author_dir>/<slug_dir>
     author_name = skill_dir.parent.name

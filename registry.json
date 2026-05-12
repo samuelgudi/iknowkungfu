@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T08:51:29+02:00",
+  "generated_at": "2026-05-12T09:47:17+02:00",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
@@ -47,7 +47,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-contribution",
-        "content_hash": "sha256:8731c3d48828ee09db9c9aa884f1e7d784f52f97119b06720f327f707b495704",
+        "content_hash": "sha256:bd5a4a23086b0f2acfebdbf5303eeb02521aed2120666ddd54bec7c531a82f64",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -111,7 +111,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-discovery",
-        "content_hash": "sha256:cde6ff0e81d6777547cd5e1f2b7425c085e0e4abcc237fa17a3629c53ed264d6",
+        "content_hash": "sha256:fa5d45338719299bb098cafd5aa07ef5e2698ad7c805663cb1086012d69ee514",
         "files": [
           "SKILL.md",
           "meta.json"

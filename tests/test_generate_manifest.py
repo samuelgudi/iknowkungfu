@@ -96,3 +96,24 @@ def test_schema_valid(tmp_path):
     schema = json.loads((ROOT / "scripts" / "schema.json").read_text())
     # raises jsonschema.ValidationError on failure
     jsonschema.validate(instance=reg, schema=schema)
+
+
+def test_generate_manifest_uses_canonical_hash_function():
+    """generate_manifest.py must NOT define its own compute_content_hash —
+    it must import from adapters._base. Lock the architecture so a future
+    contributor doesn't re-introduce the two-implementations bug."""
+    import scripts.generate_manifest as gm
+    import adapters._base as base
+    # If both modules export the same function object, they share an
+    # implementation. If they don't, this test is a no-op (false-negative
+    # safe), but the test in test_hash_canonical.py
+    # `test_generate_manifest_and_base_produce_equal_hashes` is the real gate.
+    # This test just protects against a sneaky re-fork.
+    assert not hasattr(gm, "compute_content_hash"), (
+        "generate_manifest.compute_content_hash was removed in v0.1.1 — "
+        "the canonical implementation lives in adapters._base. If you need "
+        "to extend hashing semantics, edit adapters/_base.py only."
+    )
+    assert not hasattr(gm, "sha256_file"), (
+        "generate_manifest.sha256_file was removed in v0.1.1 — see above."
+    )
