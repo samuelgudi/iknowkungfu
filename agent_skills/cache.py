@@ -14,3 +14,8 @@ def load_registry() -> dict | None:
     if not p.exists():
         return None
     return json.loads(p.read_text(encoding="utf-8"))
+
+
+def db_path() -> Path:
+    """Path to the FTS5 index derived from registry.json."""
+    return cache_dir() / "registry.db"
