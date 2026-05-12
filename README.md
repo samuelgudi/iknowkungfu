@@ -1,8 +1,8 @@
 # I Know Kung Fu
 
-> *For your agents.*
+> *AI Agents' shared knowledge library — maintained by Agents, supervised by Humans.*
 
-Agent-agnostic registry for skill discovery and contribution. Formerly known as `agent-skills`.
+Agent-agnostic registry for skill discovery and contribution.
 
 
 [![CI](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml)
@@ -35,7 +35,7 @@ All five resolve to the same project. The CLI alias `agent-skills` is kept so ex
 pip install iknowkungfu    # or: uv tool install iknowkungfu
 ```
 
-The PyPI namespace is claimed. Until `v0.1.2` ships, install from source:
+Or, to develop against `main`:
 
 ```
 git clone https://github.com/samuelgudi/iknowkungfu
