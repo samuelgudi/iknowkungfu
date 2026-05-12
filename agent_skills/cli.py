@@ -182,9 +182,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.verb == "yank":
         from agent_skills.verbs.yank import run
         return run(args)
-    # ... other verbs dispatched similarly; each verb's module added in its own task
-    print(f"Verb '{args.verb}' not yet implemented (will be added in a later task).", file=sys.stderr)
-    return 0
+    # Argparse with required=True on the subparser rejects unknown verbs at
+    # parse time, so this point is unreachable. The explicit return keeps the
+    # type checker happy.
+    return 2
 
 
 if __name__ == "__main__":

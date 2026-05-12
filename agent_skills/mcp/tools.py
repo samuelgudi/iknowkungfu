@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any, Callable
 
@@ -248,7 +249,7 @@ def tool_install_skill(args: dict[str, Any]) -> dict[str, Any]:
     version = args.get("version")
     agent = args.get("agent")  # auto-detect if not given
     spec = f"{skill_id}@{version}" if version else skill_id
-    cmd = ["agent-skills", "install", spec]
+    cmd = [sys.executable, "-m", "agent_skills.cli", "install", spec]
     if agent:
         cmd += ["--agent", agent]
     cmd += ["--json"]
@@ -260,7 +261,7 @@ def tool_install_skill(args: dict[str, Any]) -> dict[str, Any]:
         raise ToolError("install_skill timed out after 120s") from e
     except FileNotFoundError as e:
         raise ToolError(
-            "The `agent-skills` CLI is not on PATH. Install the package first."
+            f"Failed to spawn the install subprocess (sys.executable={sys.executable!r}): {e}"
         ) from e
     out = (proc.stdout or "").strip()
     err = (proc.stderr or "").strip()
@@ -380,7 +381,7 @@ SCHEMA_LIST_AGENTS = {
 def tool_update_registry(args: dict[str, Any]) -> dict[str, Any]:
     prev = load_registry()
     prev_version = (prev or {}).get("generated_at", "") if prev else ""
-    cmd = ["agent-skills", "update", "--json"]
+    cmd = [sys.executable, "-m", "agent_skills.cli", "update", "--json"]
     try:
         proc = subprocess.run(
             cmd, capture_output=True, text=True, encoding="utf-8", timeout=60
@@ -389,7 +390,7 @@ def tool_update_registry(args: dict[str, Any]) -> dict[str, Any]:
         raise ToolError("update_registry timed out after 60s") from e
     except FileNotFoundError as e:
         raise ToolError(
-            "The `agent-skills` CLI is not on PATH. Install the package first."
+            f"Failed to spawn the update subprocess (sys.executable={sys.executable!r}): {e}"
         ) from e
     if proc.returncode != 0:
         raise ToolError(
