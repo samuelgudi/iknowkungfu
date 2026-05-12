@@ -58,6 +58,47 @@ Full contribution guidelines, frontmatter contract, and review template are in [
 
 ---
 
+## MCP server — for AI agents
+
+`iknowkungfu-mcp` exposes the registry as Model Context Protocol tools so an agent runtime (Claude Code, OpenClaw, Codex, Cursor, etc.) can search and install skills mid-task without leaving the agent loop.
+
+Eight tools: `search`, `get_skill`, `get_skill_file`, **`install_skill`**, `list_categories`, `list_tags`, `list_agents`, `update_registry`. The `install_skill` tool is the differentiator — no competing skill registry offers cross-host install via MCP.
+
+Add to Claude Code's `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "iknowkungfu": { "command": "iknowkungfu-mcp" }
+  }
+}
+```
+
+Then in a session:
+
+```
+> Find a rust serialization skill compatible with claude-code, and install it.
+```
+
+The agent will call `search`, inspect candidates with `get_skill`, then `install_skill` to write the chosen skill into `~/.claude/skills/`.
+
+### Query language
+
+The search tool (and the CLI's `agent-skills search`) accepts a Lucene-style DSL:
+
+```
+rust serialization tag:rust agent:claude-code
+"binary parsing" -status:deprecated
+(tag:rust OR tag:go) version:>=1.0
+NOT requires:env_var:*
+```
+
+Determinism contract: identical (query, registry version) → identical result order. BM25 ranked, deterministically tie-broken, SQLite FTS5 backed.
+
+Full reference: [docs/query-language.md](docs/query-language.md). MCP integration per-host: [docs/mcp-integration.md](docs/mcp-integration.md).
+
+---
+
 ## Project layout
 
 ```
@@ -77,7 +118,11 @@ agent-skills/
 
 ## Documentation
 
-- [Design spec](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md) — canonical requirements and decisions
+- [Design spec (v0)](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md) — canonical requirements and decisions
+- [MCP + search design spec](docs/superpowers/specs/2026-05-12-mcp-and-search-design.md) — MCP server architecture, query DSL, determinism contract
+- [Query language reference](docs/query-language.md) — DSL syntax, field reference, worked examples
+- [MCP integration guide](docs/mcp-integration.md) — per-host wiring (Claude Code, OpenClaw, Codex, Cursor)
+- [Decisions log](docs/decisions.md) — ADRs (incl. the rename to *I Know Kung Fu*)
 - [CONTRIBUTING.md](CONTRIBUTING.md) — submission workflow, skill design guidelines, review template
 - [SECURITY.md](SECURITY.md) — security policy and vulnerability reporting
 - [SCHEMA.md](SCHEMA.md) — field-level reference for `registry.json`, `meta.json`, `yanks.json`
