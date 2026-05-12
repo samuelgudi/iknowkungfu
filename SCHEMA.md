@@ -45,7 +45,7 @@ Below is the full field-semantics table from spec § 7, updated to v4.
 | `category` | string | yes | One value from the v0 starter taxonomy (see § 6): `media` \| `dev` \| `ops` \| `data` \| `comms` \| `docs` \| `meta` \| `ai`. Drives Hermes install path. New categories admitted via PR to this file with rationale. |
 | `tags` | string[] | optional | Free-form, lowercase. **Capped at 10 entries** by `validate.py` to mitigate keyword stuffing. |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. Hermes adapter translates to frontmatter `platforms:` at install time. |
-| `agent_compat` | string[] | yes | Subset of `{claude-code, hermes, codex, opencode}`. |
+| `agent_compat` | string[] | yes | Subset of `{claude-code, hermes, codex, opencode, pi, openclaw}`. |
 | `requires` | object | optional | Declared deps: `env_vars` (strings) and `commands` (binary names the host must have on PATH). Hermes adapter translates to frontmatter `prerequisites:`. No `toolsets` field — removed in v4 (Decision #18). |
 | `has_scripts` | bool | derived | `true` if `scripts/` directory exists in the skill tree. Triggers stricter review (Decision #5). Set by `generate_manifest.py`; do not set manually in `meta.json`. |
 | `license` | string | yes | SPDX identifier (e.g. `"MIT"`, `"Apache-2.0"`). |
@@ -243,7 +243,7 @@ Hermes-specific frontmatter (`platforms:`, `prerequisites:`, etc.) is synthesize
 | `category` | string | yes | Must be one of the eight valid categories (see § 6). |
 | `tags` | string[] | optional | Free-form, lowercase, max 10. |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. |
-| `agent_compat` | string[] | yes | Subset of `{claude-code, hermes, codex, opencode}`. |
+| `agent_compat` | string[] | yes | Subset of `{claude-code, hermes, codex, opencode, pi, openclaw}`. |
 | `requires` | object | optional | `{env_vars, commands}`. No `toolsets`. |
 | `license` | string | yes | SPDX identifier. |
 | `install` | object | yes | Per-agent install metadata. |

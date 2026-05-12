@@ -6,6 +6,8 @@ from adapters.claude_code import ClaudeCodeAdapter
 from adapters.codex import CodexAdapter
 from adapters.hermes import HermesAdapter
 from adapters.opencode import OpenCodeAdapter
+from adapters.openclaw import OpenClawAdapter
+from adapters.pi import PiAdapter
 
 
 ADAPTERS = {
@@ -13,6 +15,8 @@ ADAPTERS = {
     "hermes": HermesAdapter,
     "codex": CodexAdapter,
     "opencode": OpenCodeAdapter,
+    "pi": PiAdapter,
+    "openclaw": OpenClawAdapter,
 }
 
 

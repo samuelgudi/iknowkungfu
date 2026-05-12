@@ -1,5 +1,5 @@
 """Tests for host auto-detection. Locks the contract:
-- All 4 declared agents (claude-code, hermes, codex, opencode) are registered
+- All declared agents are registered in ADAPTERS
 - detect_host honours --agent override
 - Multi-host detection falls back to AGENT_SKILLS_DEFAULT_AGENT env var
 """
@@ -8,13 +8,17 @@ from pathlib import Path
 import pytest
 
 from agent_skills.detect import ADAPTERS, detect_host, get_adapter
+from agent_skills.verbs.init import AGENTS
 
 
-def test_all_four_declared_agents_have_adapters():
-    """agent_skills/verbs/init.py advertises 4 agents; ADAPTERS must mirror that
-    set. If a future verb adds an agent without an adapter, the registry can
-    surface skills that have nowhere to install — fail loudly here instead."""
-    assert set(ADAPTERS) == {"claude-code", "hermes", "codex", "opencode"}
+def test_adapters_match_init_agents_list():
+    """agent_skills/verbs/init.py advertises the agent list; ADAPTERS must mirror
+    that set. If a future verb adds an agent without an adapter, the registry
+    can surface skills that have nowhere to install — fail loudly here instead."""
+    assert set(ADAPTERS) == set(AGENTS), (
+        f"ADAPTERS={set(ADAPTERS)} but init.AGENTS={set(AGENTS)}. "
+        "These two must stay in sync."
+    )
 
 
 def test_override_returns_named_agent():

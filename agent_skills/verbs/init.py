@@ -15,7 +15,7 @@ except ImportError:
 
 CATEGORIES = ["media", "dev", "ops", "data", "comms", "docs", "meta", "ai"]
 
-AGENTS = ["claude-code", "hermes", "codex", "opencode"]
+AGENTS = ["claude-code", "hermes", "codex", "opencode", "pi", "openclaw"]
 
 COMMAND_TOKENS = {
     "ssh", "git", "curl", "wget", "docker", "kubectl", "aws", "gcloud",

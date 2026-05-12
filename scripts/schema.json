@@ -38,7 +38,7 @@
         "platforms": { "type": "array", "items": { "enum": ["linux", "macos", "windows"] } },
         "agent_compat": {
           "type": "array",
-          "items": { "enum": ["claude-code", "hermes", "codex", "opencode"] },
+          "items": { "enum": ["claude-code", "hermes", "codex", "opencode", "pi", "openclaw"] },
           "minItems": 1
         },
         "requires": {
