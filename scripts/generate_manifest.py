@@ -6,7 +6,29 @@ import json
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _to_utc_z(iso_str: str) -> str:
+    """Normalize an ISO 8601 timestamp to UTC with `Z` suffix. Without this,
+    `git log --format=%cI` emits the local timezone of wherever the script runs
+    (Ubuntu/UTC in GHA, CEST on a Windows dev box), producing non-deterministic
+    manifests across platforms — which in turn breaks the rollback guard's
+    naive-string comparison and any byte-equal diff check."""
+    s = (iso_str or "").strip()
+    if not s:
+        return ""
+    # datetime.fromisoformat in Python 3.10 doesn't accept 'Z'.
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return iso_str  # Pass through unrecognised values rather than dropping data.
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 # Ensure repo root is on sys.path so `adapters._base` is importable when this
 # script is invoked directly (e.g. `python scripts/generate_manifest.py`) from
@@ -79,7 +101,7 @@ def get_skill_versions(repo: Path, skill_dir: Path) -> dict:
         )
         versions[ver] = {
             "sha": tree_sha_result.stdout.strip(),
-            "released": released,
+            "released": _to_utc_z(released),
         }
     return versions
 
@@ -89,7 +111,7 @@ def get_commit_timestamp(repo: Path) -> str:
         ["git", "-C", str(repo), "log", "-1", "--format=%cI", "HEAD"],
         capture_output=True, text=True
     )
-    return result.stdout.strip() or "1970-01-01T00:00:00Z"
+    return _to_utc_z(result.stdout.strip()) or "1970-01-01T00:00:00Z"
 
 
 def get_provenance(repo: Path, skill_dir: Path) -> dict:
@@ -106,7 +128,7 @@ def get_provenance(repo: Path, skill_dir: Path) -> dict:
     m = re.search(r"#(\d+)", msg)
     if m:
         pr_match = int(m.group(1))
-    prov: dict = {"merged_at": merged_at, "reviewed_by": "samuelgudi"}
+    prov: dict = {"merged_at": _to_utc_z(merged_at), "reviewed_by": "samuelgudi"}
     if pr_match is not None:
         prov["submitted_pr"] = pr_match
     return prov

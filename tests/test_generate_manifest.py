@@ -98,6 +98,38 @@ def test_schema_valid(tmp_path):
     jsonschema.validate(instance=reg, schema=schema)
 
 
+def test_generated_at_is_utc_z(tmp_path):
+    """generated_at and versions[v].released must be normalized to UTC with Z
+    suffix. Without this, manifests built on Windows (CEST) and GHA (UTC)
+    differ in formatting, which the rollback guard mis-classifies as a
+    rollback because of naive string comparison."""
+    repo = setup_test_repo(tmp_path)
+    result = run_gen(repo)
+    assert result.returncode == 0, result.stderr
+    reg = json.loads((repo / "registry.json").read_text())
+    assert reg["generated_at"].endswith("Z"), (
+        f"generated_at must end with 'Z', got: {reg['generated_at']!r}"
+    )
+    for skill in reg["skills"]:
+        for ver, info in skill["versions"].items():
+            assert info["released"].endswith("Z"), (
+                f"versions[{ver}].released must end with 'Z', got: {info['released']!r}"
+            )
+
+
+def test_to_utc_z_normalizes_offsets():
+    """Unit test for _to_utc_z. Locks the offset-stripping behaviour."""
+    from scripts.generate_manifest import _to_utc_z
+    assert _to_utc_z("2026-05-12T10:43:59+02:00") == "2026-05-12T08:43:59Z"
+    assert _to_utc_z("2026-05-12T08:44:15Z") == "2026-05-12T08:44:15Z"
+    assert _to_utc_z("2026-05-12T08:44:15+00:00") == "2026-05-12T08:44:15Z"
+    # Naive timestamp: assume UTC (matches the rollback-guard parser).
+    assert _to_utc_z("2026-05-12T08:44:15") == "2026-05-12T08:44:15Z"
+    # Empty + malformed: pass-through.
+    assert _to_utc_z("") == ""
+    assert _to_utc_z("not-a-timestamp") == "not-a-timestamp"
+
+
 def test_generate_manifest_uses_canonical_hash_function():
     """generate_manifest.py must NOT define its own compute_content_hash —
     it must import from adapters._base. Lock the architecture so a future

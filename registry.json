@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T08:44:15Z",
+  "generated_at": "2026-05-12T08:51:19Z",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
@@ -56,11 +56,11 @@
       "versions": {
         "0.1.0": {
           "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
-          "released": "2026-05-11T22:08:27+02:00"
+          "released": "2026-05-11T20:08:27Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-11T22:08:27+02:00",
+        "merged_at": "2026-05-11T20:08:27Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -120,11 +120,11 @@
       "versions": {
         "0.1.0": {
           "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
-          "released": "2026-05-11T22:08:27+02:00"
+          "released": "2026-05-11T20:08:27Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-11T22:08:27+02:00",
+        "merged_at": "2026-05-11T20:08:27Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],

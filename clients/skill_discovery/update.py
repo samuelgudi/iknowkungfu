@@ -8,7 +8,28 @@ import sys
 import tempfile
 import urllib.request
 import urllib.error
+from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _parse_generated_at(value: str) -> datetime | None:
+    """Parse an ISO 8601 generated_at into an aware UTC datetime. Returns None on
+    failure so the rollback guard degrades to no-op (matching prior leniency for
+    malformed cached files) rather than crashing."""
+    if not value:
+        return None
+    s = value.strip()
+    # datetime.fromisoformat in Python 3.10 doesn't accept 'Z'; normalize.
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        # Naive timestamps are ambiguous; treat as UTC to avoid TZ-mismatch surprises.
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
 
 
 DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/samuelgudi/agent-skills/main/registry.json"
@@ -74,7 +95,13 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
     if cached_path.exists():
         try:
             cached = json.loads(cached_path.read_text(encoding="utf-8"))
-            if fetched.get("generated_at", "") < cached.get("generated_at", ""):
+            # Compare as timezone-aware datetimes. Bare string comparison is broken
+            # because "...+02:00" sorts after "...Z" lexically even when their UTC
+            # equivalents say the opposite. Falls open (no-op) if either side is
+            # missing or malformed.
+            f_dt = _parse_generated_at(fetched.get("generated_at", ""))
+            c_dt = _parse_generated_at(cached.get("generated_at", ""))
+            if f_dt is not None and c_dt is not None and f_dt < c_dt:
                 print(
                     f"Rollback guard: fetched generated_at {fetched.get('generated_at')} "
                     f"< cached {cached.get('generated_at')}. Refusing to overwrite.",

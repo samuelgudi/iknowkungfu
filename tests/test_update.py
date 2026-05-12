@@ -80,6 +80,43 @@ def test_refresh_rollback_guard_refuses_older(serve_dir, fake_home):
     assert json.loads((cache / "registry.json").read_text())["generated_at"] == "2026-05-15T00:00:00Z"
 
 
+def test_refresh_rollback_guard_handles_mixed_tz_formats(serve_dir, fake_home):
+    """Rollback guard must compare timestamps as datetimes, not raw strings.
+    Bare string comparison treats "2026-05-12T10:43:59+02:00" as newer than
+    "2026-05-12T08:44:15Z" even though UTC-08:44 > UTC-08:43. With a real-merge
+    workflow (cache produced on a CEST dev box, fetched produced on GHA in UTC)
+    this falsely triggered the rollback guard and blocked install."""
+    cache = fake_home / ".cache/agent-skills"
+    cache.mkdir(parents=True)
+    # Cached: 08:43:59 UTC, expressed in CEST. Fetched: 08:44:15 UTC, expressed
+    # with Z suffix. Fetched IS newer in absolute time.
+    cached_reg = make_registry("2026-05-12T10:43:59+02:00")
+    (cache / "registry.json").write_text(json.dumps(cached_reg))
+    fetched_reg = make_registry("2026-05-12T08:44:15Z")
+    (serve_dir["dir"] / "registry.json").write_text(json.dumps(fetched_reg))
+
+    from clients.skill_discovery.update import refresh
+    rc = refresh(serve_dir["url"] + "/registry.json")
+    assert rc == 0, "Fetched is newer in UTC; refresh should succeed."
+    assert json.loads((cache / "registry.json").read_text())["generated_at"] == "2026-05-12T08:44:15Z"
+
+
+def test_refresh_rollback_guard_blocks_older_across_tz(serve_dir, fake_home):
+    """Same as above but fetched IS older in UTC: must block."""
+    cache = fake_home / ".cache/agent-skills"
+    cache.mkdir(parents=True)
+    # Cached: 09:00:00Z. Fetched: 10:00:00+02:00 = 08:00:00Z (older). Block.
+    cached_reg = make_registry("2026-05-12T09:00:00Z")
+    (cache / "registry.json").write_text(json.dumps(cached_reg))
+    fetched_reg = make_registry("2026-05-12T10:00:00+02:00")
+    (serve_dir["dir"] / "registry.json").write_text(json.dumps(fetched_reg))
+
+    from clients.skill_discovery.update import refresh
+    rc = refresh(serve_dir["url"] + "/registry.json")
+    assert rc != 0, "Fetched is older in UTC; refresh must be blocked."
+    assert json.loads((cache / "registry.json").read_text())["generated_at"] == "2026-05-12T09:00:00Z"
+
+
 def test_refresh_atomic_write(serve_dir, fake_home):
     """No partial write on disk after a successful refresh."""
     reg = make_registry("2026-05-11T00:00:00Z")
