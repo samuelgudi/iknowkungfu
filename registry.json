@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T18:08:01Z",
+  "generated_at": "2026-05-12T19:38:32Z",
   "skills": [
     {
       "id": "samuelgudi/agent-skills-contribution",
       "name": "agent-skills-contribution",
       "description": "Submit a new skill or update an existing one in the I Know Kung Fu registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "active",
       "author": {
         "name": "Samuel Gudi",
@@ -48,7 +48,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-contribution",
-        "content_hash": "sha256:8acb55b16a46881ab12ab42bb81bcd450946da09ef43d862f753512512f38965",
+        "content_hash": "sha256:56fd81868808f6c56c78c5a5f2d7c6c0601c14e9aff220b388a596f104a77637",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -57,11 +57,17 @@
       "versions": {
         "0.1.0": {
           "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
-          "released": "2026-05-11T20:08:27Z"
+          "released": "2026-05-11T20:08:27Z",
+          "yanked": true,
+          "yank_reason": "v0.1.0 content-hash drift: the tree pinned by versions[0.1.0].sha predates the brand-rename + author-normalization edits that landed in iknowkungfu v0.1.2, so install_skill's git-archive of that SHA produces content whose hash no longer matches registry.json's source.content_hash. Install with @0.1.0 would hard-refuse with a mismatch error rather than drift silently. Use 0.1.1 instead \u2014 same content, hash-consistent."
+        },
+        "0.1.1": {
+          "sha": "04febcf8dae2582d5fb8b142e2365f9d43fbb298",
+          "released": "2026-05-12T19:38:32Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-12T17:39:43Z",
+        "merged_at": "2026-05-12T19:38:32Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -73,7 +79,7 @@
       "id": "samuelgudi/agent-skills-discovery",
       "name": "agent-skills-discovery",
       "description": "Query the I Know Kung Fu registry for a skill that matches the current task. Use ONLY when explicitly asked to search for a skill. Do not invoke reflexively for every task.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "active",
       "author": {
         "name": "Samuel Gudi",
@@ -113,7 +119,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/agent-skills-discovery",
-        "content_hash": "sha256:c6b9edffdf4c2453d8a23c58874e73a15202d969c6a591da0d157e81c4f60d81",
+        "content_hash": "sha256:686100323ace24d29548fa57d2a53daf47da9c17c14752ad9700f4e52aac05b7",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -122,11 +128,17 @@
       "versions": {
         "0.1.0": {
           "sha": "38bc4c13782b794c1a7d1022956bac87db93773d",
-          "released": "2026-05-11T20:08:27Z"
+          "released": "2026-05-11T20:08:27Z",
+          "yanked": true,
+          "yank_reason": "v0.1.0 content-hash drift: same root cause as agent-skills-contribution 0.1.0. Install with @0.1.0 would fail content-hash verification. Use 0.1.1."
+        },
+        "0.1.1": {
+          "sha": "04febcf8dae2582d5fb8b142e2365f9d43fbb298",
+          "released": "2026-05-12T19:38:32Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-12T17:39:43Z",
+        "merged_at": "2026-05-12T19:38:32Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -138,7 +150,7 @@
       "id": "samuelgudi/semver-bump-decider",
       "name": "semver-bump-decider",
       "description": "Use this skill when deciding whether the next release of a SemVer-versioned library should bump major, minor, or patch. Walks through a checklist of change classes, surfaces the breaking-change risks people commonly miss, and explains 0.x and pre-1.0 conventions.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "status": "active",
       "author": {
         "name": "Samuel Gudi",
@@ -179,7 +191,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/semver-bump-decider",
-        "content_hash": "sha256:cc12d800f7300f586e978f1e444f4450d0a5ca854e2629aa2d1cc08d06c4a488",
+        "content_hash": "sha256:577215a97acd47f7535afe97cbef2a2e4d6c95127daf1efa315a6a640c2028ca",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -188,11 +200,17 @@
       "versions": {
         "0.1.0": {
           "sha": "0eebb37b19c7b45ab5057f768cf6575930d3c4a3",
-          "released": "2026-05-12T08:44:15Z"
+          "released": "2026-05-12T08:44:15Z",
+          "yanked": true,
+          "yank_reason": "v0.1.0 content-hash drift: the pinned SHA predates the author.name normalization (`samuelgudi` -> `Samuel Gudi`) that landed during the iknowkungfu v0.1.2 pre-publication audit, so install_skill's git-archive of that SHA hashes to a value that no longer matches the regenerated source.content_hash. Use 0.1.1 \u2014 same content, hash-consistent."
+        },
+        "0.1.1": {
+          "sha": "04febcf8dae2582d5fb8b142e2365f9d43fbb298",
+          "released": "2026-05-12T19:38:32Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-12T18:07:36Z",
+        "merged_at": "2026-05-12T19:38:32Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
