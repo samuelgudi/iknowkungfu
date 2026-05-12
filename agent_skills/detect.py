@@ -3,10 +3,17 @@ import os
 from pathlib import Path
 
 from adapters.claude_code import ClaudeCodeAdapter
+from adapters.codex import CodexAdapter
 from adapters.hermes import HermesAdapter
+from adapters.opencode import OpenCodeAdapter
 
 
-ADAPTERS = {"claude-code": ClaudeCodeAdapter, "hermes": HermesAdapter}
+ADAPTERS = {
+    "claude-code": ClaudeCodeAdapter,
+    "hermes": HermesAdapter,
+    "codex": CodexAdapter,
+    "opencode": OpenCodeAdapter,
+}
 
 
 def detect_host(*, override: str | None = None) -> str:
@@ -16,7 +23,10 @@ def detect_host(*, override: str | None = None) -> str:
         return override
     found = [name for name, cls in ADAPTERS.items() if cls().detect()]
     if not found:
-        raise SystemExit("No agent host detected. Pass --agent or install Claude Code / Hermes.")
+        raise SystemExit(
+            "No agent host detected. Pass --agent or install one of: "
+            + ", ".join(ADAPTERS) + "."
+        )
     if len(found) == 1:
         return found[0]
     pref = os.environ.get("AGENT_SKILLS_DEFAULT_AGENT")
