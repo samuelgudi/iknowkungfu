@@ -1,28 +1,31 @@
-# agent-skills
+# I Know Kung Fu
 
-Agent-agnostic registry for skill discovery and contribution.
+> *For your agents.*
 
-[![CI](https://github.com/samuelgudi/agent-skills/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelgudi/agent-skills/actions/workflows/ci.yml)
+Agent-agnostic registry for skill discovery and contribution. Formerly known as `agent-skills`.
+
+
+[![CI](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 
 ---
 
-agent-skills is a content-hash-anchored skill registry that lets any compatible agent discover, install, and verify skills without coupling to a specific host's ecosystem. Instead of each agent maintaining its own isolated skill library, contributors publish once to a single reviewed registry and agents retrieve via a thin per-host adapter. Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
+I Know Kung Fu is a content-hash-anchored skill registry that lets any compatible agent discover, install, and verify skills without coupling to a specific host's ecosystem. Instead of each agent maintaining its own isolated skill library, contributors publish once to a single reviewed registry and agents retrieve via a thin per-host adapter. Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
 
 ---
 
 ## Install
 
 ```
-pip install agent-skills    # or: uv tool install agent-skills
+pip install iknowkungfu    # or: uv tool install iknowkungfu
 ```
 
-PyPI publication is deferred to v1. For now, install from source:
+The PyPI namespace is claimed. Until `v0.1.2` ships, install from source:
 
 ```
-git clone https://github.com/samuelgudi/agent-skills
-pip install -e agent-skills/
+git clone https://github.com/samuelgudi/iknowkungfu
+pip install -e iknowkungfu/
 ```
 
 ---
@@ -30,11 +33,11 @@ pip install -e agent-skills/
 ## Quickstart
 
 ```bash
-agent-skills update                          # refresh registry cache
-agent-skills search <query>                  # find skills
-agent-skills install <author>/<skill>        # install for detected host
-agent-skills list                            # show installed skills
-agent-skills verify <author>/<skill>         # check installed skill against registry
+kfu update                          # refresh registry cache
+kfu search <query>                  # find skills
+kfu install <author>/<skill>        # install for detected host
+kfu list                            # show installed skills
+kfu verify <author>/<skill>         # check installed skill against registry
 ```
 
 ---
@@ -42,8 +45,8 @@ agent-skills verify <author>/<skill>         # check installed skill against reg
 ## For contributors
 
 ```bash
-agent-skills init <local-dir>     # scaffold meta.json interactively
-agent-skills submit <local-dir>   # validate, sanitize, scan, open PR
+kfu init <local-dir>     # scaffold meta.json interactively
+kfu submit <local-dir>   # validate, sanitize, scan, open PR
 ```
 
 Full contribution guidelines, frontmatter contract, and review template are in [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -84,7 +87,7 @@ The agent will call `search`, inspect candidates with `get_skill`, then `install
 
 ### Query language
 
-The search tool (and the CLI's `agent-skills search`) accepts a Lucene-style DSL:
+The search tool (and the CLI's `kfu search`) accepts a Lucene-style DSL:
 
 ```
 rust serialization tag:rust agent:claude-code
@@ -102,7 +105,7 @@ Full reference: [docs/query-language.md](docs/query-language.md). MCP integratio
 ## Project layout
 
 ```
-agent-skills/
+iknowkungfu/
 ├── registry.json            # generated manifest (never hand-edit)
 ├── yanks.json               # append-only yank log
 ├── skills/                  # approved skills (<author>/<slug>/)

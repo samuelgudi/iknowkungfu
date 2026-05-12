@@ -1,4 +1,4 @@
-# agent-skills Schema Reference
+# iknowkungfu Schema Reference
 
 > **Authority**: This file is the canonical reference for `validate.py` (Task 8) and `generate_manifest.py` (Task 10). If there is drift between this document and the spec at `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md`, **the spec wins** and this file must be updated to match. When adding new categories or fields, open a PR that updates both this file and the spec simultaneously.
 
@@ -72,7 +72,7 @@ Below is the full field-semantics table from spec § 7, updated to v4.
 |---|---|---|---|
 | `name` | string | yes | Display name. |
 | `github_login` | string | yes | GitHub username at registration time (Decision #4). |
-| `github_id` | integer | yes | GitHub's immutable numeric user ID. Fetched by `agent-skills init` via `gh api users/<login>`. Binds skill identity to the account, not just the login string. |
+| `github_id` | integer | yes | GitHub's immutable numeric user ID. Fetched by `kfu init` via `gh api users/<login>`. Binds skill identity to the account, not just the login string. |
 
 ### `versions` map
 
@@ -239,7 +239,7 @@ Hermes-specific frontmatter (`platforms:`, `prerequisites:`, etc.) is synthesize
 | `id` | string | yes | `<github_login>/<slug>`. Must match directory path. |
 | `version` | string | yes | Semver. Current version of this skill. |
 | `status` | enum | yes | `"active"` \| `"deprecated"`. |
-| `author` | object | yes | `{name, github_login, github_id}`. `github_id` fetched by `agent-skills init` at first submission. |
+| `author` | object | yes | `{name, github_login, github_id}`. `github_id` fetched by `kfu init` at first submission. |
 | `category` | string | yes | Must be one of the eight valid categories (see § 6). |
 | `tags` | string[] | optional | Free-form, lowercase, max 10. |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. |
@@ -315,7 +315,7 @@ The v0 starter set contains exactly **eight** categories (Decision #15). Every s
 | `data` | Skills for data processing, transformation, databases, spreadsheets, and analytics. |
 | `comms` | Skills for communication: email, chat, messaging platforms, and notifications. |
 | `docs` | Skills for document creation, editing, summarisation, and knowledge management. |
-| `meta` | Skills about the agent-skills system itself (registry introspection, tooling helpers). |
+| `meta` | Skills about the iknowkungfu system itself (registry introspection, tooling helpers). |
 | `ai` | Skills for interacting with AI services, models, APIs, and AI-adjacent workflows. |
 
 ---

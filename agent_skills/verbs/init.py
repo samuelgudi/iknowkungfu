@@ -162,7 +162,7 @@ def run(args) -> int:
     if not has_upper and not has_lower:
         print(
             f"Error: no SKILL.md found in {target}.\n"
-            "An `agent-skills` skill needs a `SKILL.md` with frontmatter.",
+            "A SKILL.md with frontmatter is required.",
             file=sys.stderr,
         )
         return 1
@@ -327,6 +327,6 @@ def run(args) -> int:
     print(f"  ✓ requires.env_vars={env_vars}, requires.commands={commands}")
     print("  ✓ Reserved fields (composes/extends/supersedes/superseded_by) initialized empty")
     print(f"\nDone. Review with:\n  cat {meta_path}")
-    print(f"\nNext:\n  agent-skills submit {target}")
+    print(f"\nNext:\n  kfu submit {target}")
 
     return 0

@@ -32,8 +32,8 @@ def _parse_generated_at(value: str) -> datetime | None:
     return dt.astimezone(timezone.utc)
 
 
-DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/samuelgudi/agent-skills/main/registry.json"
-DEFAULT_REGISTRY_REPO = "https://github.com/samuelgudi/agent-skills.git"
+DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/registry.json"
+DEFAULT_REGISTRY_REPO = "https://github.com/samuelgudi/iknowkungfu.git"
 
 
 def _cache_dir() -> Path:
@@ -43,7 +43,7 @@ def _cache_dir() -> Path:
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "agent-skills/0.1.0"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.2"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 

@@ -62,7 +62,7 @@ def write_marker(target: Path, *, skill_id: str, version: str, content_hash: str
         "id": skill_id,
         "version": version,
         "installed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "installed_by": f"agent-skills {_agent_skills_version}",
+        "installed_by": f"iknowkungfu {_agent_skills_version}",
         "registry_content_hash": content_hash,
         "source_url": source_url,
         "tree_sha": tree_sha,

@@ -39,7 +39,7 @@ def detect_host(*, override: str | None = None) -> str:
     raise SystemExit(
         "Multiple agent hosts detected: " + ", ".join(found) + ".\n"
         "Pick one with --agent, e.g.:\n"
-        f"  agent-skills <verb> --agent {found[0]}\n"
+        f"  kfu <verb> --agent {found[0]}\n"
         "Or set a default: export AGENT_SKILLS_DEFAULT_AGENT=" + found[0]
     )
 

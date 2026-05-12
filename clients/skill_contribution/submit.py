@@ -106,7 +106,7 @@ def submit_skill(target: Path, repo: Path, *, yes: bool = False) -> SubmitResult
     if skill_md is None:
         return SubmitResult(False, error="SKILL.md missing or ambiguous (both upper- and lowercase variants present).")
     if not (target / "meta.json").exists():
-        return SubmitResult(False, error="meta.json missing — run `agent-skills init <target>` first.")
+        return SubmitResult(False, error="meta.json missing — run `kfu init <target>` first.")
     meta = json.loads((target / "meta.json").read_text(encoding="utf-8"))
     author = meta["author"]["github_login"]
     slug = meta["id"].split("/", 1)[1]

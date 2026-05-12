@@ -215,7 +215,7 @@ def test_search_returns_1_when_no_registry_cached(fake_home, capsys):
     rc = search_verb.run(_args(terms=["rust"]))
     assert rc == 1
     err = capsys.readouterr().err
-    assert "agent-skills update" in err
+    assert "kfu update" in err
 
 
 def test_search_returns_2_on_compiler_error(cached_registry, capsys):

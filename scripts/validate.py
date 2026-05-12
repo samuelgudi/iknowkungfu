@@ -389,7 +389,7 @@ def validate_skill_set(
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        description="Validate agent-skills skill directories."
+        description="Validate iknowkungfu skill directories."
     )
     p.add_argument("target", nargs="?", help="Single skill directory to validate.")
     p.add_argument("--all", action="store_true",

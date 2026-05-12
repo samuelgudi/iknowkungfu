@@ -128,7 +128,7 @@ def yank(repo: Path, spec: str, reason: str) -> tuple[bool, str | None]:
         f"### Effect\n"
         f"After merge, `generate_manifest.py` will set `versions[\"{version}\"].yanked = true` "
         f"in `registry.json`. All clients will hard-refuse to install this version on next "
-        f"`agent-skills update`. There is no override flag.\n"
+        f"`kfu update`. There is no override flag.\n"
     )
 
     subprocess.run(["git", "-C", str(repo), "checkout", "-B", branch], check=True, capture_output=True)

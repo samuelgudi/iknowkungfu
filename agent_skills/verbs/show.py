@@ -27,7 +27,7 @@ def is_installed(skill_id: str, agent: str) -> bool:
 def run(args) -> int:
     registry = load_registry()
     if registry is None:
-        print("Run `agent-skills update` first.", file=sys.stderr)
+        print("Run `kfu update` first.", file=sys.stderr)
         return 1
     skill = find_skill(registry, args.id)
     if skill is None:

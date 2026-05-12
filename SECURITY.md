@@ -7,14 +7,14 @@ The following checks run automatically on every contribution PR and registry ope
 - **`validate.py`** (`scripts/validate.py --all`): schema correctness, cross-file consistency, and cross-skill uniqueness checks. Runs in the `registry-checks` CI job on every push and PR.
 - **`security_scan.py`** (`scripts/security_scan.py --all`): 8 hard-block rules + 4 soft-warn rules defined in `rules.yaml`. Hard blocks include `PKG-INSTALL`, `EXEC-ARBITRARY`, `OBFUSCATED-CODE`, and others. Runs in the `registry-checks` CI job.
 - **Registry-anchored content hash**: every installed skill version carries a `content_hash` from `registry.json`. `adapter.verify()` recomputes the hash on install and refuses if it doesn't match.
-- **Hard yank refusal**: yanked versions cannot be installed. There is no override flag (Decision #10). `agent-skills install` hard-refuses with no override even if the user passes `--force`.
+- **Hard yank refusal**: yanked versions cannot be installed. There is no override flag (Decision #10). `kfu install` hard-refuses with no override even if the user passes `--force`.
 - **Per-version GitHub-ID binding**: `meta.json.author.github_id` is the numeric GitHub user ID fetched at submit time. It is immutable after first registration. The `contribution-pr-check` CI job verifies the declared ID against the live `gh api users/<login>` response for new authors.
 
 ---
 
 ## Threat model
 
-The agent-skills registry distributes executable content — skills may include scripts that run with the user's credentials and filesystem access. The primary threat is **post-merge supply-chain compromise**: a skill passes review, is merged, and a subsequent update (or a dependency it fetches at runtime) introduces malicious behaviour. The pipeline defends against this by banning runtime package-manager installs (`PKG-INSTALL` hard block), binding author identity to an immutable GitHub numeric ID, and requiring explicit capability disclosure in REVIEW.md so reviewers can cross-check claims against actual code at every PR.
+The I Know Kung Fu registry distributes executable content — skills may include scripts that run with the user's credentials and filesystem access. The primary threat is **post-merge supply-chain compromise**: a skill passes review, is merged, and a subsequent update (or a dependency it fetches at runtime) introduces malicious behaviour. The pipeline defends against this by banning runtime package-manager installs (`PKG-INSTALL` hard block), binding author identity to an immutable GitHub numeric ID, and requiring explicit capability disclosure in REVIEW.md so reviewers can cross-check claims against actual code at every PR.
 
 ---
 
@@ -48,9 +48,9 @@ Report vulnerabilities privately to **samuel.gudi.official@gmail.com** — do NO
 
 Yanking marks a specific skill version as compromised. Yanked versions cannot be installed — there is no override flag (Decision #10).
 
-1. Run `agent-skills yank <author>/<slug>@<version> --reason "..."` — the reason must be concrete (e.g., "Compromised upstream dependency in scripts/search.py; users must upgrade to 0.2.0+"). This appends an entry to `yanks.json` and opens a PR.
+1. Run `kfu yank <author>/<slug>@<version> --reason "..."` — the reason must be concrete (e.g., "Compromised upstream dependency in scripts/search.py; users must upgrade to 0.2.0+"). This appends an entry to `yanks.json` and opens a PR.
 2. Review the PR: confirm the version exists in `registry.json`; confirm `yank_reason` is non-empty and specific.
 3. Merge the PR.
 4. Verify the merged state: `registry.json.skills[<id>].versions[<version>].yanked` must be `true` and `yank_reason` must be populated. `generate_manifest.py` performs this merge automatically on every regeneration — yanks are append-only.
 
-If all versions of a skill are yanked, `agent-skills install <id>` hard-refuses with no override. Users who want to inspect the source for forensic purposes must use `--include-archived` manually, not install it.
+If all versions of a skill are yanked, `kfu install <id>` hard-refuses with no override. Users who want to inspect the source for forensic purposes must use `--include-archived` manually, not install it.

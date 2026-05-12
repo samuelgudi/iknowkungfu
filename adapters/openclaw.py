@@ -124,7 +124,7 @@ class OpenClawAdapter(Adapter):
             return VerifyResult(status="not_installed", message=f"{skill_id} not installed in openclaw")
         marker = read_marker(target)
         if marker is None:
-            return VerifyResult(status="no_marker", message="no marker — skill not managed by agent-skills")
+            return VerifyResult(status="no_marker", message="no marker — skill not managed by iknowkungfu")
         if yanked:
             return VerifyResult(
                 status="yanked",

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/samuelgudi/agent-skills/scripts/schema.json",
-  "title": "agent-skills registry",
+  "$id": "https://github.com/samuelgudi/iknowkungfu/scripts/schema.json",
+  "title": "iknowkungfu registry",
   "type": "object",
   "required": ["schema_version", "generated_at", "skills"],
   "properties": {

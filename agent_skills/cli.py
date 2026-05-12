@@ -1,4 +1,4 @@
-"""agent-skills CLI verb dispatch."""
+"""I Know Kung Fu CLI verb dispatch."""
 import argparse
 import sys
 
@@ -33,7 +33,7 @@ VERBS = [
 
 
 def make_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="agent-skills", description="Agent-agnostic skill registry.")
+    p = argparse.ArgumentParser(prog="kfu", description="Agent-agnostic skill registry.")
     sub = p.add_subparsers(dest="verb", required=True)
     for v in VERBS:
         if v == "search":

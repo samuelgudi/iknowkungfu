@@ -75,7 +75,7 @@ class ClaudeCodeAdapter(Adapter):
             return VerifyResult(status="not_installed", message=f"{skill_id} not installed in claude-code")
         marker = read_marker(target)
         if marker is None:
-            return VerifyResult(status="no_marker", message="no marker — skill not managed by agent-skills")
+            return VerifyResult(status="no_marker", message="no marker — skill not managed by iknowkungfu")
         actual_hash = compute_dir_content_hash(target)
         if yanked:
             return VerifyResult(status="yanked", message=f"version {marker['version']} YANKED: {yank_reason}. Uninstall recommended.")

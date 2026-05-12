@@ -64,13 +64,13 @@ def resolve_install_id(registry: dict, raw_id: str) -> str | None:
 def run(args) -> int:
     registry = load_registry()
     if registry is None:
-        print("Run `agent-skills update` first.", file=sys.stderr)
+        print("Run `kfu update` first.", file=sys.stderr)
         return 1
 
     raw_id, version = parse_spec(args.spec)
     full_id = resolve_install_id(registry, raw_id)
     if full_id is None:
-        print(f"Skill '{raw_id}' not found in registry. Try: agent-skills search {raw_id}", file=sys.stderr)
+        print(f"Skill '{raw_id}' not found in registry. Try: kfu search {raw_id}", file=sys.stderr)
         return 1
 
     skill = find_skill(registry, full_id)
@@ -96,7 +96,7 @@ def run(args) -> int:
         print("Yanked versions cannot be installed. No override flag exists.", file=sys.stderr)
         non_yanked = [v for v, info in versions.items() if not info.get("yanked")]
         if non_yanked:
-            print(f"Try: agent-skills install {full_id}@{sorted(non_yanked)[-1]}", file=sys.stderr)
+            print(f"Try: kfu install {full_id}@{sorted(non_yanked)[-1]}", file=sys.stderr)
         return 1
 
     tree_sha = ver_info["sha"]
@@ -104,7 +104,7 @@ def run(args) -> int:
 
     repo = cache_dir() / "registry-repo"
     if not (repo / ".git").exists():
-        print(f"No registry repo at {repo}. Run `agent-skills update` first.", file=sys.stderr)
+        print(f"No registry repo at {repo}. Run `kfu update` first.", file=sys.stderr)
         return 1
 
     with tempfile.TemporaryDirectory() as tmp:

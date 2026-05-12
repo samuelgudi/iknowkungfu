@@ -62,7 +62,7 @@ def _build_query_from_args(args) -> str:
         flags = ", ".join(deprecated_used)
         print(
             f"Warning: {flags} are deprecated. Use the query DSL instead "
-            f"(e.g. `agent-skills search 'tag:rust agent:claude-code'`). "
+            f"(e.g. `kfu search 'tag:rust agent:claude-code'`). "
             f"These flags will be removed in v0.2.0.",
             file=sys.stderr,
         )
@@ -93,7 +93,7 @@ def _emit_ndjson(result: SearchResult) -> None:
 def _emit_pretty(result: SearchResult) -> None:
     if not result.results:
         print(
-            "No skills match. Try a broader query or run `agent-skills list-categories`."
+            "No skills match. Try a broader query or run `kfu list-categories`."
         )
         return
     for i, item in enumerate(result.results, 1):
@@ -120,7 +120,7 @@ def _emit_pretty(result: SearchResult) -> None:
 def run(args) -> int:
     db = _ensure_index()
     if db is None:
-        print("Run `agent-skills update` first.", file=sys.stderr)
+        print("Run `kfu update` first.", file=sys.stderr)
         return 1
 
     query = _build_query_from_args(args)

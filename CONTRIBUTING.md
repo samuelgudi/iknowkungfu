@@ -4,19 +4,19 @@
 
 1. **Clone the repo** (or fork it if you don't have write access):
    ```
-   git clone https://github.com/samuelgudi/agent-skills
+   git clone https://github.com/samuelgudi/iknowkungfu
    ```
 2. **Install the CLI**:
    ```
-   pip install agent-skills
+   pip install iknowkungfu
    ```
    or, with uv:
    ```
-   uv tool install agent-skills
+   uv tool install iknowkungfu
    ```
 3. **Write your skill.** Create a directory with `SKILL.md` as the main body (see **SKILL.md filename** below). Add any scripts in `scripts/` and templates in `templates/`.
-4. **Run `agent-skills init <local-dir>`** to scaffold `meta.json` interactively. The tool detects your GitHub login via `gh auth`, fetches your numeric GitHub ID via `gh api`, and prompts for category, tags, platforms, agent compatibility, and license. You can also hand-write `meta.json` following [SCHEMA.md](SCHEMA.md). (Decision #17)
-5. **Run `agent-skills submit <local-dir>`** to validate, sanitize, scan, and open a PR. The submit flow will offer `init` inline if `meta.json` is missing.
+4. **Run `kfu init <local-dir>`** to scaffold `meta.json` interactively. The tool detects your GitHub login via `gh auth`, fetches your numeric GitHub ID via `gh api`, and prompts for category, tags, platforms, agent compatibility, and license. You can also hand-write `meta.json` following [SCHEMA.md](SCHEMA.md). (Decision #17)
+5. **Run `kfu submit <local-dir>`** to validate, sanitize, scan, and open a PR. The submit flow will offer `init` inline if `meta.json` is missing.
 
 ---
 
@@ -66,14 +66,14 @@ Key points:
 
 The canonical filename is **`SKILL.md`** — uppercase, case-exact. (Decision #16)
 
-- `agent-skills submit` normalises a lowercase `skill.md` to `SKILL.md` at submit time with a notice.
+- `kfu submit` normalises a lowercase `skill.md` to `SKILL.md` at submit time with a notice.
 - However, **Linux CI rejects a PR that adds `skill.md` directly** (Linux is case-sensitive; the case-exact check runs in CI and fails even if you submitted from Windows). Commit `SKILL.md`, not `skill.md`.
 
 ---
 
 ## REVIEW.md template
 
-Before submitting, create a `REVIEW.md` in your skill directory. The `agent-skills submit` command generates a pre-filled template from this layout (copied verbatim from `clients/skill_contribution/templates/review.md`):
+Before submitting, create a `REVIEW.md` in your skill directory. The `kfu submit` command generates a pre-filled template from this layout (copied verbatim from `clients/skill_contribution/templates/review.md`):
 
 ```markdown
 # REVIEW.md — {skill_id}@{version}
@@ -115,7 +115,7 @@ Reviewers will cross-check your claims against the actual code.
 
 ## Sanitization
 
-`agent-skills submit` automatically runs `sanitize.py` against your skill directory before opening a PR. The sanitizer detects and replaces the following:
+`kfu submit` automatically runs `sanitize.py` against your skill directory before opening a PR. The sanitizer detects and replaces the following:
 
 - **Home directory paths** — POSIX (`/home/<user>/`) and Windows (`C:\Users\<user>\`) absolute paths containing your username.
 - **GitHub Personal Access Tokens** — patterns matching `ghp_...`.
@@ -138,9 +138,9 @@ The submit flow produces `SANITIZATION.diff` — a unified diff of every replace
 
 ## Common rejection reasons
 
-1. **`meta.json` fields missing or malformed.** Run `agent-skills validate <local-dir>` before submitting. Hard-fail fields include `author.github_id`, `license` (must be SPDX), and `category` (must be one of the eight allowed values).
-2. **`SKILL.md` filename is lowercase.** Linux CI rejects `skill.md` even if `agent-skills submit` normalised it locally. Always commit the file as `SKILL.md`.
-3. **GitHub ID mismatch.** The `author.github_id` in `meta.json` does not match the ID fetched from `gh api users/<github_login>`. This happens when a GitHub username is re-registered to a different person. Use the CLI (`agent-skills init` or `agent-skills submit`) — it fetches the ID automatically.
+1. **`meta.json` fields missing or malformed.** Run `kfu validate <local-dir>` before submitting. Hard-fail fields include `author.github_id`, `license` (must be SPDX), and `category` (must be one of the eight allowed values).
+2. **`SKILL.md` filename is lowercase.** Linux CI rejects `skill.md` even if `kfu submit` normalised it locally. Always commit the file as `SKILL.md`.
+3. **GitHub ID mismatch.** The `author.github_id` in `meta.json` does not match the ID fetched from `gh api users/<github_login>`. This happens when a GitHub username is re-registered to a different person. Use the CLI (`kfu init` or `kfu submit`) — it fetches the ID automatically.
 4. **`PKG-INSTALL` detected in scripts.** Scripts must not call `pip install`, `npm install`, `apt install`, or any other package-manager install command at runtime. Declare runtime dependencies in `meta.json.requires.commands` and instruct users to install them beforehand. There is no override.
 5. **Description doesn't include WHEN-to-invoke wording.** The description must tell agents under what circumstances to invoke the skill, not just summarise its function. Revise to start with "Use this skill when..." or equivalent.
 6. **Hard-block findings in `scan_results.json`.** Any finding with `severity: block` from `security_scan.py` causes an automatic CI failure. The PR cannot be merged until the offending code is removed or rewritten. Hard blocks include `PKG-INSTALL`, `EXEC-ARBITRARY`, `OBFUSCATED-CODE`, and others defined in `rules.yaml`.
@@ -154,8 +154,8 @@ The following CLI verbs are relevant to contributors. Consumer-side verbs (`sear
 
 | Verb | What it does | Example |
 |---|---|---|
-| `init` | Scaffold `meta.json` interactively from SKILL.md frontmatter | `agent-skills init ~/.claude/skills/my-skill/` |
-| `submit` | Validate, sanitize, scan, and open a contribution PR | `agent-skills submit ~/.claude/skills/my-skill/` |
-| `issue` | Open a bug report or feature request for an existing skill | `agent-skills issue samuelgudi/spotify-search` |
-| `deprecate` | Mark a skill as deprecated in favor of a newer skill | `agent-skills deprecate samuelgudi/old-skill --in-favor-of samuelgudi/new-skill` |
-| `yank` | Hard-mark a specific version as compromised and open a yank PR | `agent-skills yank samuelgudi/my-skill@0.1.0 --reason "Credential leak in scripts/fetch.py"` |
+| `init` | Scaffold `meta.json` interactively from SKILL.md frontmatter | `kfu init ~/.claude/skills/my-skill/` |
+| `submit` | Validate, sanitize, scan, and open a contribution PR | `kfu submit ~/.claude/skills/my-skill/` |
+| `issue` | Open a bug report or feature request for an existing skill | `kfu issue samuelgudi/spotify-search` |
+| `deprecate` | Mark a skill as deprecated in favor of a newer skill | `kfu deprecate samuelgudi/old-skill --in-favor-of samuelgudi/new-skill` |
+| `yank` | Hard-mark a specific version as compromised and open a yank PR | `kfu yank samuelgudi/my-skill@0.1.0 --reason "Credential leak in scripts/fetch.py"` |

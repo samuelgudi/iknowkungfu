@@ -1,7 +1,7 @@
 """OpenAI Codex CLI adapter.
 
 Codex (https://developers.openai.com/codex/skills) discovers skills in four
-scopes; we target the two stable ones agent-skills cares about:
+scopes; we target the two stable ones iknowkungfu cares about:
 
 - user scope:    ~/.agents/skills/<name>/SKILL.md
 - project scope: $CWD/.agents/skills/<name>/SKILL.md
@@ -122,7 +122,7 @@ class CodexAdapter(Adapter):
             return VerifyResult(status="not_installed", message=f"{skill_id} not installed in codex")
         marker = read_marker(target)
         if marker is None:
-            return VerifyResult(status="no_marker", message="no marker — skill not managed by agent-skills")
+            return VerifyResult(status="no_marker", message="no marker — skill not managed by iknowkungfu")
         if yanked:
             return VerifyResult(
                 status="yanked",

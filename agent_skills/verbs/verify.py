@@ -14,7 +14,7 @@ def run(args) -> int:
     adapter = get_adapter(agent)
     registry = load_registry()
     if registry is None:
-        print("No registry cache. Run `agent-skills update`.", file=sys.stderr)
+        print("No registry cache. Run `kfu update`.", file=sys.stderr)
         return 1
 
     skill = next((s for s in registry["skills"] if s["id"] == args.id), None)
