@@ -96,13 +96,26 @@ Or edit `~/.claude.json` (user scope) directly:
 }
 ```
 
+For the Hermes Agent, add to `~/.hermes/config.yaml`:
+
+```yaml
+mcp_servers:
+  iknowkungfu:
+    command: iknowkungfu-mcp
+    args: []
+    env: {}
+    enabled: true
+```
+
+Other hosts (Codex, OpenClaw, Cursor, generic MCP clients): see [docs/mcp-integration.md](docs/mcp-integration.md).
+
 Then in a session:
 
 ```
 > Find a rust serialization skill compatible with claude-code, and install it.
 ```
 
-The agent will call `search`, inspect candidates with `get_skill`, then `install_skill` to write the chosen skill into `~/.claude/skills/`.
+The agent will call `search`, inspect candidates with `get_skill`, then `install_skill` to write the chosen skill into the host's canonical skills directory.
 
 ### Query language
 
@@ -161,4 +174,4 @@ The `archive/` and `submitted/` directories are created on demand by the `kfu de
 
 ## Acknowledgments
 
-The design spec is at v4, incorporating review rounds from MILO, Gemini, and a real-skill walkthrough that hardened the submission pipeline, yank semantics, and frontmatter contract.
+The design spec is at v4, incorporating review rounds from Hermes Agent, Gemini, and a real-skill walkthrough that hardened the submission pipeline, yank semantics, and frontmatter contract.

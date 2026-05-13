@@ -109,6 +109,27 @@ command = "iknowkungfu-mcp"
 }
 ```
 
+### Hermes Agent
+
+`~/.hermes/config.yaml`:
+
+```yaml
+mcp_servers:
+  iknowkungfu:
+    command: iknowkungfu-mcp
+    args: []
+    env: {}
+    enabled: true
+```
+
+Restart the Hermes Agent (or hot-reload the config if your deployment supports it). Then in a session:
+
+```
+> Use iknowkungfu to find a Python testing skill, then install it.
+```
+
+The agent will discover the 8 tools via `tools/list`, and `install_skill` will write into `~/.hermes/skills/<category>/<slug>/` with frontmatter synthesized for the Hermes spec (`platforms:`, `prerequisites:`, `metadata.hermes.tags`).
+
 ### Generic MCP client
 
 ```bash
@@ -190,12 +211,12 @@ The unique-to-iknowkungfu wedge. An agent mid-task can pull a skill into its own
 
 The server invokes the matching adapter (one of `claude-code`, `hermes`, `codex`, `opencode`, `pi`, `openclaw`). Each adapter writes to its host's canonical location:
 
-* claude-code → `~/.claude/skills/<id>/`
-* hermes → `~/.hermes/skills/<id>/`
-* codex → `~/.codex/skills/<id>/`
-* opencode → `~/.opencode/skills/<id>/`
-* pi → host-defined path
-* openclaw → host-defined path
+* claude-code → `~/.claude/skills/<author>-<slug>/`
+* hermes → `~/.hermes/skills/<category>/<slug>/`
+* codex → `~/.agents/skills/<author>-<slug>/`
+* opencode → `~/.config/opencode/skills/<author>-<slug>/`
+* openclaw → `~/.openclaw/skills/<author>-<slug>/`
+* pi → `~/.pi/agent/skills/<author>-<slug>/` (overridable via `PI_CODING_AGENT_DIR`)
 
 The skill is verified against its content hash from `registry.json`. Yanked versions are hard-refused (no `--allow-yanked` override).
 
