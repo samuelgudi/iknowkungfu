@@ -34,6 +34,8 @@ VERBS = [
 
 def make_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="kfu", description="Agent-agnostic skill registry.")
+    from agent_skills import __version__
+    p.add_argument("--version", action="version", version=f"kfu {__version__}")
     sub = p.add_subparsers(dest="verb", required=True)
     for v in VERBS:
         if v == "search":

@@ -43,7 +43,7 @@ def _cache_dir() -> Path:
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.4"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.5"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
@@ -124,13 +124,20 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
 
     _atomic_write(cached_path, reg_bytes)
 
-    # Optional sig — warn if missing
+    # Optional sig. The warning fires only when a previously-cached sig is
+    # missing on a re-pull — that's a regression worth surfacing. When no sig
+    # has ever been cached (first pull, or signing not yet enabled upstream),
+    # we stay silent: warning every kfu update before the signing rollout is
+    # pure noise, and new users mistake it for an error.
+    sig_path = cache / "registry.json.sig"
+    had_prior_sig = sig_path.exists()
     sig_url = url + ".sig"
     try:
         sig_bytes = _http_fetch(sig_url, timeout=5.0)
-        _atomic_write(cache / "registry.json.sig", sig_bytes)
+        _atomic_write(sig_path, sig_bytes)
     except urllib.error.URLError:
-        print("Warning: registry.json.sig not found — running unsigned.", file=sys.stderr)
+        if had_prior_sig:
+            print("Warning: registry.json.sig not found — running unsigned.", file=sys.stderr)
 
     # yanks.json — sibling to registry
     yanks_url = url.rsplit("/", 1)[0] + "/yanks.json"

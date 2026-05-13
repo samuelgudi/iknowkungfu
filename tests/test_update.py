@@ -164,20 +164,12 @@ def test_update_verb_invokes_refresh(serve_dir, fake_home, monkeypatch):
     assert (fake_home / ".cache/iknowkungfu/registry.json").exists()
 
 
-def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypatch, capsys):
-    """The unsigned-registry warning contains an em-dash (U+2014). After the
-    Finding 2 UTF-8 reconfigure, the dash must reach stderr as proper UTF-8
-    bytes (\\xe2\\x80\\x94), not '?' or a UnicodeEncodeError. Regression test
-    for Finding 1 of the 2026-05-12 walkthrough."""
-    import io
-    import sys
+def _spawn_registry_server(payload: bytes):
+    """Spin up a one-shot HTTP server that serves `registry.json` (and 404s
+    every other path, notably `registry.json.sig`). Returns (server, url)."""
     import json
     from http.server import BaseHTTPRequestHandler, HTTPServer
     from threading import Thread
-
-    payload = json.dumps({
-        "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z", "skills": []
-    }).encode()
 
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self):  # noqa: N802 (stdlib API)
@@ -188,11 +180,50 @@ def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypat
         def log_message(self, *_a, **_k): pass
 
     server = HTTPServer(("127.0.0.1", 0), Handler)
-    t = Thread(target=server.serve_forever, daemon=True); t.start()
+    Thread(target=server.serve_forever, daemon=True).start()
+    return server, f"http://127.0.0.1:{server.server_port}/registry.json"
+
+
+def test_unsigned_warning_suppressed_on_first_pull(tmp_path, monkeypatch, capsys):
+    """No sig has ever been cached → kfu update stays silent about the missing
+    sig. Warning every fresh pull is pure noise before signing rolls out and
+    new users mistake it for an error (Hermes Agent 0.1.4 field-test finding)."""
+    import json
+    payload = json.dumps({
+        "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z", "skills": []
+    }).encode()
+    server, url = _spawn_registry_server(payload)
     try:
-        url = f"http://127.0.0.1:{server.server_port}/registry.json"
         cache = tmp_path / "cache"
         monkeypatch.setattr("clients.skill_discovery.update._cache_dir", lambda: cache.mkdir(exist_ok=True) or cache)
+        monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
+
+        from clients.skill_discovery.update import refresh
+        assert refresh(registry_url=url) == 0
+    finally:
+        server.shutdown()
+
+    captured = capsys.readouterr()
+    assert "registry.json.sig" not in captured.err
+    assert "unsigned" not in captured.err.lower()
+
+
+def test_unsigned_warning_fires_on_regression_after_prior_sig(tmp_path, monkeypatch, capsys):
+    """A sig WAS once cached and is now missing upstream → that's a regression
+    worth surfacing, so the warning fires. Also verifies the em-dash (U+2014)
+    reaches stderr as proper UTF-8 (\\xe2\\x80\\x94), not '?' or a
+    UnicodeEncodeError — Finding 1 regression from the 2026-05-12 walkthrough."""
+    import json
+    payload = json.dumps({
+        "schema_version": 2, "generated_at": "2026-05-11T00:00:00Z", "skills": []
+    }).encode()
+    server, url = _spawn_registry_server(payload)
+    try:
+        cache = tmp_path / "cache"
+        cache.mkdir(exist_ok=True)
+        # Seed a prior-pull sig so the regression branch fires.
+        (cache / "registry.json.sig").write_bytes(b"old-signature-bytes")
+        monkeypatch.setattr("clients.skill_discovery.update._cache_dir", lambda: cache)
         monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
 
         # Apply the same reconfigure cli.main does, to mirror real CLI usage.
@@ -200,15 +231,13 @@ def test_unsigned_warning_uses_proper_em_dash_after_utf8_fix(tmp_path, monkeypat
         _force_utf8_streams()
 
         from clients.skill_discovery.update import refresh
-        rc = refresh(registry_url=url)
-        assert rc == 0
+        assert refresh(registry_url=url) == 0
     finally:
         server.shutdown()
 
     captured = capsys.readouterr()
-    # Em-dash (U+2014) must appear in stderr message — not '?' (lossy replace)
-    # and not omitted (raised exception).
-    assert "—" in captured.err
+    assert "registry.json.sig not found" in captured.err
+    assert "—" in captured.err  # proper em-dash, not '?' (lossy replace)
 
 
 # ─── Regression: registry-repo clone MUST NOT be shallow ──────────────────

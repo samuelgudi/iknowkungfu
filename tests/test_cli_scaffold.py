@@ -113,3 +113,19 @@ def test_detect_host_multi_host_message_includes_example(monkeypatch):
     assert "--agent claude-code" in msg or "--agent hermes" in msg
     # Env var override mentioned
     assert "IKNOWKUNGFU_DEFAULT_AGENT" in msg
+
+
+def test_version_flag_prints_version_and_exits_zero():
+    """`kfu --version` prints `kfu <version>` and exits 0. Added in 0.1.5
+    after the Hermes Agent's 0.1.4 field test found there was no way to
+    check the installed version short of `kfu --help` or `uv tool list`."""
+    from agent_skills import __version__
+    result = subprocess.run(
+        [sys.executable, "-m", "agent_skills", "--version"],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
+    # argparse `action="version"` writes to stdout (3.4+) and exits 0.
+    assert __version__ in result.stdout
+    assert result.stdout.strip() == f"kfu {__version__}"

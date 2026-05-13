@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.5] — 2026-05-13
+
+Pre-announcement polish driven by the Hermes Agent's 0.1.4 field test. The 0.1.4 release passed end-to-end (CLI verbs, all eight MCP tools, frontmatter synthesis, install layout, no rename breakage) — these are the cosmetic items that surfaced during the walkthrough.
+
+### Added
+
+- **`kfu --version`** (`agent_skills/cli.py`): prints `kfu <version>` and exits 0. Hermes Agent field-test finding — previously the only way to confirm an install's version was `kfu --help` or `uv tool list`.
+
+### Changed
+
+- **First-pull unsigned-registry warning suppressed** (`clients/skill_discovery/update.py`): the `Warning: registry.json.sig not found — running unsigned.` line now fires only when a previously-cached sig is missing on a re-pull (a real regression). On a first pull, or when signing has not yet rolled out upstream, `kfu update` stays silent. The previous behaviour made new users mistake the line for an error.
+
+### Field test
+
+The 0.1.4 walkthrough by the Hermes Agent (WSL/Morpheus), 2026-05-13 ~07:12 UTC. Verdict: clean pass, no blockers. Two of three minor items addressed here; the third (no persistent `--default-agent` flag when multiple hosts are detected) is deferred — `IKNOWKUNGFU_DEFAULT_AGENT` env var is the current escape hatch and the multi-host error message is already actionable.
+
+---
+
 ## [0.1.4] — 2026-05-12
 
 Cleanup release. The 0.1.2 brand rename kept `agent-skills` everywhere as a "back-compat alias" — but there was nothing to be back-compatible with: the project had never been published before today. This release drops every `agent-skills` literal from the user-facing surface so a fresh reader doesn't have to learn a legacy name on their way in.
