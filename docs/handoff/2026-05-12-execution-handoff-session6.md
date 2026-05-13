@@ -38,7 +38,7 @@ Detailed session-5 close-out is in `docs/handoff/2026-05-12-execution-handoff-se
 - Open standard **originated at Anthropic**, now community-maintained at `github.com/agentskills/agentskills`.
 - **18,400 stars, 1,100 forks** on the spec repo. 42 open issues, 21 PRs in flight. Highly active.
 - **~35 agent runtimes officially adopting it.** Full list at `agentskills.io`. Includes Claude Code, Claude, OpenAI Codex, Gemini CLI, Cursor, GitHub Copilot, VS Code, OpenCode, OpenHands, Goose (Block), Junie (JetBrains), Amp, Letta, Factory, Databricks, Snowflake, Roo Code, TRAE (ByteDance), Mistral Vibe, Spring AI, Pi, Workshop, Kiro, nanobot, fast-agent, Piebald, Agentman, Ona, Emdash, VT Code, Qodo, Laravel Boost, Command Code, Roo Code, Google AI Edge Gallery.
-- **OpenClaw is NOT in the official adopter list.** Worth noting — Samuel's `openclaw` adapter targets a non-official runtime. Keep the adapter (Milo uses it; Samuel asked for it) but understand its position.
+- **OpenClaw is NOT in the official adopter list.** Worth noting — Samuel's `openclaw` adapter targets a non-official runtime. Keep the adapter (the Hermes Agent uses it; Samuel asked for it) but understand its position.
 
 ### Spec format
 
@@ -301,14 +301,14 @@ gh repo view samuelgudi/agent-skills --json visibility | jq .visibility
 - F5 (init "no-detect" sentinel) — UX cleanup.
 - Hermes verify asymmetry — long-standing carry-over from session 4.
 - Signing infrastructure (`registry.json.sig`) — spec § 19.
-- Linux dogfood pass via Milo — wait until public + PyPI so Milo runs `pip install <new-name>` like a real user would.
+- Linux dogfood pass via Hermes Agent — wait until public + PyPI so Hermes Agent runs `pip install <new-name>` like a real user would.
 - Adapters beyond the next-batch list above.
 
 ---
 
 ## Open intelligence questions for Samuel to consider before session 6
 
-1. **Is Milo's WSL Hermes setup ready to be a real first user**, or do we want one more in-house pass first?
+1. **Is the Hermes Agent's WSL Hermes setup ready to be a real first user**, or do we want one more in-house pass first?
 2. **Will we apply to be listed on agentskills.io's client showcase**, or wait until we have more stars / community traction first?
 3. **Should the MCP server share the project name** (e.g. `<name>-mcp`) or have its own product identity?
 4. **Hosting story for the MCP server**: do we run `mcp.<name>.app` ourselves, or ship stdio-only and let users self-host?

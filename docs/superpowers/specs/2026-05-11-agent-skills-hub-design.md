@@ -1,15 +1,15 @@
-# agent-skills hub — design spec (v4, post-MILO + post-Gemini + post-walkthrough)
+# agent-skills hub — design spec (v4, post-Hermes-Agent + post-Gemini + post-walkthrough)
 
 | Field | Value |
 |---|---|
-| Status | spec phase v4 — pre-implementation (MILO, Gemini, and real-skill walkthrough folded in) |
+| Status | spec phase v4 — pre-implementation (Hermes Agent, Gemini, and real-skill walkthrough folded in) |
 | Date | 2026-05-11 |
 | Owner | Samuel Gudi (@samuelgudi) |
-| Reviewer | Claude Code (Morpheus) + MILO (Hermes agent) + Gemini 3 Pro + walkthrough against `~/.claude/skills/homelab-docs/` |
+| Reviewer | Claude Code (Morpheus) + the Hermes Agent + Gemini 3 Pro + walkthrough against `~/.claude/skills/homelab-docs/` |
 | Repo | `samuelgudi/agent-skills` (private until v0 functional) |
 | License | MIT |
 
-> **Changelog**: § 21 = v1→v2 (MILO). § 22 = v2→v3 (Gemini). § 23 = v3→v4 (real-skill walkthrough).
+> **Changelog**: § 21 = v1→v2 (Hermes Agent). § 22 = v2→v3 (Gemini). § 23 = v3→v4 (real-skill walkthrough).
 
 ---
 
@@ -52,7 +52,7 @@ The system is explicitly **agent-agnostic**. v0 ships adapters for Claude Code a
 
 | # | Question | Decision |
 |---|---|---|
-| 1 | MILO's role in v0 | Consumer only — registry is agent-agnostic from day one (CC + Hermes adapters ship together) |
+| 1 | Hermes Agent's role in v0 | Consumer only — registry is agent-agnostic from day one (CC + Hermes adapters ship together) |
 | 2 | v0 scope | Full pipeline (discovery client + contribution client + validation + security scan + adapters) |
 | 3 | Match-rank algorithm | Deterministic keyword scoring + filter flags (category / tag / agent / platform). No LLM, no embeddings in v0. Limitation acknowledged: degrades past ~30 skills; mitigated by contributor-guideline coaching (CONTRIBUTING.md) and a tag-count cap. |
 | 4 | Skill identity | `<author>/<slug>` — where `<author>` is the GitHub login at registration time, **bound to the immutable GitHub user ID** (Gemini M2). |
@@ -1185,7 +1185,7 @@ Contribution-PR-only job adds:
 - Skill mirroring across federated registries.
 - Per-agent skill marketplaces.
 - Embeddings backend for `match.py` (v0.x — same CLI surface, swapped internals).
-- `agent-skills supersede <old-id> --with <forked-skill>` fork-and-improve workflow (deferred, MILO m10).
+- `agent-skills supersede <old-id> --with <forked-skill>` fork-and-improve workflow (deferred, Hermes Agent m10).
 - **Anti-spam ranking heuristics beyond the tag cap** (Gemini m1 partial fold). Description-length penalty exists; deeper spam-fighting (bayesian filtering, contributor reputation scoring) is post-v1.
 - **Verified-publisher signals** (`verified: true` flag for trusted contributors). Only meaningful at multi-org scale (Gemini m2).
 
@@ -1211,7 +1211,7 @@ Already covered in v2; no change in v3.
 - pipx / PyPI publication of `agent-skills` CLI.
 - Plugin trust tier (v1+).
 - Semantic / vector search backend.
-- `agent-skills supersede` workflow (MILO m10).
+- `agent-skills supersede` workflow (Hermes Agent m10).
 - **Anti-spam ranking heuristics** beyond tag cap (Gemini m1).
 - **Verified-publisher signals** (Gemini m2).
 - **Unyank workflow**: removing an entry from yanks.json requires an explicit PR with documented justification. Procedure (who approves, what evidence) needs design.
@@ -1236,13 +1236,13 @@ Already covered in v2; no change in v3.
 15. Seed skills (2–3 instruction-only).
 16. README + CONTRIBUTING (with skill-description guideline) + SECURITY (with yank procedure) hardening pass.
 
-## 21. Changelog — v1 → v2 (MILO findings)
+## 21. Changelog — v1 → v2 (Hermes Agent findings)
 
 (Preserved verbatim from v2.)
 
 ### BLOCKER
 
-| MILO ID | Section(s) | Change |
+| Hermes Agent ID | Section(s) | Change |
 |---|---|---|
 | B1 | § 6, § 9, § 14 | Hermes install target_dir changed to `~/.hermes/skills/<category>/<slug>/`. |
 | B2 | § 9, § 14 | Removed "hot-reload" claim; documented `/reload-skills` or new session. |
@@ -1251,7 +1251,7 @@ Already covered in v2; no change in v3.
 
 ### MAJOR
 
-| MILO ID | Section(s) | Change |
+| Hermes Agent ID | Section(s) | Change |
 |---|---|---|
 | M1 | § 14 | Hermes adapter translates `requires.env_vars/commands` → `prerequisites.*`. |
 | M2 | § 14 | Hermes adapter translates `platforms` → frontmatter `platforms:`. |
@@ -1326,7 +1326,7 @@ The third stress test: walking `~/.claude/skills/homelab-docs/` (Samuel's actual
   - `versions` map would record `0.1.0: {sha, released}` cleanly on first submit.
   - `github_id` binding would record Samuel's numeric id on first PR.
   - `yanked` semantics irrelevant for this submission, no false positives.
-- **MILO's four BLOCKERs hold on real input**:
+- **Hermes Agent's four BLOCKERs hold on real input**:
   - Hermes target `~/.hermes/skills/ops/homelab-docs/` derives correctly from `category: ops`.
   - `/reload-skills` documented in install UI.
   - Hermes frontmatter synthesis would generate the full block from meta.json.

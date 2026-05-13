@@ -11,7 +11,7 @@
 
 **Tech Stack:** Python 3.10+ (stdlib-first), `jsonschema` for schema validation, `PyYAML` for rules.yaml, `gh` CLI for GitHub operations, `pytest` for tests. No web service. No external network during install (verified by `NET-IN-ADAPTER` rule).
 
-**Spec ref:** `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md` (v4, post-MILO + Gemini + walkthrough). Read §§ 4 (locked decisions) + 5 (repo layout) + 7 (schema) before starting Task 1.
+**Spec ref:** `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md` (v4, post-Hermes Agent + Gemini + walkthrough). Read §§ 4 (locked decisions) + 5 (repo layout) + 7 (schema) before starting Task 1.
 
 ---
 

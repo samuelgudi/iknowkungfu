@@ -131,7 +131,7 @@ None are v0-blocking now. Listed in order of recommended next-session priority:
 5. **F5 — `init` "no-commands / no-env-vars" sentinel.** Currently you have to type `,` to clear detected defaults. Add an explicit flag or a recognised sentinel.
 6. **F6 — Node 20 deprecation warning** in `actions/checkout@v4` + `actions/setup-python@v5`. Track upstream pin updates; bump when Node 24-capable versions land.
 7. **Hermes verify asymmetry.** Carry-over from session 4: store pre- and post-rewrite hashes in the marker so verify can do a real content check on hosts that rewrite frontmatter (which is now four of the six: hermes, codex, opencode, pi, openclaw — actually five).
-8. **End-to-end contribution dogfood on Linux.** This session's dogfood ran on Windows. A second pass on Milo's WSL box would surface any platform-specific issues.
+8. **End-to-end contribution dogfood on Linux.** This session's dogfood ran on Windows. A second pass on the Hermes Agent's WSL box would surface any platform-specific issues.
 9. **Gemini CLI adapter.** The only remaining major coding agent with a SKILL.md-style folder convention. Defer until v0.2 or until a user asks.
 
 ---
@@ -167,7 +167,7 @@ None are v0-blocking now. Listed in order of recommended next-session priority:
 > 1. **Version bump 0.1.1 → 0.1.2** + brief CHANGELOG entry citing the dogfood fixes and the 4 new adapters.
 > 2. **Make repo public** — `gh repo edit --visibility public`. Update README CI badge URLs if needed.
 > 3. **PyPI publication** — `python -m build && twine upload dist/*`.
-> 4. **Hand the repo to Milo** for a Linux-side dogfood pass (this is the second-user / second-platform test — see § Next session in this file).
+> 4. **Hand the repo to the Hermes Agent** for a Linux-side dogfood pass (this is the second-user / second-platform test — see § Next session in this file).
 > 5. **Fix F4** (init command-detector prose false-positives) — same shape as F8a env-var fix.
 > 6. **Gemini CLI adapter** if/when a user asks.
 

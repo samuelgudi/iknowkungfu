@@ -20,8 +20,8 @@
 | Latest commit | `3fee52a` — docs: add v0 implementation plan |
 | Design spec (v4) | `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md` |
 | Implementation plan | `docs/superpowers/plans/2026-05-11-agent-skills-hub-v0.md` |
-| MILO review (raw email) | `~/.thalamus/milo_review_part1.md` + `milo_review_part2.md` |
-| MILO session JSON | `~/.thalamus/milo_session.json` (1027KB; deepseek-v4-pro, 44 messages, evidence-grounded) |
+| Hermes Agent review (raw email) | `~/.thalamus/hermes-agent-review_part1.md` + `hermes-agent-review_part2.md` |
+| Hermes Agent session JSON | `~/.thalamus/hermes-agent-session.json` (1027KB; deepseek-v4-pro, 44 messages, evidence-grounded) |
 | Gemini review (raw) | `~/.thalamus/gemini_review_output.md` |
 
 ---
@@ -31,7 +31,7 @@
 The spec went through 4 rounds:
 
 1. **v1** — Initial design from brainstorming with Samuel (12 locked decisions).
-2. **v2** — MILO ruthless review folded in (4 BLOCKER + 7 MAJOR + 14 MINOR; mostly Hermes integration corrections based on reading actual Hermes source).
+2. **v2** — Hermes Agent ruthless review folded in (4 BLOCKER + 7 MAJOR + 14 MINOR; mostly Hermes integration corrections based on reading actual Hermes source).
 3. **v3** — Gemini comparative review against npm/PyPI/Docker Hub/Homebrew folded in (1 BLOCKER + 3 MAJOR + 2 MINOR; supply-chain hardening, version pinning, github_id binding, yank semantics).
 4. **v4** — Real-skill walkthrough against `~/.claude/skills/homelab-docs/` folded in (4 MAJOR contributor-UX gaps; init verb, SKILL.md casing, toolsets removed, category taxonomy enumerated).
 
@@ -104,7 +104,7 @@ After the subagent reports done: **always run `git log` + `git diff HEAD~` yours
 | `gh` CLI | Authenticated as `samuelgudi`. Token scopes include `repo`, `delete_repo`, `workflow`. |
 | Python | 3.10+ assumed by `pyproject.toml`. Verify with `python --version`. |
 | Test framework | pytest (in `[project.optional-dependencies].dev`); install via `pip install -e .[dev]` after Task 1. |
-| Operating system | Windows 11, with WSL Debian available (used in this session to access MILO's session JSON). |
+| Operating system | Windows 11, with WSL Debian available (used in this session to access Hermes Agent's session JSON). |
 | Repo on disk | Clean working tree at commit `3fee52a`. |
 
 ### Gotcha — `security_reminder_hook` blocks literal dangerous patterns

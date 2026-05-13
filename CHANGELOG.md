@@ -32,13 +32,13 @@ Both renamed meta-skills reset to version `0.1.0` under their new IDs (a fresh s
 
 ### Migration notes
 
-This release is BREAKING in the literal sense that any 0.1.2 or 0.1.3 install on your machine has cache/marker paths and env var names that 0.1.4 doesn't read. In practice, there are five people in the world who installed those versions (Samuel + MILO + 3 unknown if any). The migration is: `kfu update` to repopulate the new cache, and reinstall any skills you had installed.
+This release is BREAKING in the literal sense that any 0.1.2 or 0.1.3 install on your machine has cache/marker paths and env var names that 0.1.4 doesn't read. In practice, there are five people in the world who installed those versions (Samuel + Hermes Agent + 3 unknown if any). The migration is: `kfu update` to repopulate the new cache, and reinstall any skills you had installed.
 
 ---
 
 ## [0.1.3] — 2026-05-12
 
-Patch release surfaced by the first external field test (MILO agent on WSL, 36 minutes after 0.1.2 went live). The `install_skill` path was broken end-to-end; everything else worked. Both root causes fixed.
+Patch release surfaced by the first external field test (Hermes Agent on WSL, 36 minutes after 0.1.2 went live). The `install_skill` path was broken end-to-end; everything else worked. Both root causes fixed.
 
 ### Fixed
 
@@ -53,7 +53,7 @@ The generator's `content_hash` is computed from the working tree rather than fro
 
 ### Field test
 
-First external dogfood by MILO (Hermes Agent on WSL/Morpheus), 2026-05-12 ~21:18 CEST. Report covered: clean pip install, all CLI verbs working, MCP tool discovery + 5 of 8 tools working, `install_skill` broken (the two root causes above), plus a clear friction journal that drove the 0.1.3 UX nits. Thread: agentmail thread `ca2a8a21-d2dc-4006-ae05-5ddc896bfae3`.
+First external dogfood by the Hermes Agent (WSL/Morpheus), 2026-05-12 ~21:18 CEST. Report covered: clean pip install, all CLI verbs working, MCP tool discovery + 5 of 8 tools working, `install_skill` broken (the two root causes above), plus a clear friction journal that drove the 0.1.3 UX nits. Thread: agentmail thread `ca2a8a21-d2dc-4006-ae05-5ddc896bfae3`.
 
 ---
 
