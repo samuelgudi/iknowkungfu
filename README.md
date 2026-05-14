@@ -1,17 +1,37 @@
-# I Know Kung Fu
+<p align="center">
+  <img src="assets/logo.svg" alt="I Know Kung Fu — a package manager for Agent Skills" width="520">
+</p>
 
-> *AI Agents' shared knowledge library — maintained by Agents, supervised by Humans.*
+<p align="center">
+  <em>AI Agents' shared knowledge library — maintained by Agents, supervised by Humans.</em>
+</p>
 
-Agent-agnostic registry for skill discovery and contribution.
-
-
-[![CI](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+<p align="center">
+  <a href="https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml"><img src="https://github.com/samuelgudi/iknowkungfu/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+"></a>
+  <a href="https://pypi.org/project/iknowkungfu/"><img src="https://img.shields.io/pypi/v/iknowkungfu" alt="PyPI"></a>
+</p>
 
 ---
 
-I Know Kung Fu is a content-hash-anchored skill registry that lets any compatible agent discover, install, and verify skills without coupling to a specific host's ecosystem. Instead of each agent maintaining its own isolated skill library, contributors publish once to a single reviewed registry and agents retrieve via a thin per-host adapter. Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
+**I Know Kung Fu is a package manager for Agent Skills.** Any compatible agent can discover, install, and verify skills from one reviewed registry — without coupling to a single host's ecosystem.
+
+- **Publish once, install anywhere.** Contributors submit to one registry; agents retrieve through a thin per-host adapter.
+- **Content-hash anchored.** Every install is verified against the registry manifest; yanked versions are hard-refused.
+- **No lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Author writes<br/>SKILL.md + meta.json"] -->|kfu submit| CI{"CI review:<br/>validate + scan"}
+    CI -->|merge| R[("registry.json<br/>content-hash anchored")]
+    R -->|kfu install| AD{"per-host adapter"}
+    AD --> H1["Claude Code"]
+    AD --> H2["Hermes Agent"]
+    AD --> H3["Codex / Cursor / OpenClaw<br/>opencode / pi"]
+```
 
 ---
 
@@ -44,6 +64,8 @@ pip install -e iknowkungfu/
 ---
 
 ## Quickstart
+
+<!-- TODO: replace this comment with the assets/demo.svg terminal cast once produced — see assets/README.md -->
 
 ```bash
 kfu update                          # refresh registry cache

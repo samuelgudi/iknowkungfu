@@ -23,6 +23,31 @@ Stage refers to agentskills.io's progressive-disclosure model (metadata → body
 
 ---
 
+## The search → install loop
+
+```mermaid
+sequenceDiagram
+    participant Agent as Agent runtime
+    participant MCP as iknowkungfu-mcp
+    participant Cache as local registry cache
+    participant Adapter as per-host adapter
+    Agent->>MCP: update_registry
+    MCP->>Cache: fetch registry.json over HTTPS, rebuild FTS5 index
+    Agent->>MCP: search (query DSL)
+    MCP->>Cache: ranked metadata lookup
+    MCP-->>Agent: Stage 1 — ranked results
+    Agent->>MCP: get_skill (chosen result)
+    MCP-->>Agent: Stage 2 — SKILL.md body + metadata
+    Agent->>MCP: install_skill (id, agent)
+    MCP->>Adapter: write skill into host's canonical dir
+    Adapter-->>MCP: install marker path
+    MCP-->>Agent: install log
+```
+
+The agent never leaves its own loop — discovery, inspection, and install all happen through tool calls.
+
+---
+
 ## Installation
 
 ```bash

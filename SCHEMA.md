@@ -8,6 +8,19 @@
 
 `SCHEMA.md` defines every field in `registry.json`, `meta.json`, and `yanks.json`; the valid category taxonomy; the slug grammar; and the semver requirement for version strings. `validate.py` uses these definitions to enforce correctness on individual skill submissions before they reach CI. `generate_manifest.py` uses them to rebuild `registry.json` from the authoritative on-disk skill trees and `yanks.json`. Both tools must treat this document as their field-level source of truth — any rule not stated here is undefined behaviour.
 
+`registry.json` is **generated, never hand-edited**. It is assembled from four inputs — only two of which authors control directly:
+
+```mermaid
+flowchart LR
+    SK["SKILL.md<br/>frontmatter: name, description"] --> GM["generate_manifest.py"]
+    MJ["meta.json<br/>author-controlled fields"] --> GM
+    GH["git history<br/>versions, SHAs, timestamps"] --> GM
+    YK["yanks.json<br/>yanked flags + reasons"] --> GM
+    GM --> RJ[("registry.json<br/>author fields + derived:<br/>source, has_scripts, versions, provenance")]
+```
+
+Authors edit `SKILL.md` and `meta.json`. Everything else — `source`, `has_scripts`, `versions`, `provenance`, and the `name` / `description` mirrored from frontmatter — is **derived** by `generate_manifest.py` and must not be hand-set in `meta.json` (see § 4).
+
 ---
 
 ## 2. `registry.json` Top-Level Structure

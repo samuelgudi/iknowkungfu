@@ -4,6 +4,17 @@ The query language for `kfu search` (and the MCP `search` tool) is a Lucene-styl
 
 > **Determinism contract**: identical (query, registry version) always returns identical results in identical order. The index is rebuilt deterministically from `registry.json`. Tested with recorded fixtures in `tests/test_determinism.py`.
 
+## The query pipeline
+
+```mermaid
+flowchart LR
+    Q["raw query string"] --> P["parser<br/>tokens → AST"]
+    P --> C["compiler<br/>split: FTS5 terms vs SQL filters"]
+    C --> F["SQLite FTS5 index<br/>BM25 ranking"]
+    F --> T["deterministic<br/>tie-break"]
+    T --> R["results<br/>identical for (query, registry version)"]
+```
+
 ---
 
 ## Quick reference

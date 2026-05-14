@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="120" viewBox="0 0 520 120" role="img" aria-label="I Know Kung Fu — a package manager for Agent Skills">
+  <title>I Know Kung Fu</title>
+  <!-- package tile mark -->
+  <rect x="16" y="24" width="72" height="72" rx="16" fill="#6366f1"/>
+  <rect x="16" y="24" width="72" height="72" rx="16" fill="none" stroke="#4f46e5" stroke-width="2"/>
+  <text x="52" y="61" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">kfu</text>
+  <!-- wordmark -->
+  <text x="108" y="57" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="33" font-weight="700" fill="#1e293b">I Know Kung Fu</text>
+  <!-- tagline -->
+  <text x="110" y="84" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#64748b">a package manager for Agent Skills</text>
+</svg>
