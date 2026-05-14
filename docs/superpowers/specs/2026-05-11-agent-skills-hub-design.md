@@ -278,7 +278,7 @@ The numeric id is stable across login renames (GitHub keeps the id when a user r
 | `description` | string | yes | **The trigger string** — what `match.py` scores against. Authors should include synonyms (M5). |
 | `version` | string | yes | Semver. The current/latest version. |
 | `status` | enum | yes | `"active"` \| `"deprecated"`. Obsolescence semantics. |
-| `author` | object | yes | `{name, github_login, github_id}`. `github_id` is GitHub's immutable numeric user ID (M2). |
+| `author` | object | yes | `{name, github_login, github_id}`. The **curator / maintainer-of-record** — the account accountable for the entry. For an imported skill this is the importer, not the original author (see `origin`, ADR-002). `github_id` is GitHub's immutable numeric user ID (M2). |
 | `category` | string | yes | One value from the v0 starter taxonomy (W4): `media` \| `dev` \| `ops` \| `data` \| `comms` \| `docs` \| `meta` \| `ai`. Drives Hermes install path. New categories admitted via PR to `SCHEMA.md` with rationale. |
 | `tags` | string[] | optional | Free-form, lowercase. **Capped at 10 entries** in validate.py to mitigate keyword stuffing (Gemini m1 partial fold). |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. Hermes adapter translates to frontmatter `platforms:` (M2). |
@@ -290,6 +290,7 @@ The numeric id is stable across login renames (GitHub keeps the id when a user r
 | `source` | object | derived | `{path, content_hash, files}`. Reflects the current version. |
 | **`versions`** | **object** | **yes** | **Map `{ <semver>: { sha, released, yanked?, yank_reason? } }`. Built by `generate_manifest.py` from git history; populated/updated by `yanks.json` for the yanked flag. Enables O(1) version pinning (M1).** |
 | `provenance` | object | derived | `{submitted_pr, merged_at, reviewed_by}`. Set on merge. |
+| `origin` | object | optional | Present only on **imported** skills (ADR-002). Author-supplied, display-only attribution of the original source: `{author_name, author_url?, repo, ref, imported_at}`. Not identity-binding, not API-verified — distinct from the derived `provenance` field. See `SCHEMA.md` § 3 / § 9 for the field-level spec. |
 | `composes` | string[] | optional | Reserved for hierarchical skills. |
 | `extends` | string\|null | optional | Reserved. |
 | `supersedes` | string[] | optional | Reserved. |

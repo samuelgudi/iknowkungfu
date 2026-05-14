@@ -98,7 +98,7 @@ None (first ADR).
 
 ### Status
 
-**Proposed.** This is a design pass. No third-party skill is imported, and no schema/validator/manifest code is changed, until this ADR is accepted. Accepting it unblocks the implementation step described under Consequences.
+**Accepted**, lock applied (2026-05-14). The design pass was accepted; the implementation step described under Consequences (schema, validator, manifest, and rendering support for the `origin` model) is authorised. Note: accepting this ADR authorises the *tooling* for imports — it does **not** authorise importing any specific third-party skill. Each import remains a per-skill, human-reviewed decision, and the v0 recommendation (defer actual importing past launch) stands.
 
 ### Context
 

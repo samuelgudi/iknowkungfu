@@ -46,6 +46,7 @@ def test_good_instructions_only_passes():
     "multi-version",
     "with-scripts",
     "with-templates",
+    "imported",
 ])
 def test_good_fixture_passes(name):
     result = run_validate(str(FIXTURES_GOOD / name))
@@ -254,3 +255,54 @@ def test_strict_flag_exists():
     """Smoke-test: --strict flag doesn't crash."""
     result = run_validate(str(FIXTURES_GOOD / "instructions-only"), "--strict")
     assert result.returncode == 0, f"stderr: {result.stderr}\nstdout: {result.stdout}"
+
+
+# ---------------------------------------------------------------------------
+# Imported skills: origin block validation + conditional LICENSE/NOTICE files
+# (ADR-002 — import/curation provenance model)
+# ---------------------------------------------------------------------------
+
+# --- origin block missing a required sub-field -------------------------------
+
+def test_origin_missing_field_fails():
+    """An origin block missing a required sub-field (repo) must fail."""
+    result = run_validate(str(FIXTURES_BAD / "origin-missing-field"))
+    assert result.returncode != 0, f"Expected failure; stdout: {result.stdout}"
+    assert "origin" in result.stdout and "repo" in result.stdout, (
+        f"Expected an origin/repo message, got:\n{result.stdout}"
+    )
+
+
+# --- origin block with an unknown sub-field ----------------------------------
+
+def test_origin_unknown_field_fails():
+    """An origin block with an unknown sub-field (license) must fail."""
+    result = run_validate(str(FIXTURES_BAD / "origin-unknown-field"))
+    assert result.returncode != 0, f"Expected failure; stdout: {result.stdout}"
+    assert "origin" in result.stdout and "license" in result.stdout, (
+        f"Expected an origin/unknown-sub-field message, got:\n{result.stdout}"
+    )
+
+
+# --- LICENSE file present without an origin block ----------------------------
+
+def test_license_file_without_origin_fails():
+    """A bundled LICENSE file is only permitted for imported skills (those with
+    an origin block). Without origin, it must be flagged as extraneous."""
+    result = run_validate(str(FIXTURES_BAD / "license-file-not-imported"))
+    assert result.returncode != 0, f"Expected failure; stdout: {result.stdout}"
+    assert "LICENSE" in result.stdout, (
+        f"Expected 'LICENSE' flagged as extraneous, got:\n{result.stdout}"
+    )
+
+
+# --- imported skill WITH origin may bundle a LICENSE file --------------------
+
+def test_imported_skill_with_license_file_passes():
+    """The good/imported fixture has an origin block and bundles a LICENSE
+    file — that combination must be accepted."""
+    result = run_validate(str(FIXTURES_GOOD / "imported"))
+    assert result.returncode == 0, (
+        f"Imported fixture with bundled LICENSE unexpectedly failed.\n"
+        f"stdout: {result.stdout}\nstderr: {result.stderr}"
+    )

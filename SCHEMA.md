@@ -41,7 +41,7 @@ Below is the full field-semantics table from spec § 7, updated to v4.
 | `description` | string | yes | **The trigger string** — what `match.py` scores against. Authors should include synonyms. |
 | `version` | string | yes | Semver. The current/latest version. See § 8 for format rules. |
 | `status` | enum | yes | `"active"` \| `"deprecated"`. Obsolescence semantics (see note below). |
-| `author` | object | yes | `{name, github_login, github_id}`. `github_id` is GitHub's immutable numeric user ID. |
+| `author` | object | yes | `{name, github_login, github_id}`. The **curator / maintainer-of-record** — the account accountable for this entry. For an imported skill this is the importer, **not** the original author (see `origin` and § 9). `github_id` is GitHub's immutable numeric user ID. |
 | `category` | string | yes | One value from the v0 starter taxonomy (see § 6): `media` \| `dev` \| `ops` \| `data` \| `comms` \| `docs` \| `meta` \| `ai`. Drives Hermes install path. New categories admitted via PR to this file with rationale. |
 | `tags` | string[] | optional | Free-form, lowercase. **Capped at 10 entries** by `validate.py` to mitigate keyword stuffing. |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. Hermes adapter translates to frontmatter `platforms:` at install time. |
@@ -53,12 +53,15 @@ Below is the full field-semantics table from spec § 7, updated to v4.
 | `source` | object | derived | `{path, content_hash, files}`. Reflects the current version. Set by `generate_manifest.py`. |
 | `versions` | object | yes | Map `{ <semver>: { sha, released, yanked?, yank_reason? } }`. Built by `generate_manifest.py` from git history; `yanks.json` merges in the `yanked` flag. Enables O(1) version pinning. |
 | `provenance` | object | derived | `{submitted_pr, merged_at, reviewed_by}`. Set on merge by CI. |
+| `origin` | object | optional | Present **only on imported skills**. Author-supplied, display-only attribution of the original source — see the *origin object* below and § 9. Distinct from the derived `provenance` field; the two must not be confused. |
 | `composes` | string[] | optional | Reserved for hierarchical skill composition. Empty array if unused. |
 | `extends` | string\|null | optional | Reserved. `null` if unused. |
 | `supersedes` | string[] | optional | IDs of skills this skill replaces. Empty array if unused. |
 | `superseded_by` | string\|null | **required if `status == "deprecated"`** | ID of the replacement active skill. `null` otherwise. |
 
 ### `author` object
+
+The `author` object identifies the **curator / maintainer-of-record** — the account that submitted, is accountable for, and is the reviewer-of-record for this registry entry. For a first-party skill the curator *is* the original author. For an imported skill the curator is the importer; the original author is credited separately in the `origin` block (§ 9). The `author` object never changes meaning — it is always the identity/accountability anchor, never a claim of original authorship.
 
 ```json
 {
@@ -122,6 +125,30 @@ Below is the full field-semantics table from spec § 7, updated to v4.
 | `commands` | string[] | Binary names that must be on PATH before invoking the skill. No package-manager installs at runtime — dependencies are pre-declared here (Decision #14). |
 
 > **Note**: there is no `toolsets` sub-field. It was removed in v4 (Decision #18) because it was undefined. It may be re-added as an additive change when a concrete use case and semantics are agreed.
+
+### `origin` object
+
+The `origin` object is present **only on imported skills** — skills re-hosted from a third-party source rather than authored first-party (ADR-002). It is **author-supplied** in `meta.json` and carries display-only credit for the original author and source. It is **not** identity-binding and is **not** verified against the GitHub API — it is a citation, not an account. It must not be confused with the derived `provenance` field (`{submitted_pr, merged_at, reviewed_by}`), which is set by CI and describes the registry PR, not the upstream source.
+
+```json
+{
+  "author_name": "Jesse Vincent",
+  "author_url": "https://github.com/obra",
+  "repo": "https://github.com/obra/superpowers-skills",
+  "ref": "a1b2c3d4e5f6",
+  "imported_at": "2026-05-14T00:00:00Z"
+}
+```
+
+| Sub-field | Type | Required | Notes |
+|---|---|---|---|
+| `author_name` | string | yes | Display name of the original author. Non-empty. Display-only — not identity-binding, not API-verified. |
+| `author_url` | string | optional | Link to the original author (e.g. their GitHub profile). Non-empty when present. |
+| `repo` | string | yes | URL of the source repository the skill was imported from. |
+| `ref` | string | yes | The exact git commit SHA (or ref) the skill was imported from. Pins the source for auditability and re-sync. |
+| `imported_at` | string (ISO 8601) | yes | Timestamp of the import. |
+
+There is no `license` sub-field inside `origin`: the skill's top-level `license` field already carries the source license (an importer cannot re-license someone else's work, so the two are necessarily identical). For licenses that require it (e.g. Apache-2.0), the source `LICENSE`/`NOTICE` file is bundled into the skill directory — `validate.py` permits `LICENSE`, `LICENSE.txt`, and `NOTICE` in the root of a skill that has an `origin` block, and rejects them otherwise.
 
 ### `status` semantics
 
@@ -239,7 +266,7 @@ Hermes-specific frontmatter (`platforms:`, `prerequisites:`, etc.) is synthesize
 | `id` | string | yes | `<github_login>/<slug>`. Must match directory path. |
 | `version` | string | yes | Semver. Current version of this skill. |
 | `status` | enum | yes | `"active"` \| `"deprecated"`. |
-| `author` | object | yes | `{name, github_login, github_id}`. `github_id` fetched by `kfu init` at first submission. |
+| `author` | object | yes | `{name, github_login, github_id}`. The curator / maintainer-of-record (see § 3 *author object* and § 9). `github_id` fetched by `kfu init` at first submission. |
 | `category` | string | yes | Must be one of the eight valid categories (see § 6). |
 | `tags` | string[] | optional | Free-form, lowercase, max 10. |
 | `platforms` | string[] | optional | Default `["linux", "macos", "windows"]`. |
@@ -247,6 +274,7 @@ Hermes-specific frontmatter (`platforms:`, `prerequisites:`, etc.) is synthesize
 | `requires` | object | optional | `{env_vars, commands}`. No `toolsets`. |
 | `license` | string | yes | SPDX identifier. |
 | `install` | object | yes | Per-agent install metadata. |
+| `origin` | object | optional | Present only on imported skills (§ 9). Author-supplied. See § 3 *origin object* for the field shape. |
 | `composes` | string[] | optional | Reserved. Empty array if unused. |
 | `extends` | string\|null | optional | Reserved. `null` if unused. |
 | `supersedes` | string[] | optional | Reserved. Empty array if unused. |
@@ -360,6 +388,20 @@ Examples: `0.1.0`, `1.0.0`, `2.3.1-beta.1`, `1.0.0-alpha+001`.
 
 ---
 
+## 9. Imported Skills
+
+An **imported skill** is one re-hosted from a third-party open-source source rather than authored first-party. The model is defined in **ADR-002** (`docs/decisions.md`). Summary of the schema-level rules:
+
+- An imported skill carries an **`origin` block** in `meta.json` (and, passed through, in `registry.json`). The presence of `origin` is what marks a skill as imported — there is no separate flag.
+- The **`author` object continues to mean curator / maintainer-of-record**, exactly as for first-party skills. It is the importer's identity and accountability anchor — never a claim of original authorship. The immutable-GitHub-ID binding (Decision #4) is unchanged.
+- The original author is credited in **`origin.author_name`** / **`origin.author_url`** — display-only, not identity-binding, not API-verified. Consumer-facing surfaces (`kfu show`) render imported skills as *"curated by `<curator>`, originally by `<origin author>`"* — never as *"by `<curator>`"*.
+- The top-level **`license`** field carries the source license faithfully. There is no `origin.license` — an importer cannot re-license the work, so it would only duplicate the top-level field.
+- For licenses that require notice preservation (e.g. Apache-2.0), the source `LICENSE`/`NOTICE` is **bundled into the skill directory**. `validate.py` permits `LICENSE`, `LICENSE.txt`, and `NOTICE` in the root of a skill that has an `origin` block, and rejects them as extraneous otherwise.
+
+Accepting ADR-002 authorises this *tooling*; it does not authorise importing any specific skill. Each import remains a per-skill, human-reviewed decision.
+
+---
+
 ## Appendix: Field Quick Reference
 
 | Field | Present in `registry.json` | Present in `meta.json` | Derived |
@@ -381,6 +423,7 @@ Examples: `0.1.0`, `1.0.0`, `2.3.1-beta.1`, `1.0.0-alpha+001`.
 | `source` | yes | no | yes |
 | `versions` | yes | no | yes |
 | `provenance` | yes | no | yes |
+| `origin` | yes | yes | no |
 | `composes` | yes | yes | no |
 | `extends` | yes | yes | no |
 | `supersedes` | yes | yes | no |

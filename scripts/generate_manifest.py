@@ -153,7 +153,7 @@ def build_skill_entry(repo: Path, skill_dir: Path, status: str) -> dict:
             "released": get_commit_timestamp(repo),
         }
     }
-    return {
+    entry = {
         "id": skill_id,
         "name": fm.get("name", slug_name),
         "description": fm.get("description", ""),
@@ -180,6 +180,11 @@ def build_skill_entry(repo: Path, skill_dir: Path, status: str) -> dict:
         "supersedes": meta.get("supersedes", []),
         "superseded_by": meta.get("superseded_by"),
     }
+    # `origin` (ADR-002) is author-supplied and present only on imported
+    # skills. Include it only when present so first-party entries stay clean.
+    if meta.get("origin"):
+        entry["origin"] = meta["origin"]
+    return entry
 
 
 def load_yanks(repo: Path) -> dict:

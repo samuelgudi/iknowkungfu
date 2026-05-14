@@ -54,12 +54,23 @@ def run(args) -> int:
         "has_scripts": skill.get("has_scripts", False),
         "installed": installed,
     }
+    # `origin` (ADR-002) is present only on imported skills.
+    origin = skill.get("origin")
+    if origin:
+        payload["origin"] = origin
 
     if args.json:
         print(json.dumps(payload, indent=2))
         return 0
 
-    print(f"{skill['id']}  v{skill['version']}  ({skill['license']}, by {skill['author']['github_login']})")
+    if origin:
+        byline = (
+            f"curated by {skill['author']['github_login']}, "
+            f"originally by {origin['author_name']}"
+        )
+    else:
+        byline = f"by {skill['author']['github_login']}"
+    print(f"{skill['id']}  v{skill['version']}  ({skill['license']}, {byline})")
     print()
     print(f"  {skill.get('description', '')}")
     print()
@@ -69,6 +80,11 @@ def run(args) -> int:
     print(f"  Tags:      {tag_line}")
     print(f"  Platforms: {', '.join(skill.get('platforms', [])) or '—'}")
     print(f"  Agents:    {', '.join(skill.get('agent_compat', [])) or '—'}")
+    if origin:
+        url = f" ({origin['author_url']})" if origin.get("author_url") else ""
+        print(f"  Origin:    {origin['repo']} @ {origin['ref']}")
+        print(f"             originally by {origin['author_name']}{url}, "
+              f"imported {origin['imported_at']}")
     if skill.get("requires"):
         env = skill["requires"].get("env_vars", [])
         cmds = skill["requires"].get("commands", [])

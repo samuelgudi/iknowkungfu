@@ -149,3 +149,49 @@ def test_generate_manifest_uses_canonical_hash_function():
     assert not hasattr(gm, "sha256_file"), (
         "generate_manifest.sha256_file was removed in v0.1.1 — see above."
     )
+
+
+def test_origin_block_passes_through(tmp_path):
+    """A skill with an origin block (imported skill, ADR-002) must carry that
+    block through to registry.json verbatim. A first-party skill must NOT
+    gain an origin key."""
+    import jsonschema
+
+    repo = tmp_path / "repo"
+    shutil.copytree(ROOT, repo, ignore=shutil.ignore_patterns(
+        ".git", "__pycache__", "*.egg-info", "tests", "skills"))
+    shutil.copytree(ROOT / "tests/fixtures/good/instructions-only",
+                    repo / "skills" / "test-author" / "example",
+                    dirs_exist_ok=True)
+    shutil.copytree(ROOT / "tests/fixtures/good/imported",
+                    repo / "skills" / "test-author" / "imported-skill",
+                    dirs_exist_ok=True)
+    subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+    subprocess.run(["git", "commit", "-m", "test commit"], cwd=repo, check=True, capture_output=True)
+
+    result = run_gen(repo)
+    assert result.returncode == 0, result.stderr
+    reg = json.loads((repo / "registry.json").read_text())
+    skills = {s["id"]: s for s in reg["skills"]}
+
+    imported = skills["test-author/imported-skill"]
+    assert "origin" in imported, "imported skill must carry an origin block"
+    assert imported["origin"] == {
+        "author_name": "Original Author",
+        "author_url": "https://github.com/original-author",
+        "repo": "https://github.com/original-author/source-repo",
+        "ref": "abc1234def5678",
+        "imported_at": "2026-05-14T00:00:00Z",
+    }
+
+    first_party = skills["test-author/example"]
+    assert "origin" not in first_party, (
+        "first-party skill (no origin in meta.json) must not gain an origin key"
+    )
+
+    # The generated manifest, origin block included, must still be schema-valid.
+    schema = json.loads((ROOT / "scripts" / "schema.json").read_text())
+    jsonschema.validate(instance=reg, schema=schema)

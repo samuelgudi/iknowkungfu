@@ -1,0 +1,6 @@
+MIT License
+
+Copyright (c) Test Author
+
+A LICENSE file present in a skill directory that has no origin block. This
+should be flagged as extraneous by validate.py.

@@ -40,6 +40,10 @@ ALLOWED_CATEGORIES = {"media", "dev", "ops", "data", "comms", "docs", "meta", "a
 
 # Files that are always allowed in a skill directory root (case-sensitive).
 ALLOWED_ROOT_FILES = {"SKILL.md", "meta.json", "README.md"}
+# Additionally permitted in the root of an *imported* skill (one with an
+# `origin` block) so the source license/notice can be preserved on
+# redistribution (ADR-002).
+IMPORT_LICENSE_FILES = {"LICENSE", "LICENSE.txt", "NOTICE"}
 # Allowed sub-directories inside a skill dir.
 ALLOWED_ROOT_DIRS = {"scripts", "templates"}
 
@@ -182,6 +186,33 @@ def validate_skill_dir(
                 "msg": f"requires has unknown sub-fields: {extra}; only {sorted(allowed_requires)} allowed",
             })
 
+    # --- origin block (imported skills, ADR-002) -----------------------------
+    origin = meta.get("origin")
+    if origin is not None:
+        if not isinstance(origin, dict):
+            issues.append({"severity": "error", "msg": "origin must be an object"})
+        else:
+            for f in ("author_name", "repo", "ref", "imported_at"):
+                val = origin.get(f)
+                if not isinstance(val, str) or not val.strip():
+                    issues.append({
+                        "severity": "error",
+                        "msg": f"origin.{f} is required and must be a non-empty string",
+                    })
+            url = origin.get("author_url")
+            if url is not None and (not isinstance(url, str) or not url.strip()):
+                issues.append({
+                    "severity": "error",
+                    "msg": "origin.author_url, when present, must be a non-empty string",
+                })
+            allowed_origin = {"author_name", "author_url", "repo", "ref", "imported_at"}
+            extra_origin = sorted(set(origin.keys()) - allowed_origin)
+            if extra_origin:
+                issues.append({
+                    "severity": "error",
+                    "msg": f"origin has unknown sub-fields: {extra_origin}; only {sorted(allowed_origin)} allowed",
+                })
+
     # --- Nested .git detection -----------------------------------------------
     for git_candidate in skill_dir.rglob(".git"):
         if git_candidate.is_dir():
@@ -192,12 +223,17 @@ def validate_skill_dir(
             })
 
     # --- Extraneous files at skill root --------------------------------------
+    # Imported skills (those with an `origin` block) may additionally bundle
+    # the source license/notice so it is preserved on redistribution (ADR-002).
+    allowed_root_files = set(ALLOWED_ROOT_FILES)
+    if isinstance(meta.get("origin"), dict):
+        allowed_root_files |= IMPORT_LICENSE_FILES
     for item in sorted(skill_dir.iterdir()):
         if item.name.startswith("."):
             # Hidden items already caught by .git check above; skip here.
             continue
         if item.is_file():
-            if item.name not in ALLOWED_ROOT_FILES:
+            if item.name not in allowed_root_files:
                 issues.append({
                     "severity": "error",
                     "msg": f"extraneous file '{item.name}' found in skill directory root",

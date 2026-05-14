@@ -1,0 +1,25 @@
+{
+  "id": "test-author/imported-skill",
+  "version": "0.1.0",
+  "status": "active",
+  "author": { "name": "Test Curator", "github_login": "test-author", "github_id": 1 },
+  "category": "dev",
+  "tags": ["test", "imported"],
+  "platforms": ["linux", "macos", "windows"],
+  "agent_compat": ["claude-code", "hermes"],
+  "requires": { "env_vars": [], "commands": [] },
+  "license": "MIT",
+  "install": { "claude-code": { "scope": "user" }, "hermes": {} },
+  "origin": {
+    "author_name": "Original Author",
+    "author_url": "https://github.com/original-author",
+    "repo": "https://github.com/original-author/source-repo",
+    "ref": "abc1234def5678",
+    "imported_at": "2026-05-14T00:00:00Z"
+  },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
