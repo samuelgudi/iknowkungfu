@@ -90,13 +90,18 @@ def _emit_ndjson(result: SearchResult) -> None:
         print(json.dumps(item))
 
 
-def _emit_pretty(result: SearchResult) -> None:
+def _emit_pretty(result: SearchResult, *, is_catalog: bool = False) -> None:
     if not result.results:
         print(
             "No skills match. Try a broader query, or filter by `category:` "
             "(one of: dev, media, ops, data, comms, docs, meta, ai)."
         )
         return
+    if is_catalog:
+        # A bare `kfu search` (empty query) lists the whole registry — make
+        # that explicit so it reads as a feature, not a side effect.
+        print(f"All {result.total} skills in the registry:")
+        print()
     for i, item in enumerate(result.results, 1):
         star = " ★" if i == 1 else "  "
         print(f"  {star} {i}  {item['id']:40s} v{item['version']}")
@@ -135,16 +140,18 @@ def run(args) -> int:
             include_deprecated=bool(getattr(args, "include_deprecated", False)),
         )
     except CompilerError as e:
+        # A malformed query is a runtime error, not an argparse usage error —
+        # exit 1, not 2. (2 is reserved for unrecognized CLI arguments.)
         print(f"Query error: {e}", file=sys.stderr)
-        return 2
+        return 1
     except ValueError as e:
         print(f"Invalid query: {e}", file=sys.stderr)
-        return 2
+        return 1
 
     if getattr(args, "json", False):
         _emit_json(result)
     elif getattr(args, "ndjson", False):
         _emit_ndjson(result)
     else:
-        _emit_pretty(result)
+        _emit_pretty(result, is_catalog=not query.strip())
     return 0

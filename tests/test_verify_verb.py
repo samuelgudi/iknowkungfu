@@ -148,3 +148,25 @@ def test_verify_json_returns_nonzero_on_hard_error(tmp_path, monkeypatch, capsys
         id = "any/thing"; agent = "claude-code"; json = True; yes = False
     rc = run(Args())
     assert rc != 0  # hard error: no registry cache
+
+
+# ─── Friction #4 (v0.1.7 field test): verify resolves host w/o --agent ──────
+
+def test_verify_without_agent_multihost(tmp_path, monkeypatch, capsys):
+    """With multiple hosts detected and no `--agent`, verify must check where
+    the skill is actually installed — not exit 1 with 'Multiple agent hosts
+    detected'. Friction #4 from the v0.1.7 Hermes Agent field test."""
+    info = setup_installed(tmp_path, monkeypatch)
+    # A second detectable host with nothing installed — this is what previously
+    # triggered the "pick one with --agent" exit-1 error.
+    (info["home"] / ".hermes").mkdir()
+
+    from agent_skills.verbs.verify import run
+
+    class Args:
+        id = "test-author/example"; agent = None; json = False; yes = False
+
+    rc = run(Args())
+    captured = capsys.readouterr()
+    assert rc == 0, captured.out + captured.err
+    assert "CLEAN" in captured.out.upper()

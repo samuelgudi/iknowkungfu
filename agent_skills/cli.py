@@ -144,7 +144,16 @@ def make_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     _force_utf8_streams()
     p = make_parser()
-    args = p.parse_args(argv)
+    args, extras = p.parse_known_args(argv)
+    # The search query DSL uses a leading `-` for negation (e.g.
+    # `-status:deprecated`). argparse would reject those as unknown options, so
+    # for the search verb the leftovers are accepted as additional query terms.
+    # Every other verb keeps strict behaviour: unknown arguments are an error.
+    if extras:
+        if args.verb == "search":
+            args.terms = list(args.terms) + extras
+        else:
+            p.error("unrecognized arguments: " + " ".join(extras))
     # Verb dispatch: each verb's run() function is in agent_skills/verbs/<verb>.py.
     # For Task 14, only verb registration matters; dispatch is added in Tasks 15-21 + 22-26.
     # Placeholder dispatch:

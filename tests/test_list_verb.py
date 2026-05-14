@@ -62,3 +62,25 @@ def test_list_empty(tmp_path, monkeypatch, capsys):
     captured = capsys.readouterr()
     assert rc == 0
     assert "no skills" in captured.out.lower() or "0" in captured.out
+
+
+def test_list_all_empty_consolidated(tmp_path, monkeypatch, capsys):
+    """When no detected host has any installed skill, `kfu list` prints one
+    consolidated line — not a repeated 'No skills installed' block per host.
+    Friction #6 from the v0.1.7 Hermes Agent field test."""
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".claude").mkdir()
+    (home / ".hermes").mkdir()  # two hosts detected, both empty
+    monkeypatch.setattr(Path, "home", lambda: home)
+    from agent_skills.verbs.list import run
+
+    class Args:
+        agent = None; json = False; yes = False
+
+    rc = run(Args())
+    out = capsys.readouterr().out
+    assert rc == 0
+    # One consolidated line — not one "No skills installed" block per host.
+    assert out.lower().count("no skills installed") == 1
+    assert "claude-code" in out and "hermes" in out

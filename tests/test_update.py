@@ -316,3 +316,36 @@ def test_sync_registry_repo_fetch_is_full_history(tmp_path, monkeypatch):
     assert any("--tags" in a for a in fetch_calls), (
         "fetch must include --tags so version tags reach the local clone"
     )
+
+
+# ─── Friction #1 (v0.1.7 field test): update prints success feedback ─────────
+
+def test_refresh_prints_updated_feedback(serve_dir, fake_home, monkeypatch, capsys):
+    """`kfu update` was silent on success. It must now confirm what happened —
+    skill count + registry version. Friction #1 from the v0.1.7 field test."""
+    monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
+    reg = make_registry("2026-05-11T00:00:00Z", skills=[{"id": "a/one"}, {"id": "b/two"}])
+    (serve_dir["dir"] / "registry.json").write_text(json.dumps(reg))
+
+    from clients.skill_discovery.update import refresh
+    rc = refresh(serve_dir["url"] + "/registry.json")
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Updated" in out
+    assert "2 skills" in out
+    assert "2026-05-11T00:00:00Z" in out
+
+
+def test_refresh_reports_already_up_to_date(serve_dir, fake_home, monkeypatch, capsys):
+    """A second pull of an unchanged registry must say so explicitly, not
+    silently re-confirm 'Updated'."""
+    monkeypatch.setenv("IKNOWKUNGFU_SKIP_REPO_SYNC", "1")
+    reg = make_registry("2026-05-11T00:00:00Z", skills=[{"id": "a/one"}])
+    (serve_dir["dir"] / "registry.json").write_text(json.dumps(reg))
+
+    from clients.skill_discovery.update import refresh
+    assert refresh(serve_dir["url"] + "/registry.json") == 0
+    capsys.readouterr()  # discard first-pull output
+    assert refresh(serve_dir["url"] + "/registry.json") == 0
+    out = capsys.readouterr().out
+    assert "Already up to date" in out

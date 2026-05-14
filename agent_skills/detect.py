@@ -46,3 +46,27 @@ def detect_host(*, override: str | None = None) -> str:
 
 def get_adapter(name: str):
     return ADAPTERS[name]()
+
+
+def find_install_hosts(skill_id: str, *, override: str | None = None) -> list[tuple]:
+    """Resolve which host adapter(s) a skill should be inspected against.
+
+    With an explicit override, returns just that host as `[(name, adapter)]` —
+    the caller reports whether the skill is actually installed there. Without
+    one, returns every detected host where the skill IS installed (empty if
+    none). This answers "where is this skill?" rather than `detect_host`'s
+    "which host am I?", which is the question `show` and `verify` need when
+    no `--agent` is given.
+    """
+    if override:
+        if override not in ADAPTERS:
+            raise SystemExit(f"unknown agent: {override}; expected one of {list(ADAPTERS)}")
+        return [(override, get_adapter(override))]
+    hosts = []
+    for name, cls in ADAPTERS.items():
+        adapter = cls()
+        if not adapter.detect():
+            continue
+        if any(inst.id == skill_id for inst in adapter.list_installed()):
+            hosts.append((name, adapter))
+    return hosts

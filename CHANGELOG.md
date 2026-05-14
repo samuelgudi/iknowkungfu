@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.8] — 2026-05-14
+
+UX-polish release. Seven friction items from the Hermes Agent's v0.1.7 field test — none were blockers, all were day-one papercuts for a new user.
+
+### Fixed
+
+- **`kfu search` accepts leading-dash DSL tokens** (`agent_skills/cli.py`). Queries using the DSL's `-` negation prefix — `kfu search -status:deprecated`, `kfu search -deprecated` — were rejected by argparse as unknown options (exit 2). The search verb now accepts them as query terms; every other verb still rejects unrecognized arguments.
+- **`kfu show` without `--agent` reports the real install status** (`agent_skills/verbs/show.py`). On a multi-host setup it printed `Installed: no` even when the skill was installed — it resolved "which host am I?" instead of "where is this skill?". It now checks every detected host and reports where the skill is installed.
+- **`kfu verify` without `--agent` no longer errors on multi-host setups** (`agent_skills/verbs/verify.py`). It exited 1 with "Multiple agent hosts detected" instead of verifying. It now verifies wherever the skill is actually installed.
+
+### Changed
+
+- **`kfu update` confirms what happened** (`clients/skill_discovery/update.py`). Previously silent on success; now prints `Updated — N skills (registry version …)` or `Already up to date — …`.
+- **`kfu list` consolidates the all-empty case** (`agent_skills/verbs/list.py`). When no detected host has any installed skill, it prints one line instead of a repeated "No skills installed" block per host.
+- **A malformed search query exits 1, not 2** (`agent_skills/verbs/search.py`). Exit 2 is reserved for argparse usage errors; a query that fails the DSL compiler is a runtime error.
+- **A bare `kfu search` is documented as the catalog view** (`agent_skills/verbs/search.py`, `README.md`). An empty query lists the whole registry — the output now leads with `All N skills in the registry:` so it reads as a feature.
+
+---
+
 ## [0.1.7] — 2026-05-14
 
 Polish release ahead of the Hermes Discord soft-launch.
@@ -160,6 +179,7 @@ Dogfood-hardening pass: six new per-host adapters (claude-code, codex, opencode,
 
 Initial public-shape scaffold: registry schema, CLI surface, validate.py, security_scan.py, manifest generation, claude-code adapter, contribution + discovery skills. See `docs/superpowers/plans/2026-05-11-agent-skills-hub-v0.md` for the initial plan.
 
+[0.1.8]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.8
 [0.1.7]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.7
 [0.1.6]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.6
 [0.1.5]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.5

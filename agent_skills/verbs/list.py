@@ -56,6 +56,13 @@ def run(args) -> int:
         print(json.dumps(payload, indent=2))
         return 0
 
+    # When nothing is installed anywhere, one consolidated line beats a
+    # per-host "No skills installed" section repeated for each detected host.
+    if not any(installed for _, installed in sections):
+        names = ", ".join(agent for agent, _ in sections)
+        print(f"No skills installed in any detected host ({names}).")
+        return 0
+
     multi = len(sections) > 1
     for agent, installed in sections:
         if multi:

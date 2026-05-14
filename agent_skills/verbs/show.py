@@ -3,7 +3,7 @@ import json
 import sys
 
 from agent_skills.cache import load_registry
-from agent_skills.detect import detect_host, get_adapter
+from agent_skills.detect import find_install_hosts
 
 
 def find_skill(registry: dict, skill_id: str) -> dict | None:
@@ -11,17 +11,6 @@ def find_skill(registry: dict, skill_id: str) -> dict | None:
         if s["id"] == skill_id:
             return s
     return None
-
-
-def is_installed(skill_id: str, agent: str) -> bool:
-    try:
-        adapter = get_adapter(agent)
-    except Exception:
-        return False
-    for inst in adapter.list_installed():
-        if inst.id == skill_id:
-            return True
-    return False
 
 
 def run(args) -> int:
@@ -33,11 +22,25 @@ def run(args) -> int:
     if skill is None:
         print(f"Skill '{args.id}' not found in registry.", file=sys.stderr)
         return 1
+    # Where is the skill installed? With --agent, check that host; without,
+    # check every detected host. Answers "where is this skill?" rather than
+    # "which host am I?" — the latter wrongly reported "Installed: no" on
+    # multi-host setups.
     try:
-        agent = detect_host(override=args.agent)
-    except SystemExit:
-        agent = None
-    installed = is_installed(args.id, agent) if agent else False
+        hosts = find_install_hosts(args.id, override=args.agent)
+    except SystemExit as e:
+        print(str(e), file=sys.stderr)
+        return 1
+    if args.agent:
+        _, adapter = hosts[0]
+        installed_in = (
+            [args.agent]
+            if any(i.id == args.id for i in adapter.list_installed())
+            else []
+        )
+    else:
+        installed_in = [name for name, _ in hosts]
+    installed = bool(installed_in)
 
     payload = {
         "id": skill["id"],
@@ -53,6 +56,7 @@ def run(args) -> int:
         "requires": skill.get("requires", {"env_vars": [], "commands": []}),
         "has_scripts": skill.get("has_scripts", False),
         "installed": installed,
+        "installed_in": installed_in,
     }
     # `origin` (ADR-002) is present only on imported skills.
     origin = skill.get("origin")
@@ -97,7 +101,7 @@ def run(args) -> int:
         print(f"    {f}")
     print()
     if installed:
-        print(f"  Installed: yes ({agent})")
+        print(f"  Installed: yes ({', '.join(installed_in)})")
     else:
         print(f"  Installed: no")
         print(f"    Run: kfu install {skill['id']}")

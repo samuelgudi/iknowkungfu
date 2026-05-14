@@ -8,4 +8,4 @@ See docs/superpowers/specs/2026-05-12-mcp-and-search-design.md § 5.
 
 PROTOCOL_VERSION = "2025-06-18"
 SERVER_NAME = "iknowkungfu"
-SERVER_VERSION = "0.1.7"
+SERVER_VERSION = "0.1.8"

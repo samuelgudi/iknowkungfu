@@ -129,3 +129,33 @@ def test_version_flag_prints_version_and_exits_zero():
     # argparse `action="version"` writes to stdout (3.4+) and exits 0.
     assert __version__ in result.stdout
     assert result.stdout.strip() == f"kfu {__version__}"
+
+
+# ─── Friction #2 (v0.1.7 field test): search accepts leading-dash DSL tokens ──
+
+def test_search_accepts_leading_dash_dsl_tokens(monkeypatch):
+    """`kfu search -status:deprecated` must reach the search verb as a query
+    term, not be rejected by argparse as an unknown option — the DSL uses a
+    leading `-` for negation. Friction #2 from the v0.1.7 Hermes Agent field
+    test."""
+    from agent_skills import cli
+    captured = {}
+
+    def fake_run(args):
+        captured["terms"] = list(args.terms)
+        return 0
+
+    monkeypatch.setattr("agent_skills.verbs.search.run", fake_run)
+    rc = cli.main(["search", "rust", "-status:deprecated", "-deprecated"])
+    assert rc == 0
+    assert captured["terms"] == ["rust", "-status:deprecated", "-deprecated"]
+
+
+def test_unknown_args_still_rejected_for_non_search_verbs():
+    """The leading-dash tolerance is scoped to `search` only — every other
+    verb must still reject unrecognized arguments with exit 2."""
+    import pytest
+    from agent_skills import cli
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["show", "test-author/example", "--no-such-flag"])
+    assert exc.value.code == 2

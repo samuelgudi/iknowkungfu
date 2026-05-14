@@ -218,9 +218,11 @@ def test_search_returns_1_when_no_registry_cached(fake_home, capsys):
     assert "kfu update" in err
 
 
-def test_search_returns_2_on_compiler_error(cached_registry, capsys):
+def test_search_returns_1_on_compiler_error(cached_registry, capsys):
+    # A malformed query is a runtime error, not an argparse usage error:
+    # exit 1, not 2. (2 is reserved for unrecognized CLI arguments.)
     rc = search_verb.run(_args(terms=["unknownfield:value"]))
-    assert rc == 2
+    assert rc == 1
     err = capsys.readouterr().err
     assert "Query error" in err
 
@@ -270,3 +272,25 @@ def test_cli_search_deterministic(cached_registry, capsys):
     search_verb.run(_args(terms=["category:dev"], json=True))
     b = capsys.readouterr().out
     assert a == b
+
+
+# ─── Friction #5 + #7 (v0.1.7 field test) ───────────────────────────────────
+
+def test_empty_query_shows_catalog_header(cached_registry, capsys):
+    """A bare `kfu search` (no query) lists the whole registry — the output
+    must say so explicitly so it reads as a feature. Friction #7 from the
+    v0.1.7 Hermes Agent field test."""
+    rc = search_verb.run(_args(terms=[]))
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "All 2 skills in the registry" in out
+
+
+def test_adversarial_query_never_exits_2(cached_registry, capsys):
+    """An adversarial / malformed query must not exit 2 — that code is
+    reserved for argparse usage errors. It either returns no results (exit 0)
+    or fails as a runtime error (exit 1). Friction #5 from the v0.1.7 field
+    test."""
+    rc = search_verb.run(_args(terms=["';", "DROP", "TABLE", "skills;", "--"]))
+    assert rc in (0, 1)
+    assert rc != 2

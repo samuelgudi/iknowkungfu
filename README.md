@@ -71,6 +71,7 @@ pip install -e iknowkungfu/
 
 ```bash
 kfu update                          # refresh registry cache
+kfu search                          # browse the whole registry
 kfu search <query>                  # find skills
 kfu install <author>/<skill>        # install for detected host
 kfu list                            # show installed skills

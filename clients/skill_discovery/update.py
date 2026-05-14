@@ -43,7 +43,7 @@ def _cache_dir() -> Path:
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.7"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.8"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 
@@ -103,6 +103,7 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
         return 1
 
     cached_path = cache / "registry.json"
+    already_current = False
     if cached_path.exists():
         try:
             cached = json.loads(cached_path.read_text(encoding="utf-8"))
@@ -119,6 +120,7 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
                     file=sys.stderr,
                 )
                 return 1
+            already_current = f_dt is not None and f_dt == c_dt
         except (json.JSONDecodeError, OSError):
             pass  # Cached file corrupt — treat as missing.
 
@@ -157,4 +159,8 @@ def refresh(registry_url: str | None = None, *, repo_url: str | None = None) -> 
             print(f"Warning: registry-repo sync failed: {e}. install verb may not work.",
                   file=sys.stderr)
 
+    n_skills = len(fetched.get("skills", []))
+    version = fetched.get("generated_at", "unknown")
+    state = "Already up to date" if already_current else "Updated"
+    print(f"{state} — {n_skills} skills (registry version {version}).")
     return 0
