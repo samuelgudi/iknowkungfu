@@ -5,7 +5,7 @@
 | Status | **DRAFT — not posted.** For Samuel's review. |
 | Target | Hermes Discord (aligned first audience) |
 | Drafted | 2026-05-14 (session 9) |
-| Points at | `iknowkungfu` v0.1.6 (fresh on PyPI) |
+| Points at | `iknowkungfu` v0.1.8 (latest on PyPI; field-tested by the Hermes Agent) |
 
 Naming: the agent is **"Hermes Agent"**, never Milo/MILO — holds for this post and every public artifact.
 
