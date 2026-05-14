@@ -1,7 +1,201 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-12T20:38:32Z",
+  "generated_at": "2026-05-14T08:42:53Z",
   "skills": [
+    {
+      "id": "samuelgudi/adversarial-test-design",
+      "name": "adversarial-test-design",
+      "description": "Use this skill when writing tests and you want them to actually catch regressions rather than just turn green. Covers designing tests that try to break the code, choosing real inputs over trivial ones, when to avoid mocks, and how to recognize a false-green test.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "dev",
+      "tags": [
+        "testing",
+        "test-design",
+        "regression",
+        "mocks",
+        "quality",
+        "tdd"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/adversarial-test-design",
+        "content_hash": "sha256:3e66049d2130cce399154c4f46382e096f73995e588adc735d9acf912092869b",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "09d6e5a58a8248bf973fd3d4fe43a13ad3c2ed0c",
+          "released": "2026-05-14T08:42:53Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:53Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/caddy-local-https",
+      "name": "caddy-local-https",
+      "description": "Use this skill when setting up local development services behind clean HTTPS hostnames using Caddy as a reverse proxy. Covers .localhost domains, Caddy's internal CA, path-based routing to multiple backends, and the common port-443 and certificate pitfalls.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "ops",
+      "tags": [
+        "caddy",
+        "https",
+        "reverse-proxy",
+        "localhost",
+        "tls",
+        "local-dev"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": [
+          "caddy"
+        ]
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/caddy-local-https",
+        "content_hash": "sha256:778f05ca5ea9f004d22906eae37f8149fe90795d0bf52ac2072c30769dd08797",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "d23c37b54add5b730a18be8e2f92de0ff617db96",
+          "released": "2026-05-14T08:42:52Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:52Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/deployment-runbook",
+      "name": "deployment-runbook",
+      "description": "Use this skill when writing or improving a deployment runbook for a service, or when you need a structured deploy procedure that someone else \u2014 or a future you \u2014 can follow under pressure. Covers runbook structure, pre-flight checks, deploy steps, verification, and rollback.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "ops",
+      "tags": [
+        "deployment",
+        "runbook",
+        "rollback",
+        "ops",
+        "release",
+        "procedure"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/deployment-runbook",
+        "content_hash": "sha256:a6dd3cacc87ebe6feb89e3288728b30e85b2019114d189789c92452cde0d9f80",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "29013af3c0e1acffabd3ad976f78551f502e076c",
+          "released": "2026-05-14T08:42:53Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:53Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
     {
       "id": "samuelgudi/iknowkungfu-contribution",
       "name": "iknowkungfu-contribution",
@@ -133,6 +327,132 @@
       "superseded_by": null
     },
     {
+      "id": "samuelgudi/keep-a-changelog",
+      "name": "keep-a-changelog",
+      "description": "Use this skill when creating or maintaining a project CHANGELOG, deciding what belongs in it, or preparing release notes. Covers the Keep a Changelog format, the six change categories, the Unreleased-section discipline, and how the changelog relates to semver.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "dev",
+      "tags": [
+        "changelog",
+        "release-notes",
+        "semver",
+        "versioning",
+        "release"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/keep-a-changelog",
+        "content_hash": "sha256:400589896ce99103e44b752f5124d745bb4cfa5a71a418b1cf3652bbc94d8590",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "570b3c4dcbe26cb9523b1a4041179f9c22f8ec41",
+          "released": "2026-05-14T08:42:53Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:53Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/lessons-learned-log",
+      "name": "lessons-learned-log",
+      "description": "Use this skill when a mistake, a non-obvious fix, or a hard-won insight should be recorded so it is not rediscovered the hard way later. Covers what makes a lesson worth keeping, the one-line rule format, where lessons live, and when to read them back.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "docs",
+      "tags": [
+        "lessons-learned",
+        "knowledge-management",
+        "retrospective",
+        "documentation",
+        "postmortem"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/lessons-learned-log",
+        "content_hash": "sha256:caaf5ed163abd821f070bbba3a6b869db5baf3583f0e171c494d37d6b1c7ab6b",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "fa027b539bb3bf139ff1e914d34d244a2f005a7c",
+          "released": "2026-05-14T08:42:53Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:53Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
       "id": "samuelgudi/semver-bump-decider",
       "name": "semver-bump-decider",
       "description": "Use this skill when deciding whether the next release of a SemVer-versioned library should bump major, minor, or patch. Walks through a checklist of change classes, surfaces the breaking-change risks people commonly miss, and explains 0.x and pre-1.0 conventions.",
@@ -197,6 +517,70 @@
       },
       "provenance": {
         "merged_at": "2026-05-12T19:38:32Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
+    {
+      "id": "samuelgudi/session-handoff",
+      "name": "session-handoff",
+      "description": "Use this skill when an agent's working session is approaching its context limit or ending mid-task and the work must resume cleanly in a fresh session. Covers what state to capture, how to structure a handoff document, and how a handoff differs from a final wrap-up.",
+      "version": "0.1.0",
+      "status": "active",
+      "author": {
+        "name": "Samuel Gudi",
+        "github_login": "samuelgudi",
+        "github_id": 124914565
+      },
+      "category": "ai",
+      "tags": [
+        "handoff",
+        "session",
+        "context-window",
+        "continuity",
+        "agent-workflow",
+        "resume"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "claude-code",
+        "hermes"
+      ],
+      "requires": {
+        "env_vars": [],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "claude-code": {
+          "scope": "user"
+        },
+        "hermes": {}
+      },
+      "source": {
+        "path": "skills/samuelgudi/session-handoff",
+        "content_hash": "sha256:70e3928a3e6fe9e75a887d40db6ed11dea9ce0bd0c05f3006e9525379caa87c5",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.0": {
+          "sha": "383fba9a677fc3918fe64ece23092b24e3eb2521",
+          "released": "2026-05-14T08:42:52Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-05-14T08:42:52Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
