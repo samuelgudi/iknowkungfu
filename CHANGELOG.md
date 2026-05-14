@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.6] — 2026-05-14
+
+Catalog-thickening release ahead of the soft-launch. The registry went from one real general-purpose skill to seven, and the schema gained a non-identity-binding way to credit the original author of a skill that was imported from elsewhere. No third-party skill has actually been imported yet — this release ships the *tooling*, not imported content.
+
+### Added
+
+- **Six first-party general-purpose skills.** Each one teaches something a stranger can use unchanged — Samuel's setup-specific skills were deliberately left out. Registry is now 9 skills (7 real + 2 meta).
+  - `samuelgudi/session-handoff` — handing off agent work across a context-window boundary.
+  - `samuelgudi/caddy-local-https` — Caddy as a local reverse proxy with auto-HTTPS `.localhost` domains.
+  - `samuelgudi/keep-a-changelog` — CHANGELOG discipline; pairs with `semver-bump-decider`.
+  - `samuelgudi/deployment-runbook` — writing a deploy runbook a stranger can follow under pressure.
+  - `samuelgudi/lessons-learned-log` — durable one-line capture of hard-won lessons.
+  - `samuelgudi/adversarial-test-design` — tests that actually catch regressions, not false-green tests.
+- **`origin` block in `meta.json`** (ADR-002 — `docs/decisions.md`, Accepted). An optional, display-only credit block — `{author_name, author_url?, repo, ref, imported_at}` — for skills imported from a third-party source. It carries *credit*, not *identity*: the existing `author` field still means curator / maintainer-of-record and still drives Decision #4's immutable-ID binding and the CI verification chain. The presence of an `origin` block is itself the import marker — there is no separate `imported` flag, and there is no `origin.license` (the top-level `license` field carries the source license; a curator can't re-license). Reference: `SCHEMA.md` § 9, with the field spec in § 3.
+- **`kfu show` renders imported skills with attribution.** An imported skill shows as *"curated by `<curator>`, originally by `<origin author>`"* plus an Origin section; first-party output is unchanged. `kfu search` is untouched — it does not surface authorship.
+
+### Changed
+
+- **`validate.py` accepts `LICENSE` / `LICENSE.txt` / `NOTICE` in a skill root only when the skill has an `origin` block.** First-party skills still reject those files — they keep their licensing at the repo root. Implementation touched `scripts/schema.json`, `scripts/validate.py`, and `scripts/generate_manifest.py`.
+
+---
+
 ## [0.1.5] — 2026-05-13
 
 Pre-announcement polish driven by the Hermes Agent's 0.1.4 field test. The 0.1.4 release passed end-to-end (CLI verbs, all eight MCP tools, frontmatter synthesis, install layout, no rename breakage) — these are the cosmetic items that surfaced during the walkthrough.
@@ -127,6 +149,9 @@ Dogfood-hardening pass: six new per-host adapters (claude-code, codex, opencode,
 
 Initial public-shape scaffold: registry schema, CLI surface, validate.py, security_scan.py, manifest generation, claude-code adapter, contribution + discovery skills. See `docs/superpowers/plans/2026-05-11-agent-skills-hub-v0.md` for the initial plan.
 
+[0.1.6]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.6
+[0.1.5]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.5
+[0.1.4]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.4
 [0.1.2]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.2
 [0.1.1]: https://github.com/samuelgudi/iknowkungfu/commits/main
 [0.1.0]: https://github.com/samuelgudi/iknowkungfu/commits/main
