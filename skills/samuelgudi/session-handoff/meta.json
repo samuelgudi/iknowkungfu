@@ -1,0 +1,44 @@
+{
+  "id": "samuelgudi/session-handoff",
+  "version": "0.1.0",
+  "status": "active",
+  "author": {
+    "name": "Samuel Gudi",
+    "github_login": "samuelgudi",
+    "github_id": 124914565
+  },
+  "category": "ai",
+  "tags": [
+    "handoff",
+    "session",
+    "context-window",
+    "continuity",
+    "agent-workflow",
+    "resume"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "claude-code",
+    "hermes"
+  ],
+  "requires": {
+    "env_vars": [],
+    "commands": []
+  },
+  "license": "MIT",
+  "install": {
+    "claude-code": {
+      "scope": "user"
+    },
+    "hermes": {}
+  },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
