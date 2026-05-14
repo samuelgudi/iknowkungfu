@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/assets/hero.png" alt="I Know Kung Fu — a package manager for Agent Skills" width="720">
+  <img src="https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/assets/hero.png" alt="I Know Kung Fu — a skill library for AI agents that compounds with use" width="720">
 </p>
 
 <p align="center">
@@ -15,13 +15,14 @@
 
 ---
 
-**I Know Kung Fu is a package manager for Agent Skills.** Any compatible agent can discover, install, and verify skills from one reviewed registry — without coupling to a single host's ecosystem.
+**I Know Kung Fu is a skill library for AI agents that compounds with use.** An agent installs the skill it needs for a task — then contributes back what it learned. The next agent starts from a sharper version, not the same one.
 
-- **Publish once, install anywhere.** Contributors submit to one registry; agents retrieve through a thin per-host adapter.
-- **Content-hash anchored.** Every install is verified against the registry manifest; yanked versions are hard-refused.
-- **No lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
+- **Gets better with use.** Every install is a chance to improve the skill — fixes and refinements flow back to one registry, so the catalog sharpens, not just grows.
+- **Agents use it themselves.** An MCP server exposes the registry to the agent runtime, so it can search, install, and contribute skills mid-task — no context switch.
+- **Curated and verified.** One reviewed registry, content-hash anchored; every install is checked against the manifest, and yanked versions are hard-refused.
+- **No lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats — installed through a thin per-host adapter for each runtime.
 
-> **The experience we're aiming for** is the *I Know Kung Fu* moment — Neo flatlining a new skill straight into working memory. An agent hits a capability gap mid-task, pulls the exact skill it needs, and keeps going: no context switch, no human in the loop to install it.
+> **The experience we're aiming for** is the *I Know Kung Fu* moment — Neo flatlining a new skill straight into working memory. An agent hits a capability gap mid-task, pulls the exact skill it needs, and keeps going — then leaves the skill a little better than it found it.
 
 ## Architecture
 
@@ -96,6 +97,8 @@ Full contribution guidelines, frontmatter contract, and review template are in [
 - Skills live as `<author>/<slug>/` directories with `SKILL.md` (the instructions body) and `meta.json` (machine metadata). The generated `registry.json` is the content-hash-anchored manifest that clients query.
 - Per-host adapters translate the registry layout to each agent's convention: claude-code installs to `~/.claude/skills/<author>-<slug>/`; hermes installs to `~/.hermes/skills/<category>/<slug>/`. Adapters are thin — all logic lives in the registry client.
 - `verify` computes the local skill tree hash and compares it against the registry manifest. Yanked versions are hard-refused at install time with no override.
+- The loop closes on contribution: `kfu submit` (and the `iknowkungfu-contribution` skill) sends an improved or new skill back through CI review into the same registry everyone pulls from — so the catalog compounds instead of fragmenting.
+- **Trust model, today:** content-hash verification, hard-refused yanks, and CI validation + security scanning of every submission. Cryptographic signing and lockfiles are specced but not yet implemented — see the [design spec](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md).
 
 ---
 
@@ -103,7 +106,7 @@ Full contribution guidelines, frontmatter contract, and review template are in [
 
 `iknowkungfu-mcp` exposes the registry as Model Context Protocol tools so an agent runtime (Claude Code, OpenClaw, Codex, Cursor, etc.) can search and install skills mid-task without leaving the agent loop.
 
-Eight tools: `search`, `get_skill`, `get_skill_file`, **`install_skill`**, `list_categories`, `list_tags`, `list_agents`, `update_registry`. The `install_skill` tool is the differentiator — no competing skill registry offers cross-host install via MCP.
+Eight tools: `search`, `get_skill`, `get_skill_file`, **`install_skill`**, `list_categories`, `list_tags`, `list_agents`, `update_registry`. `install_skill` is the one that closes the loop — the agent pulls a verified skill into the right host mid-task, without leaving its loop or waiting on a human to run a command.
 
 Register it with Claude Code (recommended — handles the config file for you):
 

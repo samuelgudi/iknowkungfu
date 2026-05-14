@@ -13,11 +13,11 @@ Naming: the agent is **"Hermes Agent"**, never Milo/MILO — holds for this post
 
 ## The post (~150 words)
 
-**I Know Kung Fu — a package manager for Agent Skills**
+**I Know Kung Fu — a skill library for AI agents that compounds with use**
 
-Every agent ecosystem reinvents its own scattered skill library. **I Know Kung Fu** is one content-hash-anchored registry instead: contributors publish once, any agent installs through a thin per-host adapter. Skills are plain Markdown + JSON — no proprietary formats, no runtime deps.
+Every agent ecosystem reinvents its own scattered skill library. **I Know Kung Fu** is one shared registry instead — and the point isn't just install, it's that the library gets *better* with use: an agent pulls the skill it needs for a task, then contributes back what it learned, so the next agent starts from a sharper version. Skills are plain Markdown + JSON — no proprietary formats, no runtime deps.
 
-The **Hermes adapter is first-class**. `kfu install <author>/<skill>` drops a skill straight into `~/.hermes/skills/`, and the `iknowkungfu-mcp` server lets the Hermes Agent search and install skills mid-session without leaving the loop.
+The **Hermes adapter is first-class**. `kfu install <author>/<skill>` drops a skill straight into `~/.hermes/skills/`, and the `iknowkungfu-mcp` server lets the Hermes Agent search, install, and contribute skills mid-session without leaving the loop.
 
 ```
 uv tool install iknowkungfu     # or: pip install iknowkungfu
@@ -26,7 +26,7 @@ kfu search <query>
 kfu install <author>/<skill>
 ```
 
-The registry is young — seven real, general-purpose skills today. That is the pitch: it is early, and it is the right moment to seed it. Browse, install, contribute → github.com/samuelgudi/iknowkungfu
+The registry is young — seven real, general-purpose skills today. That is the pitch: it is early, and the right moment to seed it — every skill you add or improve is one the next agent inherits. Browse, install, contribute → github.com/samuelgudi/iknowkungfu
 
 ---
 
