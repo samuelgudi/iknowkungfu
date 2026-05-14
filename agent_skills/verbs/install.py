@@ -156,4 +156,5 @@ def run(args) -> int:
             }, indent=2))
         else:
             print(f"Installed {full_id}@{target_version} at {result.target}")
+            print('"I know kung fu."')
         return 0
