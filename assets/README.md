@@ -4,21 +4,26 @@ Visual assets for the project's docs and public surface.
 
 | File | Status | Used by |
 |---|---|---|
-| `logo.svg` | **Placeholder** — clean wordmark, replace with a designed logo | `README.md` hero |
+| `hero.png` | **In use** — figure-in-stance illustration, skill exchange with the registry | `README.md` hero |
+| `logo.svg` | **Placeholder mark** — typographic, pending a designed vector mark | favicon / avatar / social (not yet wired) |
 | `demo.svg` | **Not yet produced** — terminal cast of the install flow | `README.md` Quickstart |
 
 ---
 
-## Logo — what to produce
+## Hero — done
 
-`logo.svg` today is a plain typographic placeholder so the README hero is not a broken image. The real logo should:
+`hero.png` is the README hero: an agent figure in a martial-arts stance exchanging skill data with the registry (data flowing in *and* back out — acquire and contribute). Generated, then resized to 1280px wide and compressed. It is a raster illustration — fine as a hero, but it is **not** a scalable mark (see below).
 
-- **Stay abstract and original.** Lean into the "instantly acquire a skill" metaphor through *language* in the copy, not through imagery that evokes a specific film — that edges into third-party trademarked visuals and buys no real recognition. (Decision context: session-9 discussion.)
-- **Work as a horizontal lockup** (mark + wordmark) at roughly 520×120, and as a standalone square mark for favicons / social cards.
-- **Ship as SVG** (primary, version-controlled as text) plus a **PNG export** at 2x for surfaces that do not render SVG.
-- **Read on a light background** — the README renders on white/light GitHub chrome.
+## Vector mark — what to produce
 
-Suggested file set when the designed logo lands: `logo.svg`, `logo.png`, `logo-mark.svg` (square mark only), `logo-dark.svg` (if a dark-mode variant is wanted).
+`logo.svg` today is a plain typographic placeholder. A proper vector **mark** is still needed for the small surfaces a raster hero cannot serve:
+
+- **Work at small sizes** — favicon (16–32px), GitHub org avatar, Discord server icon. Must stay legible when tiny.
+- **Be a simple, geometric vector** — flat, 2–3 colors. Could derive from the strongest single element of the hero (e.g. the head + data-in/out, abstracted), not the whole figure.
+- **Ship as SVG** (primary, version-controlled as text) plus a **PNG export** at 2x.
+- **Stay original.** Lean into the "instantly acquire a skill" metaphor through *language* in the copy, not through imagery that evokes a specific film. (Decision context: session-9 discussion.)
+
+Suggested file set when the mark lands: `logo.svg` (mark), `logo.png`, `logo-dark.svg` (if a dark-mode variant is wanted).
 
 ## Terminal cast — what to produce
 
