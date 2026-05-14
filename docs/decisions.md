@@ -91,3 +91,84 @@ Accepted trade-offs:
 ### Supersedes
 
 None (first ADR).
+
+---
+
+## ADR-002 — 2026-05-14 — Import/curation provenance model for third-party skills
+
+### Status
+
+**Proposed.** This is a design pass. No third-party skill is imported, and no schema/validator/manifest code is changed, until this ADR is accepted. Accepting it unblocks the implementation step described under Consequences.
+
+### Context
+
+The registry's launch catalog is first-party only. To grow catalog depth, a recurring proposal is to re-host genuinely useful skills that already exist in the open-source ecosystem. Doing so collides with three locked properties of the current design:
+
+1. **Immutable GitHub-ID identity binding (Decision #4 / spec "Skill identity", Gemini M2).** Every skill's `id` is `<author>/<slug>`, and `meta.json.author.github_id` is the contributor's immutable GitHub numeric user ID, recorded at first PR and re-verified by CI on every subsequent PR. This is the anti-impersonation anchor. Re-hosting someone else's skill under this model means either (a) misattributing authorship to the importer, or (b) needing the original author's GitHub ID — which the importer cannot legitimately claim.
+2. **Submitter is reviewer-of-record (`SECURITY.md`).** The reviewer checklist makes whoever submits a skill accountable for it: they fill `REVIEW.md`, their claims are cross-checked against the code, and for `has_scripts: true` skills they must provide real test evidence. Bulk-importing means the importer vouches, in full, for code they did not write.
+3. **Per-skill licensing.** Each source skill carries its own license. Redistribution requires license compatibility, attribution, and — for some licenses — preservation of a NOTICE.
+
+Research into the ecosystem (session 8) established the licensing reality that shapes this decision:
+
+- **License lives at the individual-skill level, not the repo level.** `anthropics/skills` has no repo-level `LICENSE`; every skill folder ships its own `LICENSE.txt`. ~13 of its skills are Apache-2.0; the four document skills (`docx`, `pdf`, `pptx`, `xlsx`) are explicitly "source-available, not open source" and carry a "demonstration purposes only" disclaimer. Importing is therefore **always a per-skill license check, never a bulk operation.**
+- The cleanest candidate sources are MIT-licensed and genre-aligned: `obra/superpowers` (MIT, active) and `obra/superpowers-skills` (MIT, archived — frozen and stable).
+- "Awesome-list" repos (`VoltAgent/awesome-agent-skills`, `ComposioHQ/awesome-claude-skills`, `hesreallyhim/awesome-claude-code`) are *indices of links*, not content sources. They are discovery maps; the import source is always the underlying content repo, with its own license.
+- Raw "index every public skill on GitHub" is already a crowded lane (`claude-plugins.dev`, `skills.sh`). The registry's differentiator (per ADR-001: agents as citizens; human curation; security review; hermes-first) is **curated re-hosting with review and provenance** — not raw indexing.
+
+The root cause of the collision: the `author` object does two jobs at once — **identity/accountability** (the immutable, CI-verified, reviewer-of-record binding) and **credit/authorship**. For first-party skills these are the same person, so the schema collapses them. For an imported skill they are different people, and the schema cannot currently express that.
+
+### Decision
+
+Resolve the collision by **separating the two jobs** the `author` object conflates. Do not weaken Decision #4 — stop overloading it.
+
+**1. `author` is clarified to mean curator / maintainer-of-record.** No structural change. `author` remains `{name, github_login, github_id}`, remains immutable, remains CI-verified against `gh api`, remains the reviewer-of-record. For an imported skill, `author` is the iknowkungfu citizen who curated, reviewed, and is accountable for the entry — not the original author. The anti-impersonation guarantee is fully intact; the field is simply named correctly. (`SECURITY.md` already describes this field as an accountability anchor, never as "authorship".)
+
+**2. A new optional `origin` block carries original authorship as display-only credit.** Author-supplied in `meta.json`, present only on imported skills. The name `origin` is deliberate — `provenance` is already taken by a *derived* field (`{submitted_pr, merged_at, reviewed_by}`, set by `generate_manifest.py`); `origin` is *author-supplied* and must not be confused with it. Proposed shape (to be finalised in the implementation step):
+
+```json
+"origin": {
+  "author_name": "Jesse Vincent",
+  "author_url": "https://github.com/obra",
+  "repo": "https://github.com/obra/superpowers-skills",
+  "ref": "<commit SHA imported from>",
+  "license": "MIT",
+  "imported_at": "2026-05-14T00:00:00Z"
+}
+```
+
+`origin.author_name` / `origin.author_url` are **display-only, NOT `gh api`-verified, NOT identity-binding** — they are a citation, not an account. They confer no registry identity and so cannot be used to impersonate. `origin.ref` pins the exact source commit for auditability and re-sync.
+
+**3. An `imported` marker so the registry renders honestly.** A skill with an `origin` block is an imported skill. Whether this is an explicit `imported: true` field in `meta.json` or derived from the presence of `origin` is an implementation detail; the requirement is that `kfu search` and `kfu show` display it as *"curated by `<curator>` · originally by `<origin.author_name>` · `<license>`"* — **never** as *"by `<curator>`"*.
+
+**4. The existing `license` field carries the source license faithfully.** For an Apache-2.0 import, the source `LICENSE`/`NOTICE` is bundled into the skill directory and the attribution requirements are satisfied by that plus the `origin` block. (Implementation note: `validate.py`'s `ALLOWED_ROOT_FILES` is currently `{SKILL.md, meta.json, README.md}` and would reject a bundled `LICENSE`/`NOTICE` as extraneous — the implementation step must allow these for imported skills.)
+
+**5. v0 recommendation: design the model now, defer actual importing past launch.** Reasons: the highest-value source (`anthropics/skills`) is a per-skill licensing minefield, not a quick win; `SECURITY.md` makes the importer reviewer-of-record, so every imported skill-with-scripts needs line-by-line review plus real test evidence — a real per-skill cost, not a bulk operation; the launch needs *enough good skills*, and session-8 Track 1 already delivered seven. A first-party-only v0 with a designed-but-dormant import path is a stronger story than a catalog padded with hastily-imported third-party skills.
+
+**6. When importing does begin, pilot with `obra/superpowers-skills`.** A single MIT source, archived (stable, will not drift), genre-aligned. Prove the `origin` model end-to-end on one clean repo before touching the mixed-license `anthropics/skills` set.
+
+**7. The generalizability filter does not relax for imports.** `CONTRIBUTING.md`'s personal-vs-generalizable filter ("would a stranger get value from this unchanged?") applies to imported skills exactly as to first-party ones. Many community and vendor skills are domain- or vendor-specific and must be filtered out regardless of license.
+
+### Consequences
+
+**Accepting this ADR unblocks an implementation step** (not part of this design pass), which must — per `SCHEMA.md`'s own rule — update the field-level reference and the spec together:
+
+1. `SCHEMA.md` — add the `origin` block field definitions and the `imported` marker; clarify `author` semantics as curator/maintainer-of-record.
+2. `docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md` — mirror the schema change (SCHEMA.md and the spec move together).
+3. `scripts/validate.py` — validate the `origin` block when present (shape, SPDX `license`, URL fields); add `LICENSE`/`NOTICE` to `ALLOWED_ROOT_FILES` for imported skills; optionally assert `origin` ⇔ `imported` consistency.
+4. `scripts/schema.json` — add the `origin` object schema.
+5. `scripts/generate_manifest.py` — pass `origin` through to `registry.json`; keep it distinct from the derived `provenance` field.
+6. `kfu search` / `kfu show` rendering — surface the curator/origin distinction as specified in Decision #3.
+
+**Properties of the chosen model:**
+
+- **Zero weakening of Decision #4.** The identity binding, CI verification, and reviewer-of-record chain are untouched. The derived `provenance.reviewed_by` already records the curator correctly.
+- **Purely additive.** `origin` is optional; existing first-party skills are unaffected and omit it. No `schema_version` bump is required for an additive optional field.
+- **Honest to consumers.** The registry shows the truth: curated by one party, authored by another, under the original license.
+- **License-correct by construction.** MIT and Apache-2.0 both permit redistribution with attribution and license preservation; the `origin` block plus the preserved `license` field plus bundled NOTICE *is* that attribution.
+- **Portable.** The curator/origin split mirrors how package registries already separate `author` from `maintainers` (npm, crates.io) and should be expressible in the `agentskills.io` open standard, so imported skills stay portable.
+
+**Explicitly NOT decided here:** whether imports ever happen in v0 (recommendation is defer, but the call is the maintainer's); the exact `imported`-marker mechanism (explicit field vs derived); ownership-transfer flows (an imported skill's original author later claiming a real registry account); and bulk/automated import tooling (out of scope — imports are per-skill, human-reviewed).
+
+### Supersedes
+
+None.
