@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.7] — 2026-05-14
+
+Polish release ahead of the Hermes Discord soft-launch.
+
+### Changed
+
+- **`kfu install` prints `"I know kung fu."` on a successful install.** An in-product easter egg on the human-readable path; `--json` output is unchanged.
+- **README refreshed** — a hero illustration, architecture / pipeline / sequence diagrams (Mermaid), and tightened copy. The hero image uses an absolute URL so it renders on the PyPI project page as well as on GitHub. Note: Mermaid diagrams render on GitHub but not on PyPI, where they appear as plain code blocks.
+
+---
+
 ## [0.1.6] — 2026-05-14
 
 Catalog-thickening release ahead of the soft-launch. The registry went from one real general-purpose skill to seven, and the schema gained a non-identity-binding way to credit the original author of a skill that was imported from elsewhere. No third-party skill has actually been imported yet — this release ships the *tooling*, not imported content.
@@ -149,6 +160,7 @@ Dogfood-hardening pass: six new per-host adapters (claude-code, codex, opencode,
 
 Initial public-shape scaffold: registry schema, CLI surface, validate.py, security_scan.py, manifest generation, claude-code adapter, contribution + discovery skills. See `docs/superpowers/plans/2026-05-11-agent-skills-hub-v0.md` for the initial plan.
 
+[0.1.7]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.7
 [0.1.6]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.6
 [0.1.5]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.5
 [0.1.4]: https://github.com/samuelgudi/iknowkungfu/releases/tag/v0.1.4

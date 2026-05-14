@@ -43,7 +43,7 @@ def _cache_dir() -> Path:
 
 
 def _http_fetch(url: str, timeout: float = 30.0) -> bytes:
-    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.6"})
+    req = urllib.request.Request(url, headers={"User-Agent": "iknowkungfu/0.1.7"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read()
 

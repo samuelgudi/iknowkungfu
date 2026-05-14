@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.png" alt="I Know Kung Fu — a package manager for Agent Skills" width="720">
+  <img src="https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/assets/hero.png" alt="I Know Kung Fu — a package manager for Agent Skills" width="720">
 </p>
 
 <p align="center">
