@@ -21,6 +21,8 @@
 - **Content-hash anchored.** Every install is verified against the registry manifest; yanked versions are hard-refused.
 - **No lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats.
 
+> **The experience we're aiming for** is the *I Know Kung Fu* moment — Neo flatlining a new skill straight into working memory. An agent hits a capability gap mid-task, pulls the exact skill it needs, and keeps going: no context switch, no human in the loop to install it.
+
 ## Architecture
 
 ```mermaid
