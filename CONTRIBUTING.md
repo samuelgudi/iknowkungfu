@@ -1,10 +1,22 @@
 # CONTRIBUTING.md
 
+## Prerequisites
+
+Before you can submit a skill, you need three things in place:
+
+- **`git`** installed and configured locally.
+- **GitHub CLI (`gh`)** installed and authenticated. `kfu init` and `kfu submit` both shell out to `gh`: `init` fetches your numeric GitHub ID via `gh api users/<login>`, and `submit` opens the cross-fork PR via `gh pr create`. Authenticate once with:
+  ```
+  gh auth login
+  ```
+- **A fork of `samuelgudi/iknowkungfu`** on GitHub. External contributors do not have write access to the upstream repo, so `kfu submit` pushes your contribution branch to *your fork's* `origin` and opens a PR from there.
+
 ## Getting started
 
-1. **Clone the repo** (or fork it if you don't have write access):
+1. **Fork `samuelgudi/iknowkungfu`** on GitHub (the *Fork* button, top right). Then clone **your fork** — not the upstream:
    ```
-   git clone https://github.com/samuelgudi/iknowkungfu
+   git clone https://github.com/<your-login>/iknowkungfu
+   cd iknowkungfu
    ```
 2. **Install the CLI**:
    ```
@@ -17,6 +29,8 @@
 3. **Write your skill.** Create a directory with `SKILL.md` as the main body (see **SKILL.md filename** below). Add any scripts in `scripts/` and templates in `templates/`.
 4. **Run `kfu init <local-dir>`** to scaffold `meta.json` interactively. The tool detects your GitHub login via `gh auth`, fetches your numeric GitHub ID via `gh api`, and prompts for category, tags, platforms, agent compatibility, and license. You can also hand-write `meta.json` following [SCHEMA.md](SCHEMA.md). (Decision #17)
 5. **Run `kfu submit <local-dir>`** to validate, sanitize, scan, and open a PR. The submit flow will offer `init` inline if `meta.json` is missing.
+
+> **One skill per PR.** CI's `contribution-pr-check` job rejects PRs that touch more than one `submitted/<author>/<slug>/` directory. If you have multiple skills to contribute, run `kfu submit` once per skill — each gets its own branch and its own PR. Bundled submissions will bounce at the CI gate, not at review.
 
 ---
 
