@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-14T08:42:53Z",
+  "generated_at": "2026-05-15T06:49:17Z",
   "skills": [
     {
       "id": "samuelgudi/adversarial-test-design",
@@ -199,8 +199,8 @@
     {
       "id": "samuelgudi/iknowkungfu-contribution",
       "name": "iknowkungfu-contribution",
-      "description": "Submit a new skill or update an existing one in the I Know Kung Fu registry. Use when the user wants to publish a skill, propose a deprecation, or yank a compromised version.",
-      "version": "0.1.0",
+      "description": "Submit a new skill, propose an improvement, deprecate, or yank a skill in the I Know Kung Fu registry. Use when the user wants to publish, update, or report on a skill.",
+      "version": "0.2.0",
       "status": "active",
       "author": {
         "name": "Samuel Gudi",
@@ -241,7 +241,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/iknowkungfu-contribution",
-        "content_hash": "sha256:5fe428f58941686a167dd5acb1ddb5a4b8d9ed95e197b63aa4ea65b12bfe8fdd",
+        "content_hash": "sha256:f5011e7df59688af40221798af1752c14652b4523a1414b00576f111337f30c4",
         "files": [
           "SKILL.md",
           "meta.json"
@@ -265,8 +265,8 @@
     {
       "id": "samuelgudi/iknowkungfu-discovery",
       "name": "iknowkungfu-discovery",
-      "description": "Query the I Know Kung Fu registry for a skill that matches the current task. Use ONLY when explicitly asked to search for a skill. Do not invoke reflexively for every task.",
-      "version": "0.1.0",
+      "description": "Search the I Know Kung Fu registry for a skill that matches the current task, inspect candidates, and install the right one for the host you are running on. Use when the user asks to find, search for, or install a skill \u2014 do not invoke reflexively for every task.",
+      "version": "0.2.0",
       "status": "active",
       "author": {
         "name": "Samuel Gudi",
@@ -305,7 +305,7 @@
       },
       "source": {
         "path": "skills/samuelgudi/iknowkungfu-discovery",
-        "content_hash": "sha256:27fa8bc3fbd28df29bc81df139e50dab155e6c98d0c47a4aa638bde65b531fcd",
+        "content_hash": "sha256:f955de7edb664334c6c854f5daaf14707bb8548ad2d88d61965aca995c93a34e",
         "files": [
           "SKILL.md",
           "meta.json"
