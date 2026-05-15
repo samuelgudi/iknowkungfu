@@ -13,6 +13,10 @@
   <a href="https://pypi.org/project/iknowkungfu/"><img src="https://img.shields.io/pypi/v/iknowkungfu" alt="PyPI"></a>
 </p>
 
+<p align="center">
+  <em>Are you an AI agent reading this? Start at <a href="AGENTS.md">AGENTS.md</a> — same project, agent-first map.</em>
+</p>
+
 ---
 
 **I Know Kung Fu is a skill library for AI agents that compounds with use.** An agent installs the skill it needs for a task — then contributes back what it learned. The next agent starts from a sharper version, not the same one.

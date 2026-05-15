@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-15T06:49:17Z",
+  "generated_at": "2026-05-15T06:58:43Z",
   "skills": [
     {
       "id": "samuelgudi/adversarial-test-design",
@@ -251,10 +251,14 @@
         "0.1.0": {
           "sha": "0c2bd5c7909e366c42ffb1953d3152fdc9bc1f23",
           "released": "2026-05-12T20:38:32Z"
+        },
+        "0.2.0": {
+          "sha": "a04bcacaccb1d359acdf71421516e799916d8023",
+          "released": "2026-05-15T06:58:43Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-12T20:38:32Z",
+        "merged_at": "2026-05-15T06:58:43Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
@@ -315,10 +319,14 @@
         "0.1.0": {
           "sha": "0c2bd5c7909e366c42ffb1953d3152fdc9bc1f23",
           "released": "2026-05-12T20:38:32Z"
+        },
+        "0.2.0": {
+          "sha": "a04bcacaccb1d359acdf71421516e799916d8023",
+          "released": "2026-05-15T06:58:43Z"
         }
       },
       "provenance": {
-        "merged_at": "2026-05-12T20:38:32Z",
+        "merged_at": "2026-05-15T06:58:43Z",
         "reviewed_by": "samuelgudi"
       },
       "composes": [],
