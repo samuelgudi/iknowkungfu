@@ -1,0 +1,52 @@
+{
+  "id": "theheavenlyd3mon/persona-compression",
+  "version": "1.0.0",
+  "status": "active",
+  "author": {
+    "name": "theheavenlyd3mon",
+    "github_login": "theheavenlyd3mon",
+    "github_id": 199945898
+  },
+  "category": "dev",
+  "tags": [
+    "compression",
+    "token-optimization",
+    "dsl",
+    "proteus",
+    "persona",
+    "prompts",
+    "system-prompts",
+    "behavioral-contracts"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "claude-code",
+    "hermes",
+    "codex",
+    "opencode",
+    "pi",
+    "openclaw"
+  ],
+  "requires": {
+    "env_vars": [],
+    "commands": []
+  },
+  "license": "MIT",
+  "install": {
+    "claude-code": {
+      "scope": "user"
+    }
+  },
+  "composes": [],
+  "extends": "theheavenlyd3mon/token-compression",
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": [
+    "theheavenlyd3mon/token-compression",
+    "samuelgudi/hermes-soul-authoring"
+  ]
+}
