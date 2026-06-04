@@ -1,11 +1,12 @@
 ---
 name: persona-compression
 description: Compress agent identity/persona files (system prompts, SOUL.md, CLAUDE.md, role definitions) using Proteus-style DSL. Covers identity statements, behavioral contracts, style rules, team rosters, handoff maps, and quality gates. Reduces 50-70% on behavioral sections while keeping operational instructions readable.
-version: 1.0.0
-author: Senna / Hermes Agent
 license: MIT
-platforms: [linux, macos, windows]
-tags: [compression, token-optimization, dsl, proteus, persona, prompts, identity, system-prompts, behavioral-contracts]
+compatibility: [linux, macos, windows]
+metadata:
+  version: 1.0.0
+  author: Senna / Hermes Agent
+  tags: [compression, token-optimization, dsl, proteus, persona, prompts, identity, system-prompts, behavioral-contracts]
 ---
 
 # Persona Compression — Compressed DSL for Agent Identity Files
