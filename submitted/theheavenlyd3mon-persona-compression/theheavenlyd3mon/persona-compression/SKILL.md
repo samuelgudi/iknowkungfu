@@ -5,7 +5,7 @@ license: MIT
 compatibility: [linux, macos, windows]
 metadata:
   version: 1.0.0
-  author: Senna / Hermes Agent
+  author: Noctis
   tags: [compression, token-optimization, dsl, proteus, persona, prompts, identity, system-prompts, behavioral-contracts]
 ---
 
