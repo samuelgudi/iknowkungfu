@@ -1,11 +1,12 @@
 ---
 name: token-compression
 description: Compress skill/config/prompt files using Proteus-style DSL — token packing, semantic normalization, DSL encoding, structural compression, state-machine loops, arrow conditionals. Reduces 40-70% on behavioral/header sections while keeping operational instructions readable.
-version: 1.0.0
-author: Senna / Hermes Agent
 license: MIT
-platforms: [linux, macos, windows]
-tags: [compression, token-optimization, dsl, proteus, prompts, system-prompts]
+compatibility: [linux, macos, windows]
+metadata:
+  version: 1.0.0
+  author: Senna / Hermes Agent
+  tags: [compression, token-optimization, dsl, proteus, prompts, system-prompts]
 ---
 
 # Token Compression — Compressed DSL for Skill Files

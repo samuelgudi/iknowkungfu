@@ -1,23 +1,23 @@
 # REVIEW.md — theheavenlyd3mon/token-compression@1.0.0
 
 ## What does it do?
-<one-line>
+Compresses behavioral/header sections of skill files and agent prompts using a six-technique DSL (token packing, semantic normalization, DSL encoding, structural compression, state-machine loops, arrow conditionals). Operational instructions stay in prose.
 
 ## What does it access?
 
-- Network endpoints: <list endpoints OR write "none">
-- Filesystem paths: <list paths OR write "${SKILL_DIR}/cache/ only">
+- Network endpoints: none
+- Filesystem paths: none
 - Environment variables: none
 - Processes spawned: none
 
 ## Worst case if compromised?
-<describe what an attacker could do if scripts/ were replaced with malicious code>
+Instructions only, no executable assets. No scripts, no network calls, no filesystem access. A compromised version could only alter the compression methodology described in prose — worst case is bad advice, not code execution.
 
 ## Why is this useful?
-<one paragraph; gap-check: what existing skill does this overlap with?>
+No existing registry skill addresses token optimization. Skills load verbatim into context, and behavioral sections (identity, style, when-to-use, red flags) are pure prose that compresses well. This skill teaches a repeatable DSL that reduces those sections 40–70% while keeping step-by-step instructions readable. Works across Claude Code, Hermes, Codex, OpenCode, Pi, and OpenClaw — agent-agnostic methodology, not platform-specific tooling.
 
 ## Test evidence
 (instructions-only skill — test evidence may be omitted)
 
 ## What changed?
-<for updates only; leave blank for first-version>
+(for updates only; leave blank for first-version)
