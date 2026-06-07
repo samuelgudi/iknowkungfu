@@ -1,6 +1,6 @@
 {
   "id": "kriptoburak/hermes-tweet",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "status": "active",
   "author": {
     "name": "Burak Bayir",
@@ -9,15 +9,13 @@
   },
   "category": "comms",
   "tags": [
-    "hermes",
+    "hermes-agent",
+    "hermes-plugin",
     "xquik",
     "twitter",
+    "x",
     "x-twitter",
-    "tweets",
-    "replies",
-    "followers",
-    "monitoring",
-    "dms",
+    "social-media",
     "automation"
   ],
   "platforms": [
