@@ -1,0 +1,48 @@
+{
+  "id": "theheavenlyd3mon/token-compression",
+  "version": "1.0.0",
+  "status": "active",
+  "author": {
+    "name": "theheavenlyd3mon",
+    "github_login": "theheavenlyd3mon",
+    "github_id": 199945898
+  },
+  "category": "dev",
+  "tags": [
+    "compression",
+    "token-optimization",
+    "dsl",
+    "proteus",
+    "prompts",
+    "system-prompts"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "claude-code",
+    "hermes",
+    "codex",
+    "opencode",
+    "pi",
+    "openclaw"
+  ],
+  "requires": {
+    "env_vars": [],
+    "commands": []
+  },
+  "license": "MIT",
+  "install": {
+    "claude-code": {
+      "scope": "user"
+    },
+    "hermes": {}
+  },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
