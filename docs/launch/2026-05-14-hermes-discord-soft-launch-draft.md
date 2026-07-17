@@ -1,23 +1,25 @@
-# Hermes Discord soft-launch post — DRAFT
+# Hermes Discord soft-launch post — DRAFT (v2, repositioned)
 
 | Field | Value |
 |---|---|
-| Status | **DRAFT — not posted.** For Samuel's review. |
+| Status | **DRAFT — not posted.** For Samuel's final read. |
 | Target | Hermes Discord (aligned first audience) |
-| Drafted | 2026-05-14 (session 9) |
-| Points at | `iknowkungfu` v0.1.8 (latest on PyPI; field-tested by the Hermes Agent) |
+| Drafted | 2026-05-14 (session 9); **rewritten 2026-07-17 (session 11)** around the supply-chain positioning |
+| Points at | `iknowkungfu` v0.1.9 (latest on PyPI; trust-model hardening release) |
 
 Naming: the agent is **"Hermes Agent"**, never Milo/MILO — holds for this post and every public artifact.
 
 ---
 
-## The post (~150 words)
+## The post (~170 words)
 
-**I Know Kung Fu — a skill library for AI agents that compounds with use**
+**I Know Kung Fu — the verified supply chain for agent skills**
 
-Every agent ecosystem reinvents its own scattered skill library. **I Know Kung Fu** is one shared registry instead — and the point isn't just install, it's that the library gets *better* with use: an agent pulls the skill it needs for a task, then contributes back what it learned, so the next agent starts from a sharper version. Skills are plain Markdown + JSON — no proprietary formats, no runtime deps.
+There are plenty of places to *find* skills for your agent. There's nowhere that guarantees *what you're installing* — and a skill is instructions your agent will execute. **I Know Kung Fu** is one reviewed registry where every skill is validated, security-scanned (including the SKILL.md body itself — prompt-injection patterns, hidden instructions, exfiltration attempts), content-hash verified at install, and hard-yanked if compromised.
 
-The **Hermes adapter is first-class**. `kfu install <author>/<skill>` drops a skill straight into `~/.hermes/skills/`, and the `iknowkungfu-mcp` server lets the Hermes Agent search, install, and contribute skills mid-session without leaving the loop.
+The other half: agents don't just consume it — they contribute back through the same reviewed pipeline. That's not a roadmap slide: the newest skill in the registry, `hermes-tweet`, was submitted by an agent, cross-fork PR to promotion, fully gated. Agents of different users, improving one shared catalog, safely.
+
+The **Hermes adapter is first-class**: `kfu install <author>/<skill>` drops into `~/.hermes/skills/`, and the `iknowkungfu-mcp` server lets the Hermes Agent search, install, and contribute mid-session.
 
 ```
 uv tool install iknowkungfu     # or: pip install iknowkungfu
@@ -26,14 +28,14 @@ kfu search <query>
 kfu install <author>/<skill>
 ```
 
-The registry is young — seven real, general-purpose skills today. That is the pitch: it is early, and the right moment to seed it — every skill you add or improve is one the next agent inherits. Browse, install, contribute → github.com/samuelgudi/iknowkungfu
+Ten reviewed skills today — small and dense on purpose. Every one you add or improve is one the next agent inherits, verified. → github.com/samuelgudi/iknowkungfu
 
 ---
 
 ## Notes for review
 
-- **Length/tone**: short & punchy per the session-9 decision; keeps the focus on the tool, names no individual skills.
-- **"seven real, general-purpose skills"** — a count, not a name-drop. Signals "thin-but-real, come seed it" rather than "empty". Drop the number if you would rather not anchor on it.
-- **MCP wiring** is mentioned but not spelled out — the README's `~/.hermes/config.yaml` block is one click away in the repo. Add it inline if you want the post fully self-contained.
-- **Not included**: `kfu submit` contributor flow (kept the post to the consumer path), the determinism/verify story, ADR-002 import tooling (internal, not a user pitch yet).
+- **What changed vs v1**: lead is now the trust/verification story ("verified supply chain"), with the contribution loop as proof rather than promise — anchored on the real `hermes-tweet` external submission. "Compounds with use" demoted from headline to implication.
+- **"Ten reviewed skills"** — updated count (was "seven"); still a count, not a name-drop. "Small and dense on purpose" turns the size into the pitch.
+- **`hermes-tweet` name-drop**: deliberate — it's a Hermes-ecosystem skill, submitted by an agent, landing in the Hermes Discord. Triple-relevant. Drop the name if you'd rather not spotlight one contributor.
+- **v0.1.9 not named in the post** — the hardening is *shown* (the scan list) rather than announced as a version. Add "fresh v0.1.9 on PyPI" if you want the recency signal.
 - **Posting**: still a draft. Hermes Discord only — no general subreddits / unaligned Discords this round.

@@ -4,7 +4,7 @@ You are an AI agent encountering this repo. This file is your map. The `README.m
 
 ## What this repo is
 
-**I Know Kung Fu** is a skill library for AI agents that compounds with use. One reviewed, content-hash-verified registry of Agent Skills. Agents pull skills mid-task and contribute improvements back, so the catalog sharpens — not just grows.
+**I Know Kung Fu** is the verified supply chain for agent skills — the only registry where agents improve each other's skills, safely. One reviewed, content-hash-verified registry: every submission is validated and security-scanned (including the SKILL.md body), yanked versions are unreachable, and promotion is gated. Agents pull skills mid-task and contribute improvements back through the same reviewed pipeline, so the catalog sharpens — not just grows.
 
 ## The three roles you can play
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "iknowkungfu"
 version = "0.1.9"
-description = "Agent-agnostic registry for skill discovery and contribution"
+description = "The verified supply chain for agent skills — agent-agnostic registry for discovery and contribution"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

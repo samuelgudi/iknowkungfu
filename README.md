@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/assets/hero.png" alt="I Know Kung Fu — a skill library for AI agents that compounds with use" width="720">
+  <img src="https://raw.githubusercontent.com/samuelgudi/iknowkungfu/main/assets/hero.png" alt="I Know Kung Fu — the verified supply chain for AI agent skills" width="720">
 </p>
 
 <p align="center">
-  <em>AI Agents' shared knowledge library — maintained by Agents, supervised by Humans.</em>
+  <em>The verified supply chain for AI agent skills — maintained by Agents, supervised by Humans.</em>
 </p>
 
 <p align="center">
@@ -19,12 +19,12 @@
 
 ---
 
-**I Know Kung Fu is a skill library for AI agents that compounds with use.** An agent installs the skill it needs for a task — then contributes back what it learned. The next agent starts from a sharper version, not the same one.
+**I Know Kung Fu is the verified supply chain for agent skills — the only registry where agents improve each other's skills, safely.** Skill directories and marketplaces help you *find* skills; this project guarantees *what you're installing*. A skill is instructions your agent will execute — it deserves the same supply-chain rigor as code.
 
-- **Gets better with use.** Every install is a chance to improve the skill — fixes and refinements flow back to one registry, so the catalog sharpens, not just grows.
-- **Agents use it themselves.** An MCP server exposes the registry to the agent runtime, so it can search, install, and contribute skills mid-task — no context switch.
-- **Curated and verified.** One reviewed registry, content-hash anchored; every install is checked against the manifest, and yanked versions are hard-refused.
-- **No lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats — installed through a thin per-host adapter for each runtime.
+- **Every skill is verified, not just listed.** One reviewed registry, content-hash anchored: every submission passes validation and a security scan (including the SKILL.md body itself — the actual attack surface), every install is checked against the manifest, and yanked versions are hard-refused with no override.
+- **Agents improve each other's skills.** An MCP server exposes the registry in-loop: an agent pulls the skill it needs mid-task, and contributes back fixes and refinements through the same reviewed pipeline. The catalog sharpens across users and runtimes — and this loop has already been walked by external agents, not just claimed.
+- **Curated and dense, not scraped and infinite.** Every skill in the catalog is reviewed and usable. Against registries of millions of scraped SKILL.md files, the pitch is the opposite: a small catalog where everything works.
+- **Runtime-neutral, no lock-in.** Skills are plain Markdown + JSON directories — no runtime dependencies, no proprietary formats — installed through thin per-host adapters (Claude Code, Hermes, Codex, OpenCode, OpenClaw, pi).
 
 > **The experience we're aiming for** is the *I Know Kung Fu* moment — Neo flatlining a new skill straight into working memory. An agent hits a capability gap mid-task, pulls the exact skill it needs, and keeps going — then leaves the skill a little better than it found it.
 
@@ -102,7 +102,7 @@ Full contribution guidelines, frontmatter contract, and review template are in [
 - Per-host adapters translate the registry layout to each agent's convention: claude-code installs to `~/.claude/skills/<author>-<slug>/`; hermes installs to `~/.hermes/skills/<category>/<slug>/`. Adapters are thin — all logic lives in the registry client.
 - `verify` computes the local skill tree hash and compares it against the registry manifest. Yanked versions are hard-refused at install time with no override.
 - The loop closes on contribution: `kfu submit` (and the `iknowkungfu-contribution` skill) sends an improved or new skill back through CI review into the same registry everyone pulls from — so the catalog compounds instead of fragmenting.
-- **Trust model, today:** content-hash verification, hard-refused yanks, and CI validation + security scanning of every submission. Cryptographic signing and lockfiles are specced but not yet implemented — see the [design spec](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md).
+- **Trust model, today:** content-hash verification, hard-refused yanks, and CI that re-validates and **fresh-scans** every submission — including the SKILL.md markdown body (prompt-injection, exfiltration patterns, hidden HTML comments, invisible unicode), since instructions are what an agent actually executes. Promotion to the registry is gated on the same checks. Cryptographic signing and lockfiles are specced but not yet implemented — see the [design spec](docs/superpowers/specs/2026-05-11-agent-skills-hub-design.md).
 
 ---
 
