@@ -80,8 +80,8 @@ gh run list --limit 2                      # expect CI + On-merge green
 
 ## Open questions for Samuel at session-12 start
 
-1. **Final call on the repositioning** ("verified supply chain" lead) — the README/post rewrite is gated on this.
+1. ~~Final call on the repositioning~~ — **DECIDED and EXECUTED same session** (Samuel confirmed 2026-07-17): README lead, AGENTS.md intro, PyPI description, and the soft-launch post (v2) now lead with "the verified supply chain for agent skills"; commit `f0e679f`. Plan step 3 is done — the sequence now starts at step 4 (Samuel posts).
 2. Has the contributor updated **PR #6**? If yes → review + merge + step 2 invitation.
-3. Greenlight timing for the **soft-launch post** once the rewrite is done.
+3. **Soft-launch post**: rewritten and ready in `docs/launch/` — awaiting only Samuel's final read and posting to the Hermes Discord.
 
 Naming rule, applies everywhere: the agent is "Hermes Agent", never Milo/MILO. Always treat code as ground truth and reconcile docs to it if they disagree.
