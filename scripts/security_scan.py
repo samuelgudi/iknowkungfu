@@ -23,7 +23,7 @@ LANG_BY_EXT = {
 
 
 def load_rules() -> list[dict]:
-    with open(RULES_FILE) as f:
+    with open(RULES_FILE, encoding="utf-8") as f:
         data = yaml.safe_load(f)
     rules = data["rules"]
     for r in rules:
@@ -93,10 +93,25 @@ def scan_skill_dir(skill_dir: Path, rules: list[dict]) -> list[dict]:
             if f.is_file():
                 rel = str(f.relative_to(relbase)).replace("\\", "/")
                 findings.extend(scan_file(f, rules, rel))
+
+    # Markdown is the primary attack surface of an instructions registry:
+    # SKILL.md (and any references/*.md) is loaded verbatim into an agent's
+    # context, so it gets pattern-scanned too.
+    for f in skill_dir.rglob("*.md"):
+        if not f.is_file():
+            continue
+        parts = f.relative_to(skill_dir).parts
+        if parts and parts[0] in ("scripts", "templates"):
+            continue  # already scanned above
+        rel = str(f.relative_to(relbase)).replace("\\", "/")
+        findings.extend(scan_file(f, rules, rel))
     return findings
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Rule messages are UTF-8; Windows consoles default to a legacy codepage.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser()
     p.add_argument("target", nargs="?")
     p.add_argument("--all", action="store_true")

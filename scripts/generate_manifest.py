@@ -143,9 +143,18 @@ def build_skill_entry(repo: Path, skill_dir: Path, status: str) -> dict:
         for f in skill_dir.rglob("*") if f.is_file()
     )
     has_scripts = (skill_dir / "scripts").is_dir()
-    # Derive skill id from directory path: <author_dir>/<slug_dir>
+    # Derive skill id from directory path: <author_dir>/<slug_dir>.
+    # Enforce the slug grammar here too (same regex as validate.py) — the id
+    # flows into every client's install-path computation, so a malformed
+    # directory name must never be baked into registry.json.
     author_name = skill_dir.parent.name
     slug_name = skill_dir.name
+    slug_re = re.compile(r"^[a-z][a-z0-9-]{0,38}[a-z0-9]$")
+    if not slug_re.match(author_name) or not slug_re.match(slug_name):
+        raise SystemExit(
+            f"ERROR: directory {skill_dir} does not match the <author>/<slug> "
+            f"grammar (^[a-z][a-z0-9-]{{0,38}}[a-z0-9]$ per component); refusing to manifest it"
+        )
     skill_id = f"{author_name}/{slug_name}"
     versions = get_skill_versions(repo, skill_dir) or {
         meta["version"]: {

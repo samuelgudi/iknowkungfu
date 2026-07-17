@@ -195,3 +195,15 @@ def test_origin_block_passes_through(tmp_path):
     # The generated manifest, origin block included, must still be schema-valid.
     schema = json.loads((ROOT / "scripts" / "schema.json").read_text())
     jsonschema.validate(instance=reg, schema=schema)
+
+
+def test_malformed_directory_name_refused(tmp_path):
+    """A skill dir whose name violates the slug grammar must never be manifested."""
+    repo = setup_test_repo(tmp_path)
+    bad = repo / "skills" / "test-author" / "evil..name"
+    shutil.copytree(ROOT / "tests/fixtures/good/instructions-only", bad)
+    subprocess.run(["git", "add", "-A"], cwd=repo, check=True, capture_output=True)
+    subprocess.run(["git", "commit", "-m", "add bad dir"], cwd=repo, check=True, capture_output=True)
+    result = run_gen(repo)
+    assert result.returncode != 0
+    assert "grammar" in (result.stdout + result.stderr)

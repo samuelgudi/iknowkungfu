@@ -4,6 +4,7 @@ from __future__ import annotations
 import abc
 import hashlib
 import json
+import re
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -12,6 +13,28 @@ from pathlib import Path
 
 
 MARKER_FILENAME = ".iknowkungfu-marker.json"
+
+# Same grammar as scripts/validate.py ID_REGEX. Enforced before any path is
+# built from a skill id — the components become directory names, so anything
+# outside this grammar (e.g. "a/../../x") is a path-traversal attempt.
+SKILL_ID_REGEX = re.compile(
+    r"^[a-z][a-z0-9-]{0,38}[a-z0-9]/[a-z][a-z0-9-]{0,38}[a-z0-9]$"
+)
+
+
+def split_skill_id(skill_id: str) -> tuple[str, str]:
+    """Validate '<author>/<slug>' against the registry grammar and split it.
+
+    Raises ValueError on any id that fails the grammar. Every adapter MUST
+    derive filesystem paths through this helper, never via a raw split.
+    """
+    if not SKILL_ID_REGEX.match(skill_id or ""):
+        raise ValueError(
+            f"invalid skill id {skill_id!r} — expected <author>/<slug> "
+            f"matching the registry grammar"
+        )
+    author, slug = skill_id.split("/", 1)
+    return author, slug
 
 # File extensions and bare names we treat as text — these get CRLF->LF
 # normalisation before hashing so a Windows checkout (autocrlf=true) produces
@@ -122,15 +145,50 @@ def compute_dir_content_hash(directory: Path) -> str:
 
 
 def atomic_install(src_dir: Path, target: Path) -> list[str]:
-    """Stage src into temp; rename into target; return list of written files (relative)."""
+    """Stage src into temp; swap into target; return list of written files (relative).
+
+    On reinstall the old tree is moved aside first, then the staged tree moves
+    in, then the old tree is deleted — so an interruption anywhere leaves either
+    the old install or the new one on disk, never a deleted target with nothing
+    in its place (delete-then-move had exactly that window)."""
     target.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=target.parent) as tmp:
         staging = Path(tmp) / "staged"
         shutil.copytree(src_dir, staging)
+        old = Path(tmp) / "replaced"
         if target.exists():
-            shutil.rmtree(target)
-        shutil.move(str(staging), str(target))
+            shutil.move(str(target), str(old))
+        try:
+            shutil.move(str(staging), str(target))
+        except BaseException:
+            # Roll the previous install back into place before propagating.
+            if old.exists() and not target.exists():
+                shutil.move(str(old), str(target))
+            raise
     return sorted(str(f.relative_to(target)).replace("\\", "/") for f in target.rglob("*") if f.is_file())
+
+
+def checked_uninstall(target: Path, skill_id: str) -> UninstallResult:
+    """Shared uninstall guard: only remove a directory that carries a marker
+    whose id matches the requested skill_id. The marker-presence check alone
+    is not enough — a crafted id could resolve to a *different* managed
+    directory, and rmtree must never fire on a directory the caller didn't
+    actually name."""
+    if not target.exists():
+        return UninstallResult(success=False, target=target, error="not installed")
+    marker = read_marker(target)
+    if marker is None:
+        return UninstallResult(
+            success=False, target=target,
+            error="no marker — refusing to remove user-authored skill",
+        )
+    if marker.get("id") != skill_id:
+        return UninstallResult(
+            success=False, target=target,
+            error=f"marker belongs to {marker.get('id')!r}, not {skill_id!r} — refusing to remove",
+        )
+    shutil.rmtree(target)
+    return UninstallResult(success=True, target=target)
 
 
 class Adapter(abc.ABC):

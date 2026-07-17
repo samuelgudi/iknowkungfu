@@ -8,6 +8,7 @@ from pathlib import Path
 from adapters._base import (
     Adapter, InstallResult, UninstallResult, Installed, VerifyResult,
     write_marker, read_marker, atomic_install, compute_dir_content_hash,
+    split_skill_id,
 )
 
 
@@ -54,7 +55,7 @@ class HermesAdapter(Adapter):
         return (Path.home() / ".hermes").exists()
 
     def target_dir(self, skill_id: str, category: str, *, scope: str = "user") -> Path:
-        _, slug = skill_id.split("/", 1)
+        _, slug = split_skill_id(skill_id)
         return Path.home() / ".hermes/skills" / category / slug
 
     def install(self, src_dir: Path, skill_id: str, version: str, meta: dict, opts: dict) -> InstallResult:
@@ -91,7 +92,7 @@ class HermesAdapter(Adapter):
         skills_dir = Path.home() / ".hermes/skills"
         if not skills_dir.exists():
             return UninstallResult(success=False, target=skills_dir, error="hermes skills dir not present")
-        _, slug = skill_id.split("/", 1)
+        _, slug = split_skill_id(skill_id)
         for cat in skills_dir.iterdir():
             t = cat / slug
             if t.exists() and read_marker(t):
@@ -117,7 +118,7 @@ class HermesAdapter(Adapter):
 
     def verify(self, skill_id: str, registry_hash: str, yanked: bool, yank_reason: str | None) -> VerifyResult:
         skills_dir = Path.home() / ".hermes/skills"
-        _, slug = skill_id.split("/", 1)
+        _, slug = split_skill_id(skill_id)
         target = None
         for cat in skills_dir.iterdir() if skills_dir.exists() else []:
             t = cat / slug

@@ -66,6 +66,15 @@ jobs:
             fi
             author=$(basename "$(dirname "$src")")
             slug=$(basename "$src")
+            # Last-line-of-defense gate: validate + scan the skill tree before
+            # it is moved into skills/ and pushed. A PR gate can be bypassed
+            # (force-merge, direct push); promotion must never be.
+            if ! echo "$author/$slug" | grep -qE '^[a-z][a-z0-9-]{0,38}[a-z0-9]/[a-z][a-z0-9-]{0,38}[a-z0-9]$'; then
+              echo "ERROR: $author/$slug does not match the id grammar — aborting promotion" >&2
+              exit 1
+            fi
+            python scripts/validate.py "$src" || { echo "ERROR: validate.py rejected $src — aborting promotion" >&2; exit 1; }
+            python scripts/security_scan.py "$src" || { echo "ERROR: security_scan.py blocked $src — aborting promotion" >&2; exit 1; }
             dst="skills/$author/$slug"
             mkdir -p "skills/$author"
             mv "$src" "$dst"

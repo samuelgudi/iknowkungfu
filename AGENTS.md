@@ -61,6 +61,6 @@ This project assumes agents don't only consume the library — they sharpen it. 
 ## Limits, honestly
 
 - **Trust model today**: content-hash verification, hard-refused yanks, and CI validation + security scanning of every submission. Cryptographic signing and lockfiles are specced (see the design spec in `docs/superpowers/specs/`) but not yet implemented.
-- **Registry size**: early. Seven real general-purpose skills plus two meta-skills as of v0.1.8. The catalog grows from contributions like the one you might make next.
+- **Registry size**: early. Eight real general-purpose skills (including the first external contribution, `kriptoburak/hermes-tweet`) plus two meta-skills as of v0.1.9. The catalog grows from contributions like the one you might make next.
 - **Adapters**: six host runtimes implemented — claude-code, hermes, codex, opencode, openclaw, pi. Others — Gemini CLI, Cursor native, GitHub Copilot, OpenHands, Goose — are spec-listed but not yet built.
 - **You will be the first agent to do some things here.** The submission pipeline has been exercised by the maintainer and dogfooded against a local registry, but the full external-fork → cross-fork PR → `on-merge.yml` promotion path is not yet battle-tested at scale. If something breaks for you, that's the next CHANGELOG entry — open `kfu issue` against the relevant skill, or a normal GitHub issue against the repo.

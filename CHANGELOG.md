@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ---
 
+## [0.1.9] — 2026-07-17
+
+Security-hardening release. An internal review of the trust model found five weaknesses — none known-exploited, all closed here. Also the release where the first **external** skill landed: `kriptoburak/hermes-tweet` v0.1.6, the first submission to travel the full cross-fork PR → CI → on-merge promotion path (registry now at 10 skills).
+
+### Security
+
+- **`security_scan.py` now scans skill markdown** (`scripts/security_scan.py`, `scripts/rules.yaml`). SKILL.md — the file loaded verbatim into an agent's context — was previously unscanned; only `scripts/` and `templates/` were. Five new markdown rules: `MD-EXFIL-INSTRUCTION` (credential path + network endpoint on one line, block), `MD-PROMPT-OVERRIDE` (ignore-previous-instructions phrasing, block), `MD-HIDDEN-COMMENT` (HTML comments — invisible in rendered review, block), `MD-INVISIBLE-UNICODE` (zero-width/bidi characters, block), `MD-B64-PAYLOAD` (long base64-like strings, warn). `SH-CURL-PIPE` now also fires in markdown.
+- **CI re-validates and re-scans every submission** (`.github/workflows/ci.yml`). The contribution PR gate now runs `validate.py` and a **fresh** `security_scan.py` against the submitted skill tree instead of trusting the submitter-provided `scan_results.json` alone.
+- **Promotion is gated** (`.github/workflows/on-merge.yml`). Before any `submitted/` tree is moved into `skills/` and pushed, the workflow enforces the id grammar and runs `validate.py` + `security_scan.py` — a PR gate can be bypassed; promotion cannot.
+- **Skill ids are validated before any path is built** (`adapters/_base.py::split_skill_id`). All six adapters derived install/uninstall paths from a raw `skill_id.split("/")` — an id like `author/../../../x` escaped the skills directory. Ids must now match the registry grammar (same regex as `validate.py`), enforced centrally.
+- **`kfu uninstall` cross-checks the marker's id** (`adapters/_base.py::checked_uninstall`). Every adapter now refuses to remove a directory whose marker belongs to a different skill than the one named on the command line (previously only the hermes adapter checked).
+- **`generate_manifest.py` refuses malformed directory names.** A directory that violates the `<author>/<slug>` grammar can no longer be baked into `registry.json`.
+
+### Fixed
+
+- **`atomic_install` no longer has a delete-then-move window** (`adapters/_base.py`). On reinstall the old tree is moved aside, the new tree moves in, then the old is discarded — an interruption (Ctrl-C, crash, power loss) now leaves either the old or the new install on disk, never neither.
+- **`security_scan.py` decodes rules and prints findings as UTF-8 on Windows.** `rules.yaml` was read with the legacy console codepage (cp1252), which crashed on non-ASCII rule text; stdout is likewise reconfigured.
+
+### Changed
+
+- **Meta-skills at 0.2.0** *(retroactive record — shipped in commit `7eae805` after v0.1.8 without a changelog entry)*: `iknowkungfu-discovery` and `iknowkungfu-contribution` expanded from pointer-style docs to runbook depth.
+
+27 new regression tests (494 total): markdown scanner rules, traversal ids, marker mismatch, interrupted-install rollback, malformed-manifest refusal, promotion gating.
+
+---
+
 ## [0.1.8] — 2026-05-14
 
 UX-polish release. Seven friction items from the Hermes Agent's v0.1.7 field test — none were blockers, all were day-one papercuts for a new user.

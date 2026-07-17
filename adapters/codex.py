@@ -27,7 +27,8 @@ import yaml
 
 from adapters._base import (
     Adapter, InstallResult, UninstallResult, Installed, VerifyResult,
-    write_marker, read_marker, atomic_install,
+    write_marker, read_marker, atomic_install, checked_uninstall,
+    split_skill_id,
 )
 
 
@@ -52,7 +53,7 @@ def _rewrite_name_in_frontmatter(skill_md: Path, new_name: str) -> None:
 
 
 def _flat(skill_id: str) -> str:
-    author, slug = skill_id.split("/", 1)
+    author, slug = split_skill_id(skill_id)
     return f"{author}-{slug}"
 
 
@@ -95,15 +96,7 @@ class CodexAdapter(Adapter):
 
     def uninstall(self, skill_id: str) -> UninstallResult:
         target = self.target_dir(skill_id, category="meta")
-        if not target.exists():
-            return UninstallResult(success=False, target=target, error="not installed")
-        if read_marker(target) is None:
-            return UninstallResult(
-                success=False, target=target,
-                error="no marker — refusing to remove user-authored skill",
-            )
-        shutil.rmtree(target)
-        return UninstallResult(success=True, target=target)
+        return checked_uninstall(target, skill_id)
 
     def list_installed(self) -> list[Installed]:
         skills_dir = Path.home() / CODEX_SKILLS_DIR_NAME

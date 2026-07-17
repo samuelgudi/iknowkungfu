@@ -58,3 +58,17 @@ def test_promotion_step_does_not_commit():
         "The 'Promote each submitted dir' step contains `git commit`, which would "
         "make the manifest regen run before a commit exists, producing empty sha."
     )
+
+
+def test_promotion_gated_on_validate_and_scan():
+    """Promotion must re-validate and re-scan the skill tree before any mv."""
+    import yaml
+    spec = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    steps = spec["jobs"]["promote"]["steps"]
+    promote = next(s for s in steps if s.get("name") == "Promote each submitted dir")
+    run = promote["run"]
+    assert "scripts/validate.py" in run
+    assert "scripts/security_scan.py" in run
+    # The grammar check and both gates must appear before the mv.
+    assert run.index("validate.py") < run.index('mv "$src"')
+    assert run.index("security_scan.py") < run.index('mv "$src"')

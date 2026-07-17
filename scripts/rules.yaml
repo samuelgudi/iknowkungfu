@@ -35,7 +35,7 @@ rules:
   - id: SH-CURL-PIPE
     severity: block
     pattern: '(curl|wget)\s+[^|]*\|\s*(bash|sh|zsh)'
-    languages: [python, bash, javascript]
+    languages: [python, bash, javascript, markdown]
     message: "Piping remote content into a shell interpreter is unsafe"
     fix_hint: "Download, verify sha256, then execute. Or declare the tool in requires.commands."
 
@@ -60,6 +60,45 @@ rules:
     languages: [python, bash, javascript]
     message: "Package-manager install in scripts/ enables post-merge code swap (event-stream / dependency-confusion vector)"
     fix_hint: "Declare the dependency in meta.json.requires.commands; the user/host installs it before invocation."
+
+  # ---- Markdown / SKILL.md rules ----
+  # SKILL.md is loaded verbatim into an agent's context window; these rules
+  # target instruction-level attacks that never touch scripts/ or templates/.
+
+  - id: MD-EXFIL-INSTRUCTION
+    severity: block
+    pattern: '((curl|wget|https?://)[^\n]*(~[/\\]\.ssh|id_rsa|id_ed25519|[/\\]\.aws|[/\\]\.gnupg|/etc/shadow|\.netrc|\.npmrc)|(~[/\\]\.ssh|id_rsa|id_ed25519|[/\\]\.aws|[/\\]\.gnupg|/etc/shadow|\.netrc|\.npmrc)[^\n]*(curl|wget|https?://))'
+    languages: [markdown]
+    message: "Instruction pairs a credential/key path with a network endpoint on the same line — exfiltration pattern"
+    fix_hint: "A skill body must never direct an agent to move credential material toward a network endpoint."
+
+  - id: MD-PROMPT-OVERRIDE
+    severity: block
+    pattern: '(?i)\b(ignore|disregard|forget|override)\s+(all\s+|any\s+)?(previous|prior|earlier|preceding|system|above)\s+(instructions?|prompts?|rules?|guidance)'
+    languages: [markdown]
+    message: "Prompt-override phrasing in skill markdown — injection attempt against the host agent"
+    fix_hint: "Remove the override phrasing; a skill extends the host's instructions, it does not replace them."
+
+  - id: MD-HIDDEN-COMMENT
+    severity: block
+    pattern: '<!--'
+    languages: [markdown]
+    message: "HTML comment in skill markdown — invisible in rendered review view but read verbatim by the agent"
+    fix_hint: "Skill markdown must be fully visible when rendered. Move the content into visible prose or delete it."
+
+  - id: MD-INVISIBLE-UNICODE
+    severity: block
+    pattern: '[​-‏  ‪-‮⁠-⁤﻿]'
+    languages: [markdown]
+    message: "Zero-width or bidi-control character in skill markdown — hidden-instruction smuggling vector"
+    fix_hint: "Strip invisible unicode; skill text must contain only visible characters."
+
+  - id: MD-B64-PAYLOAD
+    severity: warn
+    pattern: '[A-Za-z0-9+/=]{80,}'
+    languages: [markdown]
+    message: "Long base64-like string in skill markdown — possible obfuscated payload"
+    fix_hint: "Inline the decoded content, or justify the encoding in REVIEW.md."
 
   # ---- Soft warnings (proceed, recorded in REVIEW.md) ----
 

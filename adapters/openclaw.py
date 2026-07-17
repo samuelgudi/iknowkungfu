@@ -32,7 +32,7 @@ import yaml
 
 from adapters._base import (
     Adapter, InstallResult, UninstallResult, Installed, VerifyResult,
-    write_marker, read_marker, atomic_install,
+    write_marker, read_marker, atomic_install, checked_uninstall,
 )
 from adapters.codex import _flat
 
@@ -97,15 +97,7 @@ class OpenClawAdapter(Adapter):
 
     def uninstall(self, skill_id: str) -> UninstallResult:
         target = self.target_dir(skill_id, category="meta")
-        if not target.exists():
-            return UninstallResult(success=False, target=target, error="not installed")
-        if read_marker(target) is None:
-            return UninstallResult(
-                success=False, target=target,
-                error="no marker — refusing to remove user-authored skill",
-            )
-        shutil.rmtree(target)
-        return UninstallResult(success=True, target=target)
+        return checked_uninstall(target, skill_id)
 
     def list_installed(self) -> list[Installed]:
         skills_dir = Path.home() / ".openclaw" / "skills"

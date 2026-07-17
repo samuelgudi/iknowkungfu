@@ -97,6 +97,33 @@ jobs:
           fi
           echo "submitted_dir=${dirs[0]}" >> "$GITHUB_OUTPUT"
 
+      - name: Install
+        if: steps.detect.outputs.submitted_dir != ''
+        run: pip install -e .[dev]
+
+      # Run the registry's own validation + scan against the submission —
+      # never trust the submitter-provided scan_results.json alone.
+      - name: Validate submission (validate.py)
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          skill_dir=$(find "$submitted" -mindepth 2 -maxdepth 2 -type d -print -quit)
+          if [ -z "$skill_dir" ]; then
+            echo "ERROR: no <author>/<slug>/ subtree under $submitted" >&2; exit 1
+          fi
+          python scripts/validate.py "$skill_dir"
+
+      - name: Fresh security scan of submission
+        if: steps.detect.outputs.submitted_dir != ''
+        shell: bash
+        run: |
+          set -e
+          submitted="${{ steps.detect.outputs.submitted_dir }}"
+          skill_dir=$(find "$submitted" -mindepth 2 -maxdepth 2 -type d -print -quit)
+          python scripts/security_scan.py "$skill_dir"
+
       - name: REVIEW.md present + headings
         if: steps.detect.outputs.submitted_dir != ''
         shell: bash

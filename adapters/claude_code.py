@@ -7,7 +7,7 @@ from pathlib import Path
 from adapters._base import (
     Adapter, InstallResult, UninstallResult, Installed, VerifyResult,
     write_marker, read_marker, atomic_install, compute_dir_content_hash,
-    MARKER_FILENAME,
+    MARKER_FILENAME, checked_uninstall, split_skill_id,
 )
 
 
@@ -18,7 +18,7 @@ class ClaudeCodeAdapter(Adapter):
         return (Path.home() / ".claude").exists()
 
     def target_dir(self, skill_id: str, category: str, *, scope: str = "user") -> Path:
-        author, slug = skill_id.split("/", 1)
+        author, slug = split_skill_id(skill_id)
         flat = f"{author}-{slug}"
         if scope == "project":
             return Path.cwd() / ".claude/skills" / flat
@@ -48,14 +48,9 @@ class ClaudeCodeAdapter(Adapter):
             return InstallResult(success=False, target=target, files_written=[], error=str(e))
 
     def uninstall(self, skill_id: str) -> UninstallResult:
-        author, slug = skill_id.split("/", 1)
+        author, slug = split_skill_id(skill_id)
         target = Path.home() / ".claude/skills" / f"{author}-{slug}"
-        if not target.exists():
-            return UninstallResult(success=False, target=target, error="not installed")
-        if read_marker(target) is None:
-            return UninstallResult(success=False, target=target, error="no marker — refusing to remove user-authored skill")
-        shutil.rmtree(target)
-        return UninstallResult(success=True, target=target)
+        return checked_uninstall(target, skill_id)
 
     def list_installed(self) -> list[Installed]:
         skills_dir = Path.home() / ".claude/skills"
@@ -69,7 +64,7 @@ class ClaudeCodeAdapter(Adapter):
         return result
 
     def verify(self, skill_id: str, registry_hash: str, yanked: bool, yank_reason: str | None) -> VerifyResult:
-        author, slug = skill_id.split("/", 1)
+        author, slug = split_skill_id(skill_id)
         target = Path.home() / ".claude/skills" / f"{author}-{slug}"
         if not target.exists():
             return VerifyResult(status="not_installed", message=f"{skill_id} not installed in claude-code")

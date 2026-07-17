@@ -4,11 +4,17 @@ from __future__ import annotations
 import json
 import sys
 
+from adapters._base import split_skill_id
 from agent_skills.cache import load_registry
 from agent_skills.detect import detect_host, get_adapter
 
 
 def run(args) -> int:
+    try:
+        split_skill_id(args.id)
+    except ValueError as e:
+        print(f"Uninstall failed: {e}", file=sys.stderr)
+        return 1
     agent = detect_host(override=args.agent)
     adapter = get_adapter(agent)
 
