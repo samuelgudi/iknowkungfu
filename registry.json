@@ -1,7 +1,75 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-05-15T06:58:43Z",
+  "generated_at": "2026-07-17T10:03:26Z",
   "skills": [
+    {
+      "id": "kriptoburak/hermes-tweet",
+      "name": "hermes-tweet",
+      "description": "Use Xquik from Hermes Agent for X search, posting, replies, likes, retweets, follows, DMs, monitors, extraction jobs, draws, media, and trends.",
+      "version": "0.1.6",
+      "status": "active",
+      "author": {
+        "name": "Burak Bayir",
+        "github_login": "kriptoburak",
+        "github_id": 8755484
+      },
+      "category": "comms",
+      "tags": [
+        "hermes-agent",
+        "hermes-plugin",
+        "xquik",
+        "twitter",
+        "x",
+        "x-twitter",
+        "social-media",
+        "automation"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "agent_compat": [
+        "hermes",
+        "codex",
+        "openclaw"
+      ],
+      "requires": {
+        "env_vars": [
+          "XQUIK_API_KEY"
+        ],
+        "commands": []
+      },
+      "has_scripts": false,
+      "license": "MIT",
+      "install": {
+        "hermes": {},
+        "codex": {},
+        "openclaw": {}
+      },
+      "source": {
+        "path": "skills/kriptoburak/hermes-tweet",
+        "content_hash": "sha256:643ddfe589ae6d7feeb838b8f67c4d7475dfe8014417016bd958e665741b0f4e",
+        "files": [
+          "SKILL.md",
+          "meta.json"
+        ]
+      },
+      "versions": {
+        "0.1.6": {
+          "sha": "e6255d6b28fb53865ddc088a9db24bb818f00b02",
+          "released": "2026-07-17T10:03:26Z"
+        }
+      },
+      "provenance": {
+        "merged_at": "2026-07-17T10:03:26Z",
+        "reviewed_by": "samuelgudi"
+      },
+      "composes": [],
+      "extends": null,
+      "supersedes": [],
+      "superseded_by": null
+    },
     {
       "id": "samuelgudi/adversarial-test-design",
       "name": "adversarial-test-design",
