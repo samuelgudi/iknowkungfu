@@ -1,0 +1,48 @@
+{
+  "id": "kriptoburak/hermes-tweet",
+  "version": "0.1.6",
+  "status": "active",
+  "author": {
+    "name": "Burak Bayir",
+    "github_login": "kriptoburak",
+    "github_id": 8755484
+  },
+  "category": "comms",
+  "tags": [
+    "hermes-agent",
+    "hermes-plugin",
+    "xquik",
+    "twitter",
+    "x",
+    "x-twitter",
+    "social-media",
+    "automation"
+  ],
+  "platforms": [
+    "linux",
+    "macos",
+    "windows"
+  ],
+  "agent_compat": [
+    "hermes",
+    "codex",
+    "openclaw"
+  ],
+  "requires": {
+    "env_vars": [
+      "XQUIK_API_KEY"
+    ],
+    "commands": []
+  },
+  "license": "MIT",
+  "install": {
+    "hermes": {},
+    "codex": {},
+    "openclaw": {}
+  },
+  "composes": [],
+  "extends": null,
+  "supersedes": [],
+  "superseded_by": null,
+  "related_skills": []
+}
